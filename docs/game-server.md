@@ -79,7 +79,7 @@ server/
 
 ## API (v1)
 
-Base path `/api/v1`. JSON in/out. Auth via `Authorization: Bearer <token>` for everything except `GET /health`, the auth endpoints (`POST /auth/steam`, `POST /auth/itch`, `POST /auth/google`), and `GET /oauth/callback` (the OAuth relay page used by the Android login flows — see [android-multiplayer.md](android-multiplayer.md)).
+Base path `/api/v1`. JSON in/out. Auth via `Authorization: Bearer <token>` for everything except `GET /health`, the auth endpoints (`POST /auth/steam`, `POST /auth/itch`, `POST /auth/google`, `POST /auth/guest`), and `GET /oauth/callback` (the OAuth relay page used by the Android login flows — see [android-multiplayer.md](android-multiplayer.md)).
 
 | Method | Path | Body → Response | Notes |
 |---|---|---|---|
@@ -87,9 +87,10 @@ Base path `/api/v1`. JSON in/out. Auth via `Authorization: Bearer <token>` for e
 | POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron) — see [auth.md](auth.md) |
 | POST | `/auth/itch` | `{ token }` → `{ player, token }` | itch.io OAuth token login (web build) — validates via `api.itch.io/profile`; see [itchio-auth.md](itchio-auth.md) |
 | POST | `/auth/google` | `{ idToken }` → `{ player, token }` | Google OIDC ID-token login (Android build) — validates via Google tokeninfo with an `aud` check; see [android-multiplayer.md](android-multiplayer.md) |
+| POST | `/auth/guest` | `{ displayName? }` → `{ player, token }` | guest play (no credential, never gated) — random `AdjectiveNounNN` handle unless a name is supplied; see [auth.md](auth.md) |
+| POST | `/players/me/convert` | `{ provider, token? / idToken? }` → `{ player }` | guest → itch/google link (authenticated); 409 when the provider account is already linked; see [multiplayer-lobby.md](multiplayer-lobby.md) |
 | GET | `/players/me` | → `PlayerProfile` | authenticated lobby profile — identity, rating, career + season victory counts, active-session flag; see [multiplayer-lobby.md](multiplayer-lobby.md) |
 | GET | `/players/ranking?page=&pageSize=` | → `RankingPage` | paginated rating leaderboard (default 20/page, max 50) — entries with rank + display name, plus the viewer's own rank; see [multiplayer-lobby.md](multiplayer-lobby.md) |
-| POST | `/players` | `{ displayName? }` → `{ playerId, token }` | guest account; token returned once — **future phase**, not part of the Steam-only launch |
 | POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | creates an MP session; one **active** session per player (409 if one exists) — a finished run does **not** block a new one |
 | GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | resume/reconnect; 404 if none **or the run has finished** (finished sessions are never served) |
 | POST | `/sessions/current/actions` | `{ action: Action, clientActionId? }` → `{ session, combatState? }` | single action-dispatch endpoint; `clientActionId` gives idempotent retries; when a run ends, the terminal session arrives in this response |

@@ -1,4 +1,4 @@
-import { DEFAULT_SERVER_URL, readServerUrl } from "./authSession";
+import { DEFAULT_SERVER_URL, parseSessionPayload, readServerUrl } from "./authSession";
 
 /**
  * Unit tests for the shared auth-session helpers (docs/auth.md).
@@ -34,5 +34,25 @@ describe("readServerUrl", () => {
 	it("falls back to the default server URL for whitespace-only values", () => {
 		process.env.MANA_SERVER_URL = "   ";
 		expect(readServerUrl()).toBe(DEFAULT_SERVER_URL);
+	});
+});
+
+describe("parseSessionPayload", () => {
+	it("accepts a guest provider session", () => {
+		const session = parseSessionPayload({
+			token: "tok",
+			player: { playerId: "p1", provider: "guest", providerId: "g1", displayName: "SwiftBadger07" },
+		});
+		expect(session.player.provider).toBe("guest");
+		expect(session.player.displayName).toBe("SwiftBadger07");
+	});
+
+	it("rejects an unknown provider", () => {
+		expect(() =>
+			parseSessionPayload({
+				token: "tok",
+				player: { playerId: "p1", provider: "firebase", providerId: "f1" },
+			})
+		).toThrow(/unexpected response shape/);
 	});
 });

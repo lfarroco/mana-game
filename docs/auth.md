@@ -1,6 +1,6 @@
 # Auth — Mana Game Server
 
-**Status**: ✅ Implemented & smoke-tested (2026-08-13 code, 2026-08-20 Steam smoke test) — Phase A (repos/middleware), Phase B (Steam login), and Phase C (client wiring) are landed, the **manual Steam smoke test passed 2026-08-20** (real ticket end-to-end; local SQLite DB holds the Steam player + token — see [plan.md task 14](plan.md)), the **itch.io web-build provider landed 2026-08-20** (see [itchio-auth.md](itchio-auth.md); live-embed smoke test pending), and the **Google provider (Android + web) landed 2026-09-02** (see [android-multiplayer.md](android-multiplayer.md); live smoke pending). Deviations found during implementation: [Implementation notes & deviations](#implementation-notes--deviations).
+**Status**: ✅ Implemented & smoke-tested (2026-08-13 code, 2026-08-20 Steam smoke test) — Phase A (repos/middleware), Phase B (Steam login), and Phase C (client wiring) are landed, the **manual Steam smoke test passed 2026-08-20** (real ticket end-to-end; local SQLite DB holds the Steam player + token — see [plan.md task 14](plan.md)), the **itch.io web-build provider landed 2026-08-20** (see [itchio-auth.md](itchio-auth.md); live-embed smoke test pending), and the **Google provider (Android + web) landed 2026-09-02** (see [android-multiplayer.md](android-multiplayer.md); live smoke pending). Guest play + itch/Google conversion **landed 2026-09-05** (see [Guest accounts](#guest-accounts--implemented-2026-09-05)). Deviations found during implementation: [Implementation notes & deviations](#implementation-notes--deviations).
 **Created**: 2026-08-13
 **Scope**: `server/` (Node multiplayer backend) + the Electron/Steam, browser/itch.io, and Android/Google client sides in `phaser/`.
 **Related**: [game-server.md](game-server.md) (backend plan), [code-quality-cleanup.md](code-quality-cleanup.md) (quarantined Supabase code), [itchio-auth.md](itchio-auth.md) (itch.io web-build auth — ✅ implemented 2026-08-20), [android-multiplayer.md](android-multiplayer.md) (Google/Android auth + login hub — ✅ implemented 2026-09-02).
@@ -12,7 +12,7 @@ Design the authentication for the multiplayer server. Requirements from the 2026
 - **Steam players auto-login** — zero friction in the Electron build.
 - **Browser/itch.io players log in via itch.io OAuth** (web build) — shipped 2026-08-20 (see [itchio-auth.md](itchio-auth.md)).
 - **Android players log in via Google OAuth** — shipped 2026-09-02 (see [android-multiplayer.md](android-multiplayer.md)).
-- Guest/browser-without-itch support is a future phase.
+- Guest play (`POST /auth/guest` + itch/Google conversion) is implemented — see [Guest accounts](#guest-accounts--implemented-2026-09-05).
 - Keep the option open for Firebase/Supabase-style auth for non-Steam players later.
 
 ## Decisions
@@ -21,7 +21,7 @@ Design the authentication for the multiplayer server. Requirements from the 2026
 |---|---|---|
 | 1 | **Steam = identity proof only; the server issues its own session tokens.** | Steam's `AuthenticateUserTicket` verifies "this is Steam user X" once, per login. It provides no "logged-in user" state for your HTTP API over the lifetime of a run — the server needs its own bearer tokens for every request. |
 | 2 | **The game server DB is the system of record for all players** (Steam and non-Steam). | Ratings, ghosts, and active sessions are inherently per-player data that only make sense in your DB. Steam/Firebase merely prove identity; your `players` table is the source of truth. |
-| 3 | **Three enabled providers: Steam (Electron), itch.io (web), Google (Android + web).** `POST /api/v1/auth/steam`, `POST /api/v1/auth/itch`, and `POST /api/v1/auth/google` are the auth endpoints; there are **no guest accounts** yet — non-Steam, non-itch, non-Google players are a future phase. | Product decision (2026-08-13 + 2026-08-20 + 2026-09-02): Steam players are a priority, the itch.io web build needs its own login, and the Android/web builds use Google sign-in (the identity players already have). |
+| 3 | **Three enabled providers: Steam (Electron), itch.io (web), Google (Android + web).** `POST /api/v1/auth/steam`, `POST /api/v1/auth/itch`, and `POST /api/v1/auth/google` are the credentialed auth endpoints, plus `POST /api/v1/auth/guest` (credential-less guest play, never gated). | Product decision (2026-08-13 + 2026-08-20 + 2026-09-02): Steam players are a priority, the itch.io web build needs its own login, and the Android/web builds use Google sign-in (the identity players already have). |
 | 4 | **Use the Steam persona name as the display name.** | No separate naming step for Steam players; `localplayer.getName()` is available client-side (and `ISteamUser/GetPlayerSummaries` server-side if unverified names ever matter). |
 | 5 | **When non-Steam players eventually ship, use server-issued guest tokens rather than Firebase/Supabase Auth.** | Guests in localStorage fully cover continuity for an autobattler; zero deps, zero JWT verification, zero signup-abuse surface. Add a provider later behind the same abstraction if email/social/cross-device identity is ever needed. |
 
@@ -105,7 +105,7 @@ player_tokens(
 
 - Format: `crypto.randomBytes(32).toString("base64url")` — opaque, high-entropy.
 - **Only the SHA-256 hash is stored server-side**; the plaintext is returned exactly once at login/signup and persisted by the client (localStorage today; Steam Cloud if cross-device continuity is wanted later).
-- TTL: `MANA_TOKEN_TTL_DAYS` (default 30). Steam re-issues a fresh token every launch (auto-login), so expiry is mostly hygiene; guests get long-lived tokens (future phase).
+- TTL: `MANA_TOKEN_TTL_DAYS` (default 30). Steam re-issues a fresh token every launch (auto-login), so expiry is mostly hygiene; guest tokens share the same TTL (guests re-login per device; conversion preserves the player).
 
 ### Provider abstraction
 
@@ -212,13 +212,26 @@ Notes:
   is shared by Google and itch.io on both platforms — see
   android-multiplayer.md / itchio-auth.md.
 
-### Guest accounts (future phase)
+### Guest accounts — IMPLEMENTED (2026-09-05)
 
-Not needed yet — there are no guest endpoints in v1. When non-Steam, non-itch players ship, revisit this design:
+Guests play instantly with no OAuth round-trip:
 
-- `POST /api/v1/players` `{ displayName? }` → creates `players(provider='guest')`, issues a token, returns `{ playerId, displayName, token }`.
-- No "login" endpoint: the token IS the credential. The client persists it in localStorage (or the itch.io equivalent) and sends it as the Bearer token thereafter.
-- Optionally generate `Guest-1234` names when no display name is supplied.
+**Server**:
+
+1. `POST /api/v1/auth/guest` (`{ displayName? }` → `{ player, token }`) — **never gated** (no secret to protect, so no `MANA_*_ENABLED` flag; the auth-mount rate limiter still applies). Every call mints a **fresh** player (`provider='guest'`, uuid `providerId`) — guests have no credential to look up, so there is no find-or-create step. A supplied name is validated (`playerService.validateDisplayName`); otherwise the server generates a random `AdjectiveNounNN` handle (`services/guestNames.ts` — e.g. `SwiftBadger07`).
+2. The token IS the credential afterwards: the client persists it (`mana_auth_session`) and sends it as the Bearer [REDACTED] thereafter.
+3. Guests cannot rename: `PATCH /players/me` returns 403 `guest_cannot_rename` — the lobby shows CONNECT ACCOUNT instead of CHANGE NAME.
+
+**Conversion** (`POST /api/v1/players/me/convert`, bearer-authenticated, `{ provider: 'itch'|'google', token? / idToken? }` → `{ player }`):
+
+1. Only guests may convert (else 403 `not_a_guest`); the credential is verified against the provider via the same `validateToken`/`validateIdToken` used by logins, and the convert target must be enabled (else 400 `provider_not_enabled`).
+2. When the provider account already owns a player → 409 `account_already_linked` (the player should log in with that provider directly instead of converting).
+3. Otherwise `PlayerRepo.updateProvider` re-points the player at the linked identity. The **display name is kept** (the guest handle stays theirs) and the **player id never changes**, so existing Bearer [REDACTED] keep working and ratings/sessions/ghosts carry over.
+
+**Client** (`phaser/src/lib/guestAuth.ts` + `RemoteServer.convertAccount`):
+
+1. The login screen's PLAY AS GUEST calls `guestAuth.loginAsGuest()` → persists → lobby.
+2. The lobby's CONNECT ACCOUNT modal offers itch/Google; picking one acquires a raw credential via the provider's `getCredential()` (which skips the stored-session short-circuit that `loginWith*` would hit on the guest session) and POSTs it to `convertAccount`. The stored session's player is re-pointed at the linked identity and the lobby reloads through the title screen so the connect button rebuilds as the rename UI.
 
 ### Non-Steam browser players (future)
 
@@ -234,12 +247,13 @@ Updated from [game-server.md](game-server.md). Base path `/api/v1`.
 | POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron) — see [Steam auto-login](#steam-auto-login-electron) |
 | POST | `/auth/itch` | `{ token }` → `{ player, token }` | itch.io OAuth token login (web build) — see [itch.io OAuth login](#itchio-oauth-login-web-build--implemented-2026-08-20) |
 | POST | `/auth/google` | `{ idToken }` → `{ player, token }` | Google OIDC ID-token login (Android + web) — see [Google OAuth login (Android + web)](#google-oauth-login-android--web--implemented-2026-09-02) |
-| POST | `/players` | `{ displayName? }` → `{ player, token }` | guest accounts — **future phase** (see [Guest accounts](#guest-accounts-future-phase)) |
+| POST | `/auth/guest` | `{ displayName? }` → `{ player, token }` | guest play (no credential, never gated) — see [Guest accounts](#guest-accounts--implemented-2026-09-05) |
+| POST | `/players/me/convert` | `{ provider, token? / idToken? }` → `{ player }` | guest → itch/google link (authenticated) — see [Guest accounts](#guest-accounts--implemented-2026-09-05) |
 | POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | (unchanged) authenticated |
 | GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | (unchanged) authenticated; 404 once the run has finished (session lifecycle is server-owned — there is no delete endpoint) |
 | POST | `/sessions/current/actions` | `{ action, clientActionId? }` → `{ session, combatState? }` | (unchanged) authenticated |
 
-Unauthenticated: `GET /health`, `POST /auth/steam`, `POST /auth/itch`, `POST /auth/google`, `GET /oauth/callback` (the OAuth relay page). Everything else requires `Authorization: Bearer <token>`.
+Unauthenticated: `GET /health`, `POST /auth/steam`, `POST /auth/itch`, `POST /auth/google`, `POST /auth/guest`, `GET /oauth/callback` (the OAuth relay page). Everything else requires `Authorization: Bearer <token>`.
 
 ### Middleware (`server/src/http/middleware/auth.ts`)
 

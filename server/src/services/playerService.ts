@@ -17,16 +17,19 @@
  * Pure assembly over the repos — no side effects, no direct persistence.
  */
 
+import { v4 as uuid } from "uuid";
 import { ApiError } from "../errors";
 import type { SessionData } from "@game/types/session";
 import type {
   Player,
+  PlayerProvider,
   PlayerRepo,
   PlayerStatsRepo,
   RatingRepo,
   SessionRepo,
   VictoryCounts,
 } from "../persistence/repositories";
+import { generateGuestName, type GuestNameRandom } from "./guestNames";
 import { DEFAULT_PLAYER_RATING } from "./rating";
 
 /** Zeroed victory counts (used when a player has no completions). */
@@ -238,9 +241,130 @@ export async function getPlayerProfile(
 }
 
 /**
+ * Create a guest player: a credential-less account (`provider='guest'`) with
+ * a server-generated uuid provider id. Every call mints a fresh player —
+ * guests have no credential to look up, so there is no find-or-create step.
+ * A supplied display name is validated; otherwise a random `AdjectiveNounNN`
+ * handle is generated.
+ */
+export async function createGuestPlayer(
+  displayName: string | undefined,
+  deps: { playerRepo: PlayerRepo; random?: GuestNameRandom },
+): Promise<Player> {
+  const player: Player = {
+    playerId: uuid(),
+    provider: "guest",
+    providerId: uuid(),
+    displayName:
+      displayName === undefined
+        ? generateGuestName(deps.random)
+        : validateDisplayName(displayName),
+    createdAt: Date.now(),
+  };
+  return deps.playerRepo.create(player);
+}
+
+export type ConvertAccountDeps = {
+  playerRepo: PlayerRepo;
+  /**
+   * itch.io credential validator. Absent when itch auth is disabled
+   * (`MANA_ITCH_ENABLED`) — converting to itch is then rejected.
+   */
+  itch?: {
+    validateToken(token: string): Promise<{ userId: string }>;
+  };
+  /**
+   * Google credential validator. Absent when Google auth is disabled —
+   * converting to google is then rejected.
+   */
+  google?: {
+    validateIdToken(idToken: string): Promise<{ googleId: string }>;
+  };
+};
+
+/**
+ * Convert a guest account into a regular one by linking an itch.io or Google
+ * identity. The credential is verified against the provider; when that
+ * provider account already owns a player the link is rejected (409
+ * `account_already_linked` — the player should log in with that provider
+ * instead of converting). The guest's display name is kept. Existing Bearer
+ * tokens keep working — they point at the player id, which never changes.
+ */
+export async function convertGuestAccount(
+  playerId: string,
+  input: { provider: "itch" | "google"; token?: string; idToken?: string },
+  deps: ConvertAccountDeps,
+): Promise<Player> {
+  const player = await deps.playerRepo.findById(playerId);
+  if (!player) {
+    throw new ApiError(
+      404,
+      "player_not_found",
+      `No player with id '${playerId}'`,
+    );
+  }
+  if (player.provider !== "guest") {
+    throw new ApiError(
+      403,
+      "not_a_guest",
+      "Only guest accounts can be converted — this account is already linked",
+    );
+  }
+
+  const provider: PlayerProvider = input.provider;
+  let providerId: string;
+  if (provider === "itch") {
+    if (!deps.itch) {
+      throw new ApiError(
+        400,
+        "provider_not_enabled",
+        "itch.io auth is not enabled on this server",
+      );
+    }
+    providerId = (await deps.itch.validateToken(input.token ?? "")).userId;
+  } else {
+    if (!deps.google) {
+      throw new ApiError(
+        400,
+        "provider_not_enabled",
+        "Google auth is not enabled on this server",
+      );
+    }
+    providerId = (await deps.google.validateIdToken(input.idToken ?? ""))
+      .googleId;
+  }
+
+  const existing = await deps.playerRepo.findByProvider(provider, providerId);
+  if (existing) {
+    throw new ApiError(
+      409,
+      "account_already_linked",
+      "This account is already linked to another player — log in with it directly instead",
+    );
+  }
+
+  const updated = await deps.playerRepo.updateProvider(
+    playerId,
+    provider,
+    providerId,
+  );
+  if (!updated) {
+    // The player vanished between findById and update (should not happen with
+    // the single-process repos) — surface the same 404 as a missing player.
+    throw new ApiError(
+      404,
+      "player_not_found",
+      `No player with id '${playerId}'`,
+    );
+  }
+  return updated;
+}
+
+/**
  * Change a player's display name, enforcing the 30-day cooldown
  * (`NAME_CHANGE_COOLDOWN_MS`). Returns the refreshed full profile (the same
  * shape as `getPlayerProfile`) so the client can re-render in one round trip.
+ * Guests cannot rename (403) — they link an account instead.
  */
 export async function updateDisplayName(
   playerId: string,
@@ -253,6 +377,13 @@ export async function updateDisplayName(
       404,
       "player_not_found",
       `No player with id '${playerId}'`,
+    );
+  }
+  if (player.provider === "guest") {
+    throw new ApiError(
+      403,
+      "guest_cannot_rename",
+      "Guest accounts cannot change their name — connect an account first",
     );
   }
 

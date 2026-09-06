@@ -309,6 +309,20 @@ export function createFirestorePlayerRepo(db: Firestore): PlayerRepo {
           displayNameUpdatedAt: updatedAt,
         });
       }),
+
+    updateProvider: async (playerId, provider, providerId) =>
+      db.runTransaction(async (tx) => {
+        const ref = players.doc(playerId);
+        const snap = await tx.get(ref);
+        if (!snap.exists) return null; // unknown player id
+        const data = snap.data() as PlayerDoc;
+        // Re-point the lookup: delete the stale guest key, create the new
+        // provider key — both atomically with the player write.
+        tx.delete(lookups.doc(lookupHash(data.provider, data.providerId)));
+        tx.set(lookups.doc(lookupHash(provider, providerId)), { playerId });
+        tx.update(ref, { provider, providerId });
+        return toPlayer(playerId, { ...data, provider, providerId });
+      }),
   };
 }
 

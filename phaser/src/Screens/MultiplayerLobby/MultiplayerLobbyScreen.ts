@@ -7,12 +7,15 @@ import * as profilePanel from "./Components/profilePanel";
 import * as statsPanel from "./Components/statsPanel";
 import * as actionButtons from "./Components/actionButtons";
 import * as changeName from "./Components/changeName";
+import * as connectAccount from "./Components/connectAccount";
 import * as rankingPanel from "./Components/rankingPanel";
 import * as ratingHelp from "./Components/ratingHelp";
 import * as renameModal from "./Components/renameModal";
 import { createEvent } from "@game/Models";
 import { createScreen, ScreenCtx, screenModule, type Destroyable } from "@mana/framework";
-import { authSession } from "../../lib/authSession";
+import { authSession, type AuthPlayer } from "../../lib/authSession";
+import { googleAuth } from "../../lib/googleAuth";
+import { itchAuth } from "../../lib/itchAuth";
 import { setMultiplayerMode } from "../../lib/multiplayerMode";
 import { remoteServer, RemoteServerError, type MultiplayerProfile } from "../../RemoteServer";
 import { env } from "@Env";
@@ -99,18 +102,26 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 				ratingHelp.open()
 			);
 			identityPanel = identity;
-			const changeNameSection = changeName.create(
-				profile,
-				[constants.MIDDLE_SCREEN_X - 640, 690],
-				() => openRenameModal(ctx)
-			);
-			changeNameElement = changeNameSection;
+			// Guests link an account instead of renaming (the server rejects
+			// guest renames) — the connect button swaps for the rename UI on
+			// the reload that follows a successful conversion.
+			const isGuest = profile.player.provider === "guest";
+			const nameSection = isGuest
+				? connectAccount.create(profile, [constants.MIDDLE_SCREEN_X - 640, 690], () =>
+						openConnectModal()
+					)
+				: changeName.create(profile, [constants.MIDDLE_SCREEN_X - 640, 690], () =>
+						openRenameModal(ctx)
+					);
+			if (!isGuest) {
+				changeNameElement = nameSection as changeName.ChangeNameElement;
+			}
 
 			// Lobby tab content: the previous full-screen panels, wrapped so
 			// the tab switch toggles them with one setVisible call.
 			const content = env.container([
 				identity.container,
-				changeNameSection.container,
+				nameSection.container,
 				statsPanel.create({
 					title: i18n.t("lobby.career"),
 					counts: profile.career,
@@ -207,6 +218,7 @@ function showTab(tab: LobbyTab): void {
 
 const cleanup = () => {
 	hasActiveRun = false;
+	connecting = false;
 	currentProfile = null;
 	identityPanel = null;
 	changeNameElement = null;
@@ -246,6 +258,109 @@ function openRenameModal(_ctx: Context): void {
 			changeNameElement?.update(profile);
 		},
 	});
+}
+
+/** Guards re-entry while an account conversion is in flight. */
+let connecting = false;
+
+/**
+ * Open the connect-account modal for a guest player. Picking a provider
+ * acquires a fresh OAuth credential (via `getCredential` — the login entry
+ * points would short-circuit on the guest's stored session) and POSTs it to
+ * `remoteServer.convertAccount`. On success the stored session's player is
+ * re-pointed at the linked identity and the lobby reloads through the title
+ * screen so the connect button rebuilds as the rename UI (same-screen
+ * navigation is dropped by the ScreenManager, so a bounce is required).
+ */
+function openConnectModal(): void {
+	const modal = Modal.createModal({
+		width: 560,
+		height: 520,
+		title: i18n.t("lobby.connectTitle"),
+	});
+
+	const body = env.scene.add
+		.text(0, -160, i18n.t("lobby.connectBody"), {
+			...constants.defaultTextConfig,
+			fontSize: "22px",
+			color: "#ffffff",
+			align: "center",
+			wordWrap: { width: 480 },
+		})
+		.setOrigin(0.5);
+
+	const itchButton = UIButton.create({
+		text: i18n.t("login.signInItch"),
+		position: [0, -50],
+		width: 380,
+		callback: () => {
+			void connectWith("itch", modal);
+		},
+	});
+
+	const modalElements: Phaser.GameObjects.GameObject[] = [body, itchButton.container];
+
+	if (googleAuth.isConfigured()) {
+		const googleButton = UIButton.create({
+			text: i18n.t("login.signInGoogle"),
+			position: [0, 50],
+			width: 380,
+			callback: () => {
+				void connectWith("google", modal);
+			},
+		});
+		modalElements.push(googleButton.container);
+	}
+
+	const cancelButton = UIButton.create({
+		text: i18n.t("lobby.renameCancel"),
+		position: [0, 170],
+		width: 200,
+		callback: () => {
+			void modal.close();
+		},
+	});
+	modalElements.push(cancelButton.container);
+
+	modal.container.add(modalElements);
+}
+
+async function connectWith(provider: "itch" | "google", modal: Modal.Modal): Promise<void> {
+	if (connecting) return;
+	connecting = true;
+	try {
+		const credential =
+			provider === "itch" ? await itchAuth.getCredential() : await googleAuth.getCredential();
+		const converted = await remoteServer.convertAccount(provider, credential);
+		// Re-point the stored session at the linked identity. The Bearer [REDACTED]
+		// is unchanged — server identity is the player id, which never changes.
+		const stored = authSession.readStoredSession();
+		if (stored) {
+			authSession.saveSession({
+				...stored,
+				player: {
+					...stored.player,
+					provider: converted.provider as AuthPlayer["provider"],
+					providerId: converted.providerId,
+					displayName: converted.displayName,
+				},
+			});
+		}
+		currentProfile = null;
+		await modal.close();
+		await getScreenManager().go("title");
+		await getScreenManager().go("multiplayer_lobby");
+	} catch (err) {
+		await modal.close();
+		if (err instanceof RemoteServerError && err.code === "account_already_linked") {
+			showLobbyError(i18n.t("lobby.connectAlreadyLinked"));
+		} else {
+			const detail = err instanceof Error ? err.message : String(err);
+			showLobbyError(`${i18n.t("lobby.connectFailed")}\n\n${detail}`);
+		}
+	} finally {
+		connecting = false;
+	}
 }
 
 export const { init, create, destroy, name, currentPhase } = screenModule(screen, {

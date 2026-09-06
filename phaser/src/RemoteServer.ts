@@ -9,7 +9,7 @@
  * Auth: every request carries `Authorization: Bearer <token>`, where the
  * token comes from the shared auth session store (`src/lib/authSession.ts` —
  * `getBearerToken()` reads the persisted `{ token, player }` session written
- * by either the Steam (Electron) or itch.io (web) login flow). No token → the
+ * by the Steam, itch.io, Google, or guest login flow). No token → the
  * adapter rejects: multiplayer requires a login.
  *
  * Wire format: combat states cross the wire as a JSON-safe `CombatStateDto`
@@ -75,6 +75,15 @@ export type RemoteServer = {
 	 * can re-render in one round trip.
 	 */
 	updateDisplayName(displayName: string): Promise<MultiplayerProfile>;
+	/**
+	 * Convert a guest account into a regular one
+	 * (`POST /api/v1/players/me/convert`). The credential is the raw provider
+	 * token (itch OAuth token, Google ID token) acquired via the provider's
+	 * `getCredential()` — the login entry points would short-circuit on the
+	 * guest's stored session. Returns the converted player; the Bearer [REDACTED] is
+	 * unchanged (identity is the player id).
+	 */
+	convertAccount(provider: "itch" | "google", credential: string): Promise<ConvertedPlayer>;
 	/**
 	 * Rating leaderboard page (`GET /api/v1/players/ranking?page=&pageSize=`).
 	 * The lobby's ranking tab renders 20 rows per page with the viewer's own
@@ -154,6 +163,27 @@ function isVictoryCounts(value: unknown): value is MultiplayerVictoryCounts {
 		typeof value.bronze === "number" &&
 		typeof value.silver === "number" &&
 		typeof value.gold === "number"
+	);
+}
+
+/** The converted player from `POST /api/v1/players/me/convert`. */
+export type ConvertedPlayer = {
+	playerId: string;
+	displayName?: string;
+	/** Provider-scoped identity (itch user id / google sub). */
+	providerId: string;
+	provider: string;
+};
+
+/** Shape-guard for the convert payload (`{ player }`). */
+function isConvertedPlayerPayload(value: unknown): value is { player: ConvertedPlayer } {
+	if (!isRecord(value) || !isRecord(value.player)) return false;
+	const player = value.player;
+	return (
+		typeof player.playerId === "string" &&
+		typeof player.providerId === "string" &&
+		typeof player.provider === "string" &&
+		(player.displayName === undefined || typeof player.displayName === "string")
 	);
 }
 
@@ -269,7 +299,7 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 		const token = getToken();
 		if (!token || token === "") {
 			throw new Error(
-				"Multiplayer requires a login — no bearer token available. Log in first (steamAuth.loginWithSteam on Electron, or itchAuth.loginWithItch on web)."
+				"Multiplayer requires a login — no bearer token available. Log in first (Steam on Electron, itch.io / Google / guest otherwise)."
 			);
 		}
 		return token;
@@ -376,6 +406,21 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 				throw new Error("Game server returned an unexpected profile payload");
 			}
 			return payload;
+		},
+
+		async convertAccount(
+			provider: "itch" | "google",
+			credential: string
+		): Promise<ConvertedPlayer> {
+			const payload = await request("/api/v1/players/me/convert", {
+				method: "POST",
+				body:
+					provider === "itch" ? { provider, token: credential } : { provider, idToken: credential },
+			});
+			if (!isConvertedPlayerPayload(payload)) {
+				throw new Error("Game server returned an unexpected convert payload");
+			}
+			return payload.player;
 		},
 
 		async getRanking(page: number, pageSize: number = RANKING_PAGE_SIZE): Promise<RankingPage> {

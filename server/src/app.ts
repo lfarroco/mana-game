@@ -88,8 +88,9 @@ export type AppDeps = {
    */
   steam?: { webApiKey: string; appIds: number[] };
   /**
-   * Enable itch.io auth (POST /auth/itch) for the web build. The auth mount
-   * is registered when Steam, itch, **or** Google is configured.
+   * Enable itch.io auth (POST /auth/itch) for the web build. Explicit opt-in
+   * (mirrors the Steam gate); the auth mount itself is always registered
+   * because POST /auth/guest needs no provider config.
    */
   itch?: boolean;
   /**
@@ -186,30 +187,28 @@ export function createApp(deps: AppDeps = {}): express.Express {
     res.type("html").send(OAUTH_RELAY_PAGE);
   });
 
-  // Auth routes — registered when Steam, itch.io, or Google is configured.
+  // Auth routes — always mounted (`POST /auth/guest` needs no provider
+  // config; Steam/itch/Google logins register inside when configured).
   // Rate-limited per-IP (ticket/token grinding protection, docs/auth.md).
-  if (deps.steam?.webApiKey || deps.itch || deps.google?.clientId) {
-    app.use(
-      "/api/v1/auth",
-      createRateLimiter({
-        max: deps.authRateLimitMax ?? DEFAULT_AUTH_RATE_LIMIT_MAX,
-        windowMs:
-          deps.authRateLimitWindowMs ?? DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS,
-      }),
-      authRouter({
-        playerRepo,
-        tokenRepo,
-        steam: deps.steam,
-        itch: deps.itch,
-        google: deps.google,
-        steamFetch: deps.steamFetch,
-        itchFetch: deps.itchFetch,
-        googleFetch: deps.googleFetch,
-        steamApiUrl: deps.steamApiUrl,
-        tokenTtlDays: deps.tokenTtlDays,
-      }),
-    );
-  }
+  app.use(
+    "/api/v1/auth",
+    createRateLimiter({
+      max: deps.authRateLimitMax ?? DEFAULT_AUTH_RATE_LIMIT_MAX,
+      windowMs: deps.authRateLimitWindowMs ?? DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS,
+    }),
+    authRouter({
+      playerRepo,
+      tokenRepo,
+      steam: deps.steam,
+      itch: deps.itch,
+      google: deps.google,
+      steamFetch: deps.steamFetch,
+      itchFetch: deps.itchFetch,
+      googleFetch: deps.googleFetch,
+      steamApiUrl: deps.steamApiUrl,
+      tokenTtlDays: deps.tokenTtlDays,
+    }),
+  );
 
   // Session routes — all authenticated via bearer tokens (X-Player-Id retired)
   app.use(
@@ -225,7 +224,8 @@ export function createApp(deps: AppDeps = {}): express.Express {
     }),
   );
 
-  // Player routes — the lobby profile endpoint, bearer-authenticated.
+  // Player routes — the lobby profile endpoint + guest conversion,
+  // bearer-authenticated.
   app.use(
     "/api/v1/players",
     requireAuth({ tokenRepo }),
@@ -234,6 +234,10 @@ export function createApp(deps: AppDeps = {}): express.Express {
       ratingRepo,
       playerStatsRepo,
       sessionRepo: repo,
+      itch: deps.itch,
+      google: deps.google,
+      itchFetch: deps.itchFetch,
+      googleFetch: deps.googleFetch,
     }),
   );
 

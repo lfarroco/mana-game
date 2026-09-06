@@ -23,6 +23,7 @@
 import { Router, type Request, type Response } from "express";
 import {
   parseAuthGoogleBody,
+  parseAuthGuestBody,
   parseAuthItchBody,
   parseAuthSteamBody,
 } from "../../dto";
@@ -113,6 +114,16 @@ export function authRouter(deps: {
       res.json({ player: result.player, token: result.token });
     });
   }
+
+  // POST /auth/guest — no credential, always available: mints a fresh guest
+  // player (random AdjectiveNounNN handle unless displayName is supplied) +
+  // a Bearer [REDACTED] Guests have nothing to verify, so this route is never
+  // gated — it lives under the same per-IP rate limiter as the other logins.
+  router.post("/guest", async (req: Request, res: Response) => {
+    const request = parseAuthGuestBody(req.body);
+    const result = await service.createGuest(request.displayName);
+    res.json({ player: result.player, token: result.token });
+  });
 
   return router;
 }

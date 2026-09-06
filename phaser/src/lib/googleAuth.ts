@@ -71,6 +71,14 @@ export type GoogleAuthClient = {
 	 * the request.
 	 */
 	loginWithGoogle(): Promise<AuthSession>;
+	/**
+	 * Acquire a raw Google ID token WITHOUT touching the stored session or
+	 * the server. Used by the guest "connect account" flow, which POSTs the
+	 * credential to `/players/me/convert` instead of `/auth/google`
+	 * (loginWithGoogle would short-circuit on the guest's stored session and
+	 * never reach the provider).
+	 */
+	getCredential(): Promise<string>;
 	/** True when a Google OAuth client id is baked into this build. */
 	isConfigured(): boolean;
 	/** The persisted session, or null when logged out / entry is corrupt. */
@@ -204,12 +212,7 @@ export function createGoogleAuthClient(deps: Partial<GoogleAuthDeps> = {}): Goog
 		return waitForPopupMessage(state, timeoutMs);
 	};
 
-	const loginWithGoogle = async (): Promise<AuthSession> => {
-		// Reuse a stored server session if present (any provider — one session
-		// per device, docs/auth.md).
-		const stored = sessionStore.readStoredSession();
-		if (stored) return stored;
-
+	const getCredential = async (): Promise<string> => {
 		if (!clientId || clientId === "") {
 			throw new Error(
 				"Google auth not configured — set MANA_GOOGLE_CLIENT_ID to enable Google sign-in"
@@ -222,6 +225,16 @@ export function createGoogleAuthClient(deps: Partial<GoogleAuthDeps> = {}): Goog
 		if (!credential) {
 			throw new Error("Google sign-in did not return an ID token");
 		}
+		return credential;
+	};
+
+	const loginWithGoogle = async (): Promise<AuthSession> => {
+		// Reuse a stored server session if present (any provider — one session
+		// per device, docs/auth.md).
+		const stored = sessionStore.readStoredSession();
+		if (stored) return stored;
+
+		const credential = await getCredential();
 
 		let res: Response;
 		try {
@@ -258,6 +271,7 @@ export function createGoogleAuthClient(deps: Partial<GoogleAuthDeps> = {}): Goog
 
 	return {
 		loginWithGoogle,
+		getCredential,
 		isConfigured: () => Boolean(clientId && clientId !== ""),
 		getStoredSession: sessionStore.readStoredSession,
 		getBearerToken: sessionStore.getBearerToken,

@@ -163,6 +163,14 @@ export function consumeStashedToken(): string | null {
 
 export type ItchAuthClient = {
 	loginWithItch(): Promise<AuthSession>;
+	/**
+	 * Acquire a raw itch.io OAuth credential WITHOUT touching the stored
+	 * session or the server. Used by the guest "connect account" flow, which
+	 * POSTs the credential to `/players/me/convert` instead of `/auth/itch`
+	 * (loginWithItch would short-circuit on the guest's stored session and
+	 * never reach the provider).
+	 */
+	getCredential(): Promise<string>;
 	isConfigured(): boolean;
 	getStoredSession(): AuthSession | null;
 	getBearerToken(): string | null;
@@ -374,12 +382,7 @@ export function createItchAuthClient(deps: Partial<ItchAuthDeps> = {}): ItchAuth
 		return waitForPopupMessage(state, popupTimeoutMs);
 	};
 
-	const loginWithItch = async (): Promise<AuthSession> => {
-		// Reuse a stored server session if present — itch OAuth keys are
-		// long-lived, so repeat visits skip the popup entirely.
-		const stored = sessionStore.readStoredSession();
-		if (stored) return stored;
-
+	const getCredential = async (): Promise<string> => {
 		if (!clientId || clientId === "") {
 			throw new Error(
 				"itch auth not configured — set MANA_ITCH_CLIENT_ID to enable browser multiplayer"
@@ -392,6 +395,16 @@ export function createItchAuthClient(deps: Partial<ItchAuthDeps> = {}): ItchAuth
 		if (!token) {
 			throw new Error("itch.io authorization did not return a token");
 		}
+		return token;
+	};
+
+	const loginWithItch = async (): Promise<AuthSession> => {
+		// Reuse a stored server session if present — itch OAuth keys are
+		// long-lived, so repeat visits skip the popup entirely.
+		const stored = sessionStore.readStoredSession();
+		if (stored) return stored;
+
+		const token = await getCredential();
 
 		let res: Response;
 		try {
@@ -428,6 +441,7 @@ export function createItchAuthClient(deps: Partial<ItchAuthDeps> = {}): ItchAuth
 
 	return {
 		loginWithItch,
+		getCredential,
 		isConfigured: () => Boolean(clientId && clientId !== ""),
 		getStoredSession: sessionStore.readStoredSession,
 		getBearerToken: sessionStore.getBearerToken,

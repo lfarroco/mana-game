@@ -545,4 +545,28 @@ describe("itchAuth client", () => {
 		expect(client.getBearerToken()).toBeNull();
 		expect(storage.getItem(AUTH_STORAGE_KEY)).toBeNull();
 	});
+
+	it("getCredential ignores the stored session and never hits the server", async () => {
+		const storage = createMemoryStorage();
+		storage.setItem(
+			AUTH_STORAGE_KEY,
+			JSON.stringify({
+				token: "guest-bearer-token",
+				player: { playerId: "p1", provider: "guest", providerId: "g1" },
+			})
+		);
+		const fetchMock = createFetchMock();
+		const client = createItchAuthClient(
+			baseDeps({
+				storage,
+				fetch: fetchMock as unknown as typeof fetch,
+				readQueryToken: () => "connect-token",
+			})
+		);
+
+		await expect(client.getCredential()).resolves.toBe("connect-token");
+		expect(fetchMock).not.toHaveBeenCalled();
+		// The guest session is untouched — conversion (not login) owns it.
+		expect(JSON.parse(storage.getItem(AUTH_STORAGE_KEY) ?? "{}").token).toBe("guest-bearer-token");
+	});
 });

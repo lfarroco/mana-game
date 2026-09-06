@@ -7,20 +7,23 @@ import { createEvent } from "@game/Models";
 import { createScreen, ScreenCtx, screenModule, type Destroyable } from "@mana/framework";
 import { authSession } from "../../lib/authSession";
 import { googleAuth } from "../../lib/googleAuth";
+import { guestAuth } from "../../lib/guestAuth";
 import { itchAuth } from "../../lib/itchAuth";
 import { GameEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
 import * as cloudsBg from "../Title/Components/cloudsBg";
 
-const GOOGLE_Y = 500;
-const ITCH_Y = 610;
-const LOGOUT_Y = 730;
-const BACK_Y = 850;
+const GOOGLE_Y = 460;
+const ITCH_Y = 560;
+const GUEST_Y = 660;
+const LOGOUT_Y = 760;
+const BACK_Y = 860;
 const STATUS_Y = 330;
 
 export type MultiplayerLoginEvents = {
 	googleClicked: ReturnType<typeof createEvent<void>>;
 	itchClicked: ReturnType<typeof createEvent<void>>;
+	guestClicked: ReturnType<typeof createEvent<void>>;
 	logoutClicked: ReturnType<typeof createEvent<void>>;
 	backClicked: ReturnType<typeof createEvent<void>>;
 };
@@ -31,14 +34,15 @@ export type Context = ScreenCtx<never, MultiplayerLoginEvents>;
  * Multiplayer login hub (docs/android-multiplayer.md) — the entry screen for
  * non-Steam platforms:
  *
- *   [multiplayer button] → [login screen: Google / itch.io / Log out / Back]
+ *   [multiplayer button] → [login screen: Google / itch.io / Guest / Log out / Back]
  *                        → [multiplayer lobby]
  *
  * Steam (Electron) auto-logs-in and skips this screen entirely. The screen
  * shows the current auth state (signed in as whom), lets the player pick a
- * provider (Google — popup on web, system browser on Android — or itch.io),
- * log out, or return to the title. Any successful login lands in the lobby,
- * which re-reads the persisted `{ token, player }` session.
+ * provider (Google — popup on web, system browser on Android — itch.io, or
+ * instant guest play), log out, or return to the title. Any successful login
+ * lands in the lobby, which re-reads the persisted `{ token, player }`
+ * session.
  */
 
 /** Guards re-entry while a login is in flight. */
@@ -54,11 +58,12 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 	events: () => {
 		const googleClicked = createEvent<void>();
 		const itchClicked = createEvent<void>();
+		const guestClicked = createEvent<void>();
 		const logoutClicked = createEvent<void>();
 		const backClicked = createEvent<void>();
 
 		return {
-			events: { googleClicked, itchClicked, logoutClicked, backClicked },
+			events: { googleClicked, itchClicked, guestClicked, logoutClicked, backClicked },
 			listeners: [
 				GameEvent.screenHidden.listen(cleanup),
 				googleClicked.listen(() => {
@@ -66,6 +71,9 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 				}),
 				itchClicked.listen(() => {
 					void enterWith(itchAuth.loginWithItch);
+				}),
+				guestClicked.listen(() => {
+					void enterWith(guestAuth.loginAsGuest);
 				}),
 				logoutClicked.listen(() => {
 					authSession.clearSession();
@@ -80,7 +88,7 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 
 	create: async (ctx) => {
 		const elements: Destroyable[] = [];
-		const { googleClicked, itchClicked, logoutClicked, backClicked } = ctx.events;
+		const { googleClicked, itchClicked, guestClicked, logoutClicked, backClicked } = ctx.events;
 
 		const background = cloudsBg.create();
 		if (background) elements.push(background);
@@ -125,6 +133,23 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 			},
 		});
 		elements.push(itchBtn.container);
+
+		// Guest play — no OAuth round-trip, the server assigns a random
+		// handle. Always available (POST /auth/guest needs no provider).
+		const guestBtn = UIButton.create({
+			text: i18n.t("login.playAsGuest"),
+			position: [constants.MIDDLE_SCREEN_X, GUEST_Y],
+			width: 380,
+			callback: () => {
+				guestClicked.emit();
+			},
+			tooltip: {
+				title: i18n.t("login.playAsGuest"),
+				description: i18n.t("login.guestTooltip"),
+				position: "right",
+			},
+		});
+		elements.push(guestBtn.container);
 
 		const backBtn = UIButton.create({
 			text: i18n.t("login.back"),

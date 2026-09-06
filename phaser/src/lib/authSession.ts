@@ -1,12 +1,12 @@
 /**
  * Shared client auth-session store (docs/itchio-auth.md Phase B1).
  *
- * Extracted from steamAuth.ts so Steam (Electron) and itch.io (web) logins
- * share one persisted `{ token, player }` session under the key
- * `mana_auth_session`. The server is the identity authority — the client only
- * stores what it issued. The provider is preserved from the server response
- * (per-provider players are distinct records; one session per device,
- * overwritten on platform switch).
+ * Extracted from steamAuth.ts so Steam (Electron), itch.io (web), Google,
+ * and guest logins share one persisted `{ token, player }` session under the
+ * key `mana_auth_session`. The server is the identity authority — the client
+ * only stores what it issued. The provider is preserved from the server
+ * response (per-provider players are distinct records; one session per
+ * device, overwritten on platform switch).
  *
  * The bearer token is a credential — persisted but never logged or echoed.
  */
@@ -14,7 +14,7 @@
 import { storage } from "@Systems/Storage";
 import type { StorageProvider } from "@Systems/Storage";
 
-export type AuthProvider = "steam" | "itch" | "google";
+export type AuthProvider = "steam" | "itch" | "google" | "guest";
 
 export type AuthPlayer = {
 	playerId: string;
@@ -56,7 +56,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isAuthProvider(value: unknown): value is AuthProvider {
-	return value === "steam" || value === "itch" || value === "google";
+	return value === "steam" || value === "itch" || value === "google" || value === "guest";
 }
 
 /**

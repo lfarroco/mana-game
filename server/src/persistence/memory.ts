@@ -102,6 +102,17 @@ export function createMemoryPlayerRepo(): PlayerRepo {
       );
       return updated;
     },
+    updateProvider: async (playerId, provider, providerId) => {
+      const player = playersById.get(playerId);
+      if (!player) return null;
+      // The old guest lookup must go — otherwise a second convert (or a
+      // lookup by the stale guest key) would resolve to the converted player.
+      playersByProvider.delete(providerKey(player.provider, player.providerId));
+      const updated: Player = { ...player, provider, providerId };
+      playersById.set(playerId, updated);
+      playersByProvider.set(providerKey(provider, providerId), updated);
+      return updated;
+    },
   };
 }
 

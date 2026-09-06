@@ -174,6 +174,27 @@ describe("googleAuth client", () => {
 		await expect(client.loginWithGoogle()).rejects.toThrow(/not configured/);
 	});
 
+	it("getCredential ignores the stored session and never hits the server", async () => {
+		const storage = createMemoryStorage();
+		storage.setItem(
+			AUTH_STORAGE_KEY,
+			JSON.stringify({
+				token: "guest-bearer-token",
+				player: { playerId: "p1", provider: "guest", providerId: "g1" },
+			})
+		);
+		const fetchMock = createFetchMock();
+		const android = createAndroidTransport("connect-id-token");
+		const client = createGoogleAuthClient(
+			baseDeps({ storage, fetch: fetchMock as unknown as typeof fetch, android })
+		);
+
+		await expect(client.getCredential()).resolves.toBe("connect-id-token");
+		expect(fetchMock).not.toHaveBeenCalled();
+		// The guest session is untouched — conversion (not login) owns it.
+		expect(JSON.parse(storage.getItem(AUTH_STORAGE_KEY) ?? "{}").token).toBe("guest-bearer-token");
+	});
+
 	it("logs in on web via the OAuth popup + relay message", async () => {
 		const storage = createMemoryStorage();
 		const fetchMock = createFetchMock();

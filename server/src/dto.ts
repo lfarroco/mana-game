@@ -46,6 +46,24 @@ export type UpdateDisplayNameRequest = {
   displayName: string;
 };
 
+export type AuthGuestRequest = {
+  /** Optional chosen display name (validated server-side when present). */
+  displayName?: string;
+};
+
+/**
+ * Account conversion: a guest player links an itch.io or Google account and
+ * becomes a regular player. Exactly one credential field must be present,
+ * matching the provider.
+ */
+export type ConvertAccountRequest = {
+  provider: "itch" | "google";
+  /** itch.io OAuth access token (provider 'itch'). */
+  token?: string;
+  /** Google OIDC ID token (provider 'google'). */
+  idToken?: string;
+};
+
 /**
  * Longest accepted itch.io token. OAuth access keys are short API keys; the
  * itch-app-injected JWT variant is longer — 8KB bounds both while still
@@ -174,6 +192,88 @@ export function parseAuthGoogleBody(body: unknown): AuthGoogleRequest {
   }
 
   return { idToken };
+}
+
+/**
+ * Parse and shape-validate the POST /auth/guest body. The display name is
+ * optional — when absent the server generates a random guest handle. A
+ * supplied name is only shape-checked here; the semantic rules live in
+ * `playerService.validateDisplayName`.
+ */
+export function parseAuthGuestBody(body: unknown): AuthGuestRequest {
+  const raw = asRecord(body);
+
+  const displayName = raw.displayName;
+  if (displayName === undefined) return {};
+  if (typeof displayName !== "string" || displayName.trim() === "") {
+    throw new ApiError(
+      400,
+      "invalid_display_name",
+      "displayName must be a non-empty string when supplied",
+    );
+  }
+  if (displayName.length > MAX_DISPLAY_NAME_WIRE_LENGTH) {
+    throw new ApiError(
+      400,
+      "invalid_display_name",
+      `displayName exceeds the maximum length of ${MAX_DISPLAY_NAME_WIRE_LENGTH} characters`,
+    );
+  }
+  return { displayName };
+}
+
+/**
+ * Parse and shape-validate the POST /api/v1/players/me/convert body. The
+ * credential field must match the provider (`token` for itch, `idToken` for
+ * google); credential validity itself is checked by the provider services.
+ */
+export function parseConvertAccountBody(body: unknown): ConvertAccountRequest {
+  const raw = asRecord(body);
+
+  const provider = raw.provider;
+  if (provider !== "itch" && provider !== "google") {
+    throw new ApiError(
+      400,
+      "invalid_request",
+      "provider is required and must be 'itch' or 'google'",
+    );
+  }
+
+  if (provider === "itch") {
+    const token = raw.token;
+    if (typeof token !== "string" || token.trim() === "") {
+      throw new ApiError(
+        400,
+        "invalid_itch_token",
+        "token is required and must be a non-empty string",
+      );
+    }
+    if (token.length > MAX_ITCH_TOKEN_LENGTH) {
+      throw new ApiError(
+        400,
+        "invalid_itch_token",
+        `token exceeds the maximum length of ${MAX_ITCH_TOKEN_LENGTH} characters`,
+      );
+    }
+    return { provider, token };
+  }
+
+  const idToken = raw.idToken;
+  if (typeof idToken !== "string" || idToken.trim() === "") {
+    throw new ApiError(
+      400,
+      "invalid_google_token",
+      "idToken is required and must be a non-empty string",
+    );
+  }
+  if (idToken.length > MAX_GOOGLE_ID_TOKEN_LENGTH) {
+    throw new ApiError(
+      400,
+      "invalid_google_token",
+      `idToken exceeds the maximum length of ${MAX_GOOGLE_ID_TOKEN_LENGTH} characters`,
+    );
+  }
+  return { provider, idToken };
 }
 
 /**

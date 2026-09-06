@@ -461,4 +461,84 @@ describe("RemoteServer HTTP adapter", () => {
 
 		await expect(server.getRanking(1)).rejects.toThrow(/unexpected ranking payload/);
 	});
+
+	it("converts a guest via POST /players/me/convert with the itch token", async () => {
+		const converted = {
+			player: {
+				playerId: "player-1",
+				provider: "itch",
+				providerId: "4242",
+				displayName: "SwiftBadger07",
+			},
+		};
+		const fetchMock = createFetchMock(200, converted);
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		const player = await server.convertAccount("itch", "itch-oauth-token");
+
+		const [url, init] = callsOf(fetchMock)[0];
+		expect(url).toBe(`${DEFAULT_SERVER_URL}/api/v1/players/me/convert`);
+		expect(init.method).toBe("POST");
+		expect(init.headers?.Authorization).toBe("Bearer tok-123");
+		expect(JSON.parse(init.body ?? "{}")).toEqual({
+			provider: "itch",
+			token: "itch-oauth-token",
+		});
+		expect(player).toEqual(converted.player);
+	});
+
+	it("converts a guest via POST /players/me/convert with the Google ID token", async () => {
+		const converted = {
+			player: {
+				playerId: "player-1",
+				provider: "google",
+				providerId: "google-sub-1",
+				displayName: "SwiftBadger07",
+			},
+		};
+		const fetchMock = createFetchMock(200, converted);
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		const player = await server.convertAccount("google", "google-id-token");
+
+		const [, init] = callsOf(fetchMock)[0];
+		expect(JSON.parse(init.body ?? "{}")).toEqual({
+			provider: "google",
+			idToken: "google-id-token",
+		});
+		expect(player).toEqual(converted.player);
+	});
+
+	it("rejects a convert payload with a malformed player", async () => {
+		const fetchMock = createFetchMock(200, { player: { provider: "itch" } });
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		await expect(server.convertAccount("itch", "tok")).rejects.toThrow(
+			/unexpected convert payload/
+		);
+	});
+
+	it("surfaces the server's machine-readable code on convert conflicts", async () => {
+		const fetchMock = createFetchMock(409, {
+			error: "account_already_linked",
+			message: "already linked",
+		});
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		const err = await server.convertAccount("itch", "tok").catch((e) => e);
+		expect(err).toBeInstanceOf(RemoteServerError);
+		expect((err as RemoteServerError).code).toBe("account_already_linked");
+	});
 });

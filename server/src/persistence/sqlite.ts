@@ -303,6 +303,11 @@ export function createSqlitePlayerRepo(db: Database.Database): PlayerRepo {
      SET display_name = ?, display_name_updated_at = ?
      WHERE player_id = ?`,
   );
+  const updateProviderStmt = db.prepare(
+    `UPDATE players
+     SET provider = ?, provider_id = ?
+     WHERE player_id = ?`,
+  );
 
   const rowToPlayer = (row: PlayerRow): Player => ({
     playerId: row.player_id,
@@ -344,6 +349,11 @@ export function createSqlitePlayerRepo(db: Database.Database): PlayerRepo {
         updatedAt,
         playerId,
       );
+      if (result.changes === 0) return null; // unknown player id
+      return rowToPlayer(findByIdStmt.get(playerId) as PlayerRow);
+    },
+    updateProvider: async (playerId, provider, providerId) => {
+      const result = updateProviderStmt.run(provider, providerId, playerId);
       if (result.changes === 0) return null; // unknown player id
       return rowToPlayer(findByIdStmt.get(playerId) as PlayerRow);
     },

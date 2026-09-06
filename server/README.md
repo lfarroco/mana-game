@@ -49,15 +49,18 @@ account always fights PvE).
 
 Base path `/api/v1`, JSON in/out. Every session request must carry a bearer
 token in the `Authorization` header — obtain one via `POST /api/v1/auth/steam`
-(Steam auto-login, Electron) or `POST /api/v1/auth/itch` (itch.io OAuth, web
-build), both of which return `{ player, token }`:
+(Steam auto-login, Electron), `POST /api/v1/auth/itch` (itch.io OAuth, web
+build), `POST /api/v1/auth/google` (Google sign-in), or
+`POST /api/v1/auth/guest` (instant guest play, no credential), all of which
+return `{ player, token }`:
 
 ```
 Authorization: Bearer <token>
 ```
 
 Unauthenticated: `GET /health`, `POST /api/v1/auth/steam`,
-`POST /api/v1/auth/itch`. Everything else requires a valid (non-expired) token;
+`POST /api/v1/auth/itch`, `POST /api/v1/auth/google`, `POST /api/v1/auth/guest`.
+Everything else requires a valid (non-expired) token;
 missing/malformed tokens → 401 `missing_token`, unknown/expired tokens → 401
 `invalid_token`. The `X-Player-Id` header is retired.
 
@@ -67,6 +70,8 @@ missing/malformed tokens → 401 `missing_token`, unknown/expired tokens → 401
 | POST   | `/api/v1/auth/steam`               | Steam ticket → `{ player, token }` (no auth)                                    |
 | POST   | `/api/v1/auth/itch`                | itch.io OAuth token → `{ player, token }` (no auth; gated by `MANA_ITCH_ENABLED`) |
 | POST   | `/api/v1/auth/google`              | Google OIDC ID token → `{ player, token }` (no auth; gated by `MANA_GOOGLE_ENABLED` + `MANA_GOOGLE_CLIENT_ID`) |
+| POST   | `/api/v1/auth/guest`               | Guest play → `{ player, token }` (no auth, never gated; optional `{ displayName? }`, otherwise a random `AdjectiveNounNN` handle) |
+| POST   | `/api/v1/players/me/convert`       | Guest → itch/google link (`{ provider, token? / idToken? }` → `{ player }`; 409 when the provider account is already linked) |
 | GET    | `/oauth/callback`                  | OAuth relay page for the Android login flows (no auth) — see [docs/android-multiplayer.md](../docs/android-multiplayer.md) |
 | POST   | `/api/v1/sessions`                 | Create session → `SessionData` (409 if an **active** run exists)                |
 | GET    | `/api/v1/sessions/current`         | Resume/reconnect → `SessionData` (+ serialized `combatState` while in `combat`); 404 if none or the run has finished |
@@ -171,7 +176,10 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | 409    | `session_already_exists`                    | A session is already active                         |
 | 409    | `session_finished`                          | Run already ended (`victory`/`game_over`)           |
 | 422    | `action_rejected`                           | Action invalid for the current phase                |
-| 429    | `rate_limited`                              | Per-IP auth rate limit exceeded (`POST /auth/steam`, `POST /auth/itch`)  |
+| 429    | `rate_limited`                              | Per-IP auth rate limit exceeded (`POST /auth/*`)  |
+| 403    | `guest_cannot_rename` / `not_a_guest`       | Guests cannot rename; only guests can convert      |
+| 409    | `account_already_linked`                    | Provider account already linked to another player  |
+| 400    | `provider_not_enabled`                      | Convert target's login is disabled on this server  |
 | 500    | `internal_error`                            | Unexpected server error                             |
 
 ## Environment

@@ -41,9 +41,9 @@ export type SessionRepo = {
 
 /**
  * Identity provider for a player account. `steam` (Electron), `itch`
- * (web build), and `google` (Android / web sign-in) are the enabled providers
+ * (web build), and `google` (Android / web sign-in) are the login providers
  * (docs/auth.md, docs/itchio-auth.md, docs/android-multiplayer.md); `guest`
- * is a future phase.
+ * is a credential-less account that converts to itch/google on link.
  */
 export type PlayerProvider = "steam" | "itch" | "google" | "guest";
 
@@ -55,14 +55,18 @@ export type Player = {
   /** Server-generated uuid — replaces the dev-only `X-Player-Id` header. */
   playerId: string;
   provider: PlayerProvider;
-  /** steamid64 for steam. Guests (future phase) will need this nullable. */
+  /**
+   * steamid64 for steam, itch user id for itch, `sub` for google, and a
+   * server-generated uuid for guests (unique per guest — guests have no
+   * credential to look up, so every guest login mints a fresh player).
+   */
   providerId: string;
   /**
    * Display name. Steam persona (unverified client-supplied, docs/auth.md),
-   * itch username (server-verified), or the Google profile name (server-
-   * verified) at creation. Players may change it once per 30 days
-   * (`displayNameUpdatedAt` tracks the cooldown) — see
-   * `playerService.updateDisplayName`.
+   * itch username (server-verified), the Google profile name (server-
+   * verified), or the generated guest handle at creation. Non-guest players
+   * may change it once per 30 days (`displayNameUpdatedAt` tracks the
+   * cooldown) — see `playerService.updateDisplayName`.
    */
   displayName?: string;
   /**
@@ -97,6 +101,19 @@ export type PlayerRepo = {
     playerId: string,
     displayName: string,
     updatedAt: number,
+  ): Promise<Player | null>;
+  /**
+   * Convert a guest account into a regular one: re-point the player at the
+   * linked (provider, providerId) identity. The display name is kept (the
+   * guest's handle, random or chosen, stays theirs). Returns the updated
+   * player, or null when the player does not exist. The caller owns
+   * precondition checks (guest-only, no existing link) —
+   * `playerService.convertGuestAccount`.
+   */
+  updateProvider(
+    playerId: string,
+    provider: PlayerProvider,
+    providerId: string,
   ): Promise<Player | null>;
 };
 

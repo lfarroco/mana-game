@@ -5,11 +5,12 @@
  * players and sessions.* Credential validation is provider-specific (one
  * `Authenticator` per provider); everything after it is provider-agnostic —
  * `findOrCreatePlayer` upserts the player, then `issueToken` mints a bearer
- * token. A future provider (Firebase/Supabase/guest) is a single new
+ * token. A future provider (Firebase/Supabase/…) is a single new
  * `Authenticator` + route; sessions and matchmaking never know the provider.
  *
- * `steam` (Electron) and `itch` (web build) are the enabled providers; the
- * route layer feeds both `Authenticator`s into one service.
+ * `steam` (Electron), `itch` (web build), and `google` (Android / web) log
+ * in through provider `Authenticator`s; guests mint a credential-less player
+ * via `createGuest` (no authenticator — there is nothing to verify).
  */
 
 import { v4 as uuid } from "uuid";
@@ -20,6 +21,7 @@ import type {
   PlayerRepo,
   TokenRepo,
 } from "../persistence/repositories";
+import { createGuestPlayer } from "./playerService";
 import { createTokenService } from "./tokenService";
 
 /** Verified provider identity extracted from a credential. */
@@ -60,6 +62,12 @@ export type AuthService = {
    * (steam = `{ ticket, identity, appId }`).
    */
   login(provider: PlayerProvider, credential: unknown): Promise<LoginResult>;
+  /**
+   * Guest login: mint a fresh credential-less player (random `AdjectiveNounNN`
+   * handle unless a name is supplied) and a Bearer [REDACTED] Guests have no
+   * credential to validate, so every call creates a new player.
+   */
+  createGuest(displayName?: string): Promise<LoginResult>;
 };
 
 export function createAuthService(deps: {
@@ -112,6 +120,15 @@ export function createAuthService(deps: {
         provider,
         providerId: identity.providerId,
         displayName: identity.displayName,
+      });
+      const token = await tokenService.issueToken(player.playerId);
+
+      return { player, token };
+    },
+
+    async createGuest(displayName) {
+      const player = await createGuestPlayer(displayName, {
+        playerRepo: deps.playerRepo,
       });
       const token = await tokenService.issueToken(player.playerId);
 

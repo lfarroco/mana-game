@@ -30,6 +30,13 @@ stay visible on both tabs. The LOBBY tab shows:
   cooldown applies) so players can pick a handle instead of their provider
   name — Google sign-in surfaces the Google profile (real) name by default,
   which is exactly what players want to replace.
+- **guests** — a guest player (random `AdjectiveNounNN` handle, provider badge
+  "Guest") sees CONNECT ACCOUNT **instead of** CHANGE NAME (the server
+  rejects guest renames with 403 `guest_cannot_rename`). The button opens a
+  modal with itch.io + Google; picking one verifies the credential and
+  converts the account (`POST /api/v1/players/me/convert` — name kept, token
+  kept, 409 when the provider account is already linked), then the lobby
+  reloads with the rename UI. See [auth.md](auth.md) (Guest accounts).
 
 The **RANKING** tab shows the rating leaderboard: "Your ranking: #x" in gold
 above a paginated list (20 rows per page in two columns of ten, PREV/NEXT +
@@ -71,8 +78,8 @@ type PlayerProfile = {
   player: {
     playerId: string;      // server-side player uuid
     displayName?: string;  // steam persona / itch username / google profile name
-    providerId: string;    // provider-scoped identity (steam64 / itch id / google sub)
-    provider: "steam" | "itch" | "google";
+    providerId: string;    // provider-scoped identity (steam64 / itch id / google sub / guest uuid)
+    provider: "steam" | "itch" | "google" | "guest";
   };
   rating: number;                 // current rating (DEFAULT_PLAYER_RATING if unset)
   career: VictoryCounts;          // tiered counts across all completed runs
@@ -185,12 +192,14 @@ type RunCompletion = {
 
 | Area | Files |
 |---|---|
-| Server endpoints | `server/src/http/routes/players.ts` (`GET` + `PATCH /me`, `GET /ranking`), `server/src/services/playerService.ts` (profile assembly + rename validation/cooldown + `getRankingPage`), `server/src/dto.ts` (`parseRankingQuery`) |
+| Server endpoints | `server/src/http/routes/players.ts` (`GET` + `PATCH /me`, `POST /me/convert`, `GET /ranking`), `server/src/services/playerService.ts` (profile assembly + rename validation/cooldown + `getRankingPage` + `createGuestPlayer`/`convertGuestAccount`), `server/src/services/guestNames.ts` (guest handles), `server/src/dto.ts` (`parseRankingQuery`, `parseConvertAccountBody`, `parseAuthGuestBody`) |
+| Server auth | `server/src/http/routes/auth.ts` (`POST /guest`, always on), `server/src/services/authService.ts` (`createGuest`) |
 | Server persistence | `server/src/persistence/repositories.ts` (`PlayerRepo.updateDisplayName`, `Player.displayNameUpdatedAt`), `memory.ts`, `sqlite.ts` (incl. `display_name_updated_at` migration) |
 | Server wiring | `server/src/app.ts` (player router + `playerStatsRepo` dep), `server/src/services/sessionService.ts` (completion recording), `server/src/services/rating.ts` (tier type re-export), `server/src/dto.ts` (`parseUpdateDisplayNameBody`), `server/src/errors.ts` (`invalid_display_name`, `name_change_cooldown`) |
-| Server tests | `server/test/players.test.ts`, `playerService.test.ts`, `playerStatsRepo.test.ts`, `sessionFlow.test.ts`, `sqlite.test.ts`, `dto.test.ts`, `ranking.test.ts` (leaderboard HTTP: order, pagination, viewer rank, fallbacks, validation) |
-| Client adapter | `phaser/src/RemoteServer.ts` (`getProfile`, `updateDisplayName`, `getRanking`, `MultiplayerProfile`/`RankingPage` + shape guards), `RemoteServer.test.ts` |
-| Client screen | `phaser/src/Screens/MultiplayerLobby/` (`MultiplayerLobbyScreen.ts` (LOBBY/RANKING tabs) + `Components/`: `profilePanel.ts`, `statsPanel.ts`, `actionButtons.ts`, `changeName.ts`, `renameModal.ts`, `rankingPanel.ts`) |
+| Server tests | `server/test/players.test.ts`, `playerService.test.ts`, `playerStatsRepo.test.ts`, `sessionFlow.test.ts`, `sqlite.test.ts`, `dto.test.ts`, `ranking.test.ts` (leaderboard HTTP: order, pagination, viewer rank, fallbacks, validation), `guest.test.ts` (guest login, convert, rename guard) |
+| Client adapter | `phaser/src/RemoteServer.ts` (`getProfile`, `updateDisplayName`, `convertAccount`, `getRanking`, `MultiplayerProfile`/`RankingPage` + shape guards), `RemoteServer.test.ts` |
+| Client auth | `phaser/src/lib/guestAuth.ts` (+ `guestAuth.test.ts`), `authSession.ts` (guest provider), `itchAuth.ts`/`googleAuth.ts` (`getCredential`), `Screens/MultiplayerLogin/` (PLAY AS GUEST button) |
+| Client screen | `phaser/src/Screens/MultiplayerLobby/` (`MultiplayerLobbyScreen.ts` (LOBBY/RANKING tabs) + `Components/`: `profilePanel.ts`, `statsPanel.ts`, `actionButtons.ts`, `changeName.ts`, `connectAccount.ts` (guest CONNECT ACCOUNT button), `renameModal.ts`, `rankingPanel.ts`) |
 | Client wiring | `phaser/src/Screens/Title/Components/arenaButton.ts`, `Screens/ScreenManager.ts` (route), `Client.ts` (registry), `i18n/*.json` |
 
 ## Verification

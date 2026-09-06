@@ -25,6 +25,10 @@ export type ApiErrorCode =
   | "invalid_identity"
   | "invalid_display_name"
   | "name_change_cooldown"
+  | "guest_cannot_rename"
+  | "not_a_guest"
+  | "account_already_linked"
+  | "provider_not_enabled"
   | "internal_error";
 
 export class ApiError extends Error {
