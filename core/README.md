@@ -11,14 +11,7 @@ Mana Battle's game rules must execute identically in three environments:
    desktop/Android is a core feature, so the logic ships in the client bundle.
 2. **The Node game server** (`server/` — see
    [docs/game-server.md](../docs/game-server.md)) — the authoritative
-   multiplayer backend. The earlier Supabase edge functions
-   (`phaser/supabase/functions/`) were retired and **deleted 2026-08-13**
-   (Phase 3 client integration); they no longer consume current core.
-
-Historically all of this logic lived inside `phaser/src/`, with the boundary
-maintained only by convention. This package moves the **pure, deterministic
-game logic** out of the Phaser project into a standalone, framework-free
-package so that the boundary is enforced by tooling rather than discipline.
+   multiplayer backend.
 
 This package is named **core**, not "server": it is the shared rulebook that
 every consumer imports. Server-only runtime code (session persistence, edge
@@ -36,11 +29,11 @@ via `LocalServer`) and, once it lands, the game server.
 
 ## The three-layer model
 
-| Layer              | Location                                | Contents                                                                                                | Imported by          |
-|--------------------|-----------------------------------------|---------------------------------------------------------------------------------------------------------|----------------------|
-| **Shared core**    | `core/`                                 | Pure game logic: no Phaser, no browser globals, no Node APIs, no I/O                                    | client, server, edge |
-| **Client runtime** | `phaser/src/`                           | Screens, UI, audio, playback, client adapters (`LocalServer`, `RemoteServer`, `getServer()` selection) | client only          |
-| **Server runtime** | `server/` (planned)                     | Persistence, validation, networking, credentials                                                        | server only          |
+| Layer              | Location            | Contents                                                                                               | Imported by          |
+|--------------------|---------------------|--------------------------------------------------------------------------------------------------------|----------------------|
+| **Shared core**    | `core/`             | Pure game logic: no Phaser, no browser globals, no Node APIs, no I/O                                   | client, server, edge |
+| **Client runtime** | `phaser/src/`       | Screens, UI, audio, playback, client adapters (`LocalServer`, `RemoteServer`, `getServer()` selection) | client only          |
+| **Server runtime** | `server/` (planned) | Persistence, validation, networking, credentials                                                       | server only          |
 
 **Import rules:**
 
@@ -132,13 +125,6 @@ the client sends actions and receives server-authoritative results.
    hard-fails on unresolved bare imports.
 3. **Jest** — `phaser/jest.config.cjs` maps `@game/*` to `../core/src/*`.
 
-## Current state
-
-The migration is **complete** — all replay-critical game logic lives in this
-package. Test baseline (2026-08-14): **66 suites / 602 tests**, all green via
-`cd core && npm test`; deterministic, no Phaser/DOM mocks. See
-[purify.md](../purify.md) for how ~2,000 LOC moved out of `phaser/`.
-
 ### Package layout
 
 `src/index.ts` is the public barrel (`@game/index` / `@mana/core`). Map:
@@ -175,52 +161,6 @@ module paths above for new code.
   `declare module "@game/*"` shim in `server/types/phaser-aliases.d.ts` is
   gone).
 
-## Migration plan
-
-> **Status: complete.** Phases 1–2 are done — the pure logic lives in this
-> package. Phase 3 (server runtimes) is superseded by the new game-server
-> plan: [docs/game-server.md](../docs/game-server.md). The items below are
-> kept as a historical record of the migration.
-
-### Phase 1 — Decouple the would-be-core from the client (prerequisite)
-
-Known leaks found in the July 2026 audit that block moving larger modules:
-
-- `Core/GameController.ts` imports `@Screens/...` UI modules and uses the
-  `state`/`io` browser globals → move it to `phaser/src/Client/` (it is
-  client orchestration) or invert the UI calls behind events. (done, moved to
-  /Client)
-- `Core/SessionManager.ts` and `Core/RemoteServer.ts` touch `localStorage`
-  at module scope; `RemoteServer` imports `@lib/supabase` → keep both in the
-  client, or inject storage/networking.
-- `Core/Combat/RunCombatCore.ts` runtime-imports `@Systems/CountdownTimer`
-  (which pulls in Phaser shaders) for a **type only** → `import type` or move
-  the state type into core.
-- The five de-facto-pure combat systems (`TimeoutDamageSystem`,
-  `PoisonDamageSystem`, `RegenSystem`, `StatusEffectSystem`,
-  `CombatStatsTracker`) live in `phaser/src/Systems/` → move into `core/`.
-- Client-side duplicates of server constants (`MIN_COOLDOWN` in
-  `CombatPlaybackController`, orb cooldown constants in `Orbs.ts`) → import
-  from core instead.
-- `GameController.selectEncounter` mutates `encounter_history` client-side
-  before dispatch → move into the server action handler.
-
-### Phase 2 — Move the pure logic
-
-In rough order: `Models/` → `Data/` → `TriggerSystem/` → combat
-(`Core/Combat/*`) → `GameLogic`/`SessionTransitions`/`PhaseSystem` →
-`Core/Constants.ts` (already marked `// TODO: move to core`) and
-`Core/Combat/CombatConstants.ts`.
-
-Keep the existing alias names (`@Models/*`, `@Core/*`, …) but repoint them to
-`core/src/...` so import sites don't churn.
-
-### Phase 3 — Server runtimes & formalization (superseded)
-
-- Consider npm workspaces at the repo root to formalize dependency direction
-  (`@mana/core` has zero workspace dependencies).
-- Extend ESLint boundaries: ban client imports from anything in `core/`
-  (tracked in [docs/core-code-quality.md](../docs/core-code-quality.md), P3).
 
 ## Validation commands
 

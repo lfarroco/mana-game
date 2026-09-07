@@ -21,8 +21,8 @@ npm run dev        # multiplayer API at http://127.0.0.1:8787
 ```
 
 Single-player and local multiplayer work out of the box. Online logins
-(Steam / itch.io / Google) require server-side keys the maintainers hold —
-see `cp .env.example .env` and [docs/building-and-running.md](docs/building-and-running.md)
+(Steam / itch.io / Google) require server-side keys the maintainers hold.
+See `cp .env.example .env` and [docs/building-and-running.md](docs/building-and-running.md)
 for details.
 
 ## Overview
@@ -32,7 +32,7 @@ for details.
 - Each unit has a "cooldown" in seconds, not turns
 - Combat simulated in pure environment, generating data 
 - Steam achievements and cloud saves
-- Cross-platform: Windows, macOS, Linux
+- Cross-platform: Web, Windows, macOS, Linux
 
 ## Tech Stack
 
@@ -40,7 +40,7 @@ for details.
 - **TypeScript** - Language
 - **Electron** - Desktop wrapper (Steam release)
 - **Capacitor** - Android wrapper
-- **Node + express** - Multiplayer game server (`server/`)
+- **Node + express / Firestore + Cloud Functions** - Multiplayer game server
 - **Steamworks** - Achievements & cloud saves (Steam release)
 
 ## Architecture

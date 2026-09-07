@@ -198,7 +198,7 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | `MANA_SQLITE_PATH`     | —             | Opt into durable SQLite persistence (a database file path or `:memory:`); unset = in-memory repos |
 | `MANA_FIRESTORE_PROJECT_ID` | —          | Opt into Firestore persistence (the Firebase backend — wins over SQLite when both are set); unset = SQLite/memory selection |
 
-## Persistence (Phase 4)
+## Persistence
 
 Persistence is behind repository interfaces (`src/persistence/repositories.ts`,
 all async) with three implementations: in-memory (`memory.ts`, the
