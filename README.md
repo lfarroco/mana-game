@@ -4,7 +4,26 @@ You can play it for free on [itch](https://lfarroco.itch.io/mana-battle).
 
 The [Steam](https://store.steampowered.com/app/3757600/Mana_Battle) version offers Achievements and Cloud Saves.
 
-A trigger-based autobattler in a 3x3 board.
+A trigger-based autobattler in a 3x3 board. This repository is open source (MIT) — see [Contributing](#contributing) to run it locally or hack on it.
+
+## Quick Start
+
+```bash
+cd phaser
+npm install
+npm run dev        # game at http://localhost:8080
+```
+
+```bash
+cd server
+npm install
+npm run dev        # multiplayer API at http://127.0.0.1:8787
+```
+
+Single-player and local multiplayer work out of the box. Online logins
+(Steam / itch.io / Google) require server-side keys the maintainers hold —
+see `cp .env.example .env` and [docs/building-and-running.md](docs/building-and-running.md)
+for details.
 
 ## Overview
 
@@ -19,8 +38,10 @@ A trigger-based autobattler in a 3x3 board.
 
 - **Phaser 3** - Game engine
 - **TypeScript** - Language
-- **Electron** - Desktop wrapper
-- **Steam** - Achievements & cloud saves
+- **Electron** - Desktop wrapper (Steam release)
+- **Capacitor** - Android wrapper
+- **Node + express** - Multiplayer game server (`server/`)
+- **Steamworks** - Achievements & cloud saves (Steam release)
 
 ## Architecture
 
@@ -32,6 +53,7 @@ A trigger-based autobattler in a 3x3 board.
   - Events
 - Client Framework (`framework/`): system for managing screens and listeners
 - Core game logic (`core/`):  pure, framework-agnostic package
+- Multiplayer server (`server/`): authoritative Node API (sessions, matchmaking, auth) — see [docs/game-server.md](docs/game-server.md)
 
 ## Documentation
 
@@ -57,7 +79,18 @@ Detailed documentation is organized by topic in the `docs` directory:
 
 See [AGENTS.md](AGENTS.md) for the AI agent guide — project knowledge index, current issues, task queue, and workflow instructions.
 
-## Publishing
+## Contributing
+
+Issues and pull requests are welcome. Each package has its own `AGENTS.md`
+with conventions — read it before editing (`core/`, `framework/`, `server/`,
+`phaser/`). Run the package's tests + typecheck before submitting; format with
+`npm run format` from the repo root. For AI-assisted contributions, start at
+[AGENTS.md](AGENTS.md).
+
+## Publishing (maintainers only)
+
+Publishing needs private credentials (Steam, itch.io, Play signing keys) that
+are not in this repo — forks cannot run these targets as-is.
 
 > Release builds must be made with `MANA_SERVER_URL=https://us-central1-mana-battle-f3b15.cloudfunctions.net/api`
 > (and `MANA_ITCH_CLIENT_ID` for the web build) so multiplayer points at the
@@ -72,3 +105,7 @@ See [AGENTS.md](AGENTS.md) for the AI agent guide — project knowledge index, c
 - Steam Demo: `make steam-publish-demo`.
 - Itch: `make itch-publish` — builds the web build and pushes it to itch.io via butler.
 - Android: run `make android-build`, then, in Android Studio, Build > Generate Signed Bundle / APK.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

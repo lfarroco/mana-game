@@ -2,6 +2,7 @@
 	"name": "@mana/core",
 	"version": "0.1.0",
 	"private": true,
+	"license": "MIT",
 	"description": "Pure, framework-agnostic game logic shared by the Phaser client, the Node agent server, and Supabase edge functions.",
 	"type": "module",
 	"exports": {

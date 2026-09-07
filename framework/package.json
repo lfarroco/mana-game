@@ -2,6 +2,7 @@
 	"name": "@mana/framework",
 	"version": "0.1.0",
 	"private": true,
+	"license": "MIT",
 	"description": "Engine-agnostic client framework: screen lifecycle, resource tracking, and typed navigation.",
 	"type": "module",
 	"exports": {

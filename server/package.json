@@ -2,6 +2,7 @@
   "name": "mana-game-server",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Authoritative game server for Mana Battle multiplayer sessions.",
   "type": "module",
   "main": "dist/functions.cjs",
