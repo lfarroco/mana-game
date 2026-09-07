@@ -18,7 +18,7 @@ export
 # bundled JBR. Override by exporting JAVA_HOME or setting it in root .env.
 JAVA_HOME ?= /Applications/Android Studio.app/Contents/jbr/Contents/Home
 
-.PHONY: dev electron electron-dev electron-dev-cloud electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux electron-build-demo-all android-build android-open steam-publish steam-publish-demo steam-config-vdf steam-cmd-image itch-publish itch-butler-image server-install server-dev server-test server-typecheck server-mp server-db server-db-summary functions-deploy
+.PHONY: dev electron electron-dev electron-dev-cloud electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux electron-build-demo-all android-build android-open steam-publish steam-publish-demo steam-cmd-image itch-publish itch-butler-image server-install server-dev server-test server-typecheck server-mp server-db server-db-summary functions-deploy
 
 dev:
 	cd $(PHASER_DIR) && npm run dev
@@ -112,9 +112,10 @@ android-open:
 # root .env (safe parse), defaults MANA_SERVER_URL to prod, runs pre-push
 # tests + typecheck, builds win/mac/linux, then uploads via steamcmd in the
 # `steamcmd/steamcmd:debian-12` Docker image (default — nothing installed on
-# the host; force host steamcmd with STEAM_CMD=host). Credentials:
-# STEAM_USERNAME (+ STEAM_PASSWORD / STEAM_GUARD_CODE for non-interactive
-# Docker/CI). See steam/STEAM_UPLOAD.md.
+# the host; force host steamcmd with STEAM_CMD=host). Auth is interactive:
+# STEAM_USERNAME comes from .env, the password + Steam Guard code are prompted
+# (export STEAM_PASSWORD / STEAM_GUARD_CODE for a non-interactive run).
+# See steam/STEAM_UPLOAD.md.
 steam-publish:
 	./$(STEAM_DIR)/scripts/publish_steam.sh
 
@@ -125,14 +126,6 @@ steam-publish-demo:
 # when the host has no steamcmd installed (the default runner is Docker).
 steam-cmd-image:
 	docker pull steamcmd/steamcmd:debian-12
-
-# Encode the locally-cached Steam session (config.vdf) into the root .env as
-# STEAM_CONFIG_VDF_B64 so `make steam-publish` / `make steam-publish-demo` run
-# fully unattended — no password or MFA prompts. See
-# steam/scripts/encode_config_vdf.sh. Run it again if the session is
-# invalidated (e.g. logging out of the Steam client).
-steam-config-vdf:
-	./$(STEAM_DIR)/scripts/encode_config_vdf.sh --update-env
 
 # Build the production web build and push it to itch.io via butler
 # (phaser/scripts/publish_itch.sh) — no upload dashboard needed. Exports the

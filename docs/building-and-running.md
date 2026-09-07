@@ -175,26 +175,18 @@ wrappers; `publish_steam_demo.sh` just sets `STEAM_DEMO=1`).
 - **Runner**: the official `steamcmd/steamcmd:debian-12` **Docker** image
   (pulled on first use — **nothing is installed on the host**). Force the host
   `steamcmd` with `STEAM_CMD=host`. Refresh the image with `make steam-cmd-image`.
-- **Credentials**: `STEAM_USERNAME` is required. Two auth modes:
-  - **Credentials** — `STEAM_PASSWORD` (+ `STEAM_GUARD_CODE` for 2FA). Docker
-    mode is non-interactive, so it needs them in the environment/`.env`; host
-    mode can prompt interactively instead.
-  - **Cached session (fully unattended, no MFA)** — set `STEAM_CONFIG_VDF`
-    (file path) or `STEAM_CONFIG_VDF_B64` (base64 content, e.g. a CI secret) to
-    a `config.vdf` from a machine where you logged in once. Used by the
-    GitHub Actions workflow.
-- The script reads the root `.env` (safe parse — only `MANA_SERVER_URL`,
-  `STEAM_USERNAME`, `STEAM_PASSWORD`, `STEAM_GUARD_CODE`, `STEAM_CONFIG_VDF`,
-  `STEAM_CONFIG_VDF_B64`) and defaults
+- **Credentials**: `STEAM_USERNAME` lives in the root `.env` (not a secret).
+  The password + Steam Guard code are never stored — the script prompts for
+  them on the terminal each run (or takes exported `STEAM_PASSWORD` /
+  `STEAM_GUARD_CODE` for a non-interactive run).
+- The script reads the root `.env` (safe parse — only `MANA_SERVER_URL` and
+  `STEAM_USERNAME`) and defaults
   `MANA_SERVER_URL` to the production value, so the pushed build always has
   working multiplayer. It also runs `test:unit` + `typecheck` before building.
 - Each push gets a descriptive build name (`v<version> — <date>`, override
   `STEAM_BUILD_DESC`) visible in Steamworks → Builds. Builds are **not** set
   live automatically — promote them in Steamworks.
-- **CI/CD**: `.github/workflows/publish-steam.yml` runs the same flow
-  (build on macOS → upload on Ubuntu via Docker, cached-session auth, no MFA).
-  Set `STEAM_USERNAME` + `STEAM_CONFIG_VDF` repo secrets and run it from the
-  Actions tab.
+- There is no CI publishing path — uploading is a local interactive step.
 - Overrides: `MANA_SKIP_CHECKS=1` (skip pre-push checks),
   `MANA_SKIP_BUILD=1` (upload the existing `dist-electron/` without rebuilding),
   `STEAM_CMD=host`, `STEAMCMD_IMAGE`, `STEAM_BUILD_DESC`, `STEAM_DRY_RUN=1`

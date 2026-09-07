@@ -19,9 +19,9 @@ same script).
 
 Each run, in order:
 
-1. reads the root `.env` (safe parse — only `MANA_SERVER_URL`, `STEAM_USERNAME`,
-   `STEAM_PASSWORD`, `STEAM_GUARD_CODE`, `STEAM_CONFIG_VDF`, `STEAM_CONFIG_VDF_B64`;
-   the Make-flavored lines are ignored),
+1. reads the root `.env` (safe parse — only `MANA_SERVER_URL` and
+   `STEAM_USERNAME`; the Make-flavored lines are ignored — secrets are never
+   read from `.env`),
 2. defaults `MANA_SERVER_URL` to `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api` so the build
    bakes the production server URL (a missing value would point multiplayer at
    the player's own machine),
@@ -48,41 +48,36 @@ Each run, in order:
 ### Credentials
 
 The upload authenticates with your **Steam account** (the one with Steamworks
-permissions). Set these in the root `.env` (gitignored) or the environment:
+permissions). `STEAM_USERNAME` lives in the root `.env` (gitignored, not a
+secret). The **password** and the **Steam Guard code** are never stored
+anywhere — the script prompts for them on the terminal each run:
 
-| Variable            | Required       | Meaning                        |
-|---------------------|----------------|--------------------------------|
-| `STEAM_USERNAME`    | ✅             | Steam account name             |
-| `STEAM_PASSWORD`    | Docker / CI    | Account password               |
-| `STEAM_GUARD_CODE`  | 2FA accounts   | Steam Guard / mobile-auth code |
+```bash
+make steam-publish
+# Steam username: <taken from .env, or prompted>
+# Steam password: (hidden)
+# Steam Guard code (Enter to skip):
+```
 
-**Fully unattended (no MFA prompts)** — instead of a password, point the script
-at a **cached Steam login** (a `config.vdf` from a machine where you logged in
-once — see [Automated / CI](#automated--ci-no-mfa-prompts)). Set
-`STEAM_CONFIG_VDF` (file path) or `STEAM_CONFIG_VDF_B64` (base64 content, e.g. a
-CI secret). When either is set, `STEAM_PASSWORD`/`STEAM_GUARD_CODE` are not
-required.
+For a non-interactive run (pipe, cron) export them up front instead:
 
-Docker mode is non-interactive (no TTY), so with credentials it needs
-`STEAM_PASSWORD` — and `STEAM_GUARD_CODE` when the account uses two-factor auth.
-Host mode can be interactive: leave the password unset and steamcmd prompts on
-the terminal.
+```bash
+STEAM_USERNAME=... STEAM_PASSWORD=... STEAM_GUARD_CODE=... make steam-publish
+```
 
-> **Security**: never commit real credentials. The password is passed on the
-> steamcmd command line (visible in `ps` while the upload runs) — the official
-> SteamPipe instructions work the same way. Prefer the interactive host mode
-> locally and env vars in CI.
+> **Security**: nothing secret rests in a file — no cached sessions, no tokens.
+> The password is passed on the steamcmd command line (visible in `ps` while
+> the upload runs) — the official SteamPipe instructions work the same way —
+> but it only ever comes from your keystrokes or a one-shot export.
 
 ## Overrides
 
 | Variable             | Default | Meaning |
 |----------------------|---------|--------------------------------|
 | `STEAM_DEMO=1`       | `0` | Target the demo app (4233280) instead of the full game |
-| `STEAM_USERNAME`     | — | Steam account with Steamworks access (required) |
-| `STEAM_PASSWORD`     | — | Account password (credential auth) |
-| `STEAM_GUARD_CODE`   | — | Steam Guard / mobile-auth code (2FA accounts) |
-| `STEAM_CONFIG_VDF`   | — | Path to a config.vdf with a cached Steam login (no MFA) |
-| `STEAM_CONFIG_VDF_B64` | — | Base64-encoded config.vdf content (CI secrets); when both are set, B64 wins |
+| `STEAM_USERNAME`     | — | Steam account with Steamworks access (may live in `.env`; prompted when unset) |
+| `STEAM_PASSWORD`     | — | Account password (prompted when unset; export for non-interactive runs) |
+| `STEAM_GUARD_CODE`   | — | Steam Guard / mobile-auth code (prompted; Enter skips; export for non-interactive runs) |
 | `STEAM_BUILD_DESC`   | `v<version> — <date>` | Build description shown in Steamworks → Builds |
 | `STEAM_CMD`          | `docker` | `host` → use the machine's steamcmd |
 | `STEAMCMD_IMAGE`     | `steamcmd/steamcmd:debian-12` | Docker image for the runner |
@@ -109,8 +104,9 @@ the terminal.
 make steam-publish
 ```
 
-1. Set `STEAM_USERNAME` (+ `STEAM_PASSWORD`/`STEAM_GUARD_CODE`) in the root `.env`.
-2. Run `make steam-publish` (build + upload, all three platforms).
+1. Set `STEAM_USERNAME` in the root `.env`.
+2. Run `make steam-publish` (build + upload, all three platforms), typing the
+   password + Steam Guard code when prompted.
 3. Promote when ready: Steamworks → `3757600` → **Builds** → right-click the
    new build → *Set branch / Release Candidate*.
 
@@ -125,90 +121,24 @@ Same flow against App `4233280`. The build is made with `IS_DEMO=true`, so the
 first** (`make electron-dev-demo`): no units unlock, no achievements trigger,
 the game stops at 5 victories and shows "Demo Complete".
 
-## Automated / CI (no MFA prompts)
+## Non-interactive runs
 
-Fully unattended uploads (GitHub Actions, cron, tag pushes) are possible because
-steamcmd can reuse a **cached login session** — the same mechanism that lets the
-Steam client auto-log-in. No TOTP extraction or rooted phones involved.
+There is no unattended / CI path anymore — publishing is a local step where
+you type the password + Steam Guard code when prompted. (The old cached-session
+`config.vdf` flow and the `publish-steam.yml` GitHub workflow were removed:
+a fresh runner always looks like a new device to Steam, so a stored session
+or a static guard-code secret can't log in reliably. If you still have a
+`STEAM_CONFIG_VDF_B64` line in your root `.env`, delete it.)
 
-### 1. Dedicated build account
-
-Create a separate Steam account for publishing (don't use your personal admin
-account). In Steamworks → **Users & Permissions**, add it with **Edit App
-Metadata** and **Publish App Changes to Customers** for the game + demo apps
-(see the [official uploading docs](https://partner.steamgames.com/doc/sdk/uploading#Build_Account)).
-This account's username is the `STEAM_USERNAME` everywhere.
-
-### 2. Generate the cached session (config.vdf) once
-
-> **Must be generated by steamcmd** — the Steam *desktop client's* config.vdf
-> does NOT contain the cached-credential block steamcmd needs (no `"accounts"`
-> section), so encoding it won't work. Close the Steam desktop client first
-> (both write the same `config.vdf` file), then log in once with steamcmd:
+For a non-interactive invocation (pipe, cron) export the credentials up front:
 
 ```bash
-steamcmd +login <build_account> +quit
+STEAM_USERNAME=... STEAM_PASSWORD=... STEAM_GUARD_CODE=... make steam-publish
 ```
 
-Type the password, then the emailed Steam Guard code when asked. That login is
-persisted to a `config.vdf` — encode it:
-
-```bash
-# macOS
-cat "$HOME/Library/Application Support/Steam/config/config.vdf" | base64
-# Linux
-cat "$HOME/.local/share/Steam/config/config.vdf" | base64
-```
-
-The encoded blob is an auth token — store it only in a secrets manager, never in
-the repo, and rotate it periodically or if it leaks.
-
-### 3. GitHub Actions
-
-The repo ships `.github/workflows/publish-steam.yml` — a manual
-`workflow_dispatch` with an `app` choice (`demo`/`full`) plus an optional
-version. Set these repository secrets (**Settings → Secrets and variables →
-Actions**):
-
-| Secret              | Value |
-|---------------------|-------|
-| `STEAM_USERNAME`    | the build account's Steam username |
-| `STEAM_CONFIG_VDF`  | the base64 from step 2 |
-| `MANA_SERVER_URL`   | optional — defaults to `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api` |
-
-Then **Actions → Publish to Steam → Run workflow** → pick `demo` or `full`. Job
-1 builds win/mac/linux on macOS; job 2 uploads on Ubuntu through the Docker
-steamcmd runner with the config.vdf mounted into the container — no prompts
-anywhere.
-
-### 4. Refreshing the session
-
-When the cached token expires (steamcmd prints `FAILED (License expired)` or
-requests a new MFA code):
-
-1. `steamcmd +login <build_account> <password> +quit` locally,
-2. enter the new emailed code,
-3. re-encode the config.vdf and update the `STEAM_CONFIG_VDF` secret.
-
-### Local unattended run (no GitHub needed)
-
-The same no-MFA flow runs from your machine — no GitHub Actions involved:
-
-```bash
-make steam-config-vdf              # encode the steamcmd session into .env
-STEAM_CMD=host make steam-publish  # full game — build + upload, no prompts
-```
-
-`make steam-config-vdf` runs `steam/scripts/encode_config_vdf.sh --update-env`,
-which base64-encodes the steamcmd-generated `config.vdf` on this machine (macOS:
-`~/Library/Application Support/Steam/config/config.vdf`) into
-`STEAM_CONFIG_VDF_B64` in the root `.env`. The publish script then logs in with
-that cached session — no password or MFA prompts.
-
-Prefer `STEAM_CMD=host` locally: the session was created on this machine, so
-Steam never treats it as a new device. The default Docker runner works the same
-way (and is what CI uses); if Steam asks for a new-device code on the first
-container login, refresh the session (§4) or use `STEAM_CMD=host`.
+If Steam asks for a new-device code on the first container login, check the
+account email and pass the code as `STEAM_GUARD_CODE` (or type it at the
+prompt on the next run).
 
 Dry-run first to see the exact command without uploading anything:
 
@@ -224,12 +154,13 @@ before uploading and prints the exact build command if any is missing. Make sure
 you didn't use `MANA_SKIP_BUILD=1` against a stale or partial build.
 
 ### SteamCMD login issues
-- Wrong password / guard code → double-check `STEAM_PASSWORD` / `STEAM_GUARD_CODE`.
+- Wrong password / guard code → re-run and type them fresh when prompted.
 - New-device email code: first login from a fresh container may ask for a code
-  sent to the account email — put it in `STEAM_GUARD_CODE`.
+  sent to the account email — type it at the `Steam Guard code` prompt (or
+  export `STEAM_GUARD_CODE`).
 - "Press Enter" Steam Subscriber Agreement prompt: Docker mode auto-answers it.
-- Password missing in Docker mode → the script errors with instructions (set
-  the env vars, or use `STEAM_CMD=host` for an interactive login).
+- No TTY (pipes, cron) → the script can't prompt; export `STEAM_USERNAME` /
+  `STEAM_PASSWORD` (+ `STEAM_GUARD_CODE`) up front instead.
 
 ### Wrong version uploaded
 - **Full game**: make sure you didn't run with `STEAM_DEMO=1`.
@@ -243,8 +174,8 @@ Verify the depot IDs in Steamworks match the VDF files. Full game depots:
 
 ### Run from macOS
 The script builds the macOS depot with electron-builder, which can only
-cross-compile Windows/Linux from macOS — run `make steam-publish*` on a Mac
-(the GitHub Actions workflow builds on a macOS runner for you).
+produce the mac target on macOS itself (Windows/Linux cross-compile from
+anywhere) — run `make steam-publish*` on a Mac.
 
 ## Quick reference
 

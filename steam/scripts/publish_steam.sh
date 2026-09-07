@@ -14,21 +14,12 @@
 #   - The default runner is Docker: steamcmd runs inside the official
 #     `steamcmd/steamcmd:debian-12` image (pulled on first use — nothing is
 #     installed on the host). Force the host `steamcmd` with STEAM_CMD=host.
-#   - Auth, two ways:
-#       * Credentials: STEAM_USERNAME + STEAM_PASSWORD (+ STEAM_GUARD_CODE for
-#         2FA accounts). Host mode prompts on the TTY; Docker/CI mode needs
-#         them in env / the root .env.
-#       * Cached session — fully unattended, no MFA prompts (the CI path):
-#         set STEAM_CONFIG_VDF (path to a config.vdf) or STEAM_CONFIG_VDF_B64
-#         (base64 content, e.g. a GitHub Actions secret). steamcmd logs in with
-#         the saved refresh token and never asks for a password or code.
-#         Produce it by logging in once locally (steamcmd +login <user> <pass>,
-#         complete the MFA email/code), then base64 the config.vdf file
-#         (macOS: ~/Library/Application Support/Steam/config/config.vdf;
-#         Linux: ~/.local/share/Steam/config/config.vdf). Docker mode mounts it
-#         into the container; host mode writes it to the platform Steam config
-#         path, backing up any existing file. It is an auth token — rotate it
-#         periodically or if it leaks.
+#   - Auth is interactive: the script uses STEAM_USERNAME from the env / root
+#     .env (not a secret, safe to store) and prompts on the TTY for the
+#     password and the Steam Guard code when they aren't already exported.
+#     Nothing secret is stored anywhere — no cached sessions, no tokens.
+#     Non-interactive use (pipes, cron) must export STEAM_USERNAME,
+#     STEAM_PASSWORD (+ STEAM_GUARD_CODE for 2FA accounts) up front.
 #
 # The root .env is read (safe parse — only the keys this script needs) so the
 # Electron build bakes the production values (MANA_SERVER_URL) exactly like
@@ -39,12 +30,12 @@
 #
 # Overrides:
 #   STEAM_DEMO=1         target the demo app (4233280) instead of the full game
-#   STEAM_USERNAME       Steam account with Steamworks access — required
-#   STEAM_PASSWORD       account password (credential auth)
-#   STEAM_GUARD_CODE     Steam Guard / mobile-auth code (2FA accounts)
-#   STEAM_CONFIG_VDF     path to a config.vdf with a cached Steam login
-#   STEAM_CONFIG_VDF_B64 base64-encoded config.vdf content (CI secrets). When
-#                        both are set, B64 wins.
+#   STEAM_USERNAME       Steam account with Steamworks access. May live in the
+#                        root .env (not a secret); prompted when unset.
+#   STEAM_PASSWORD       account password. Export it for non-interactive use;
+#                        otherwise prompted (never stored).
+#   STEAM_GUARD_CODE     Steam Guard / mobile-auth code (2FA accounts). Export
+#                        it or type it when prompted (Enter skips).
 #   STEAM_BUILD_DESC     build description in Steamworks → Builds,
 #                        default "v<version> — <date>"
 #   STEAM_CMD=docker     runner; set "host" to use the machine's steamcmd
@@ -59,8 +50,8 @@
 #   - First login from a fresh container may print a "press Enter to continue"
 #     Steam Subscriber Agreement prompt — Docker mode auto-answers it on stdin.
 #   - The password is passed on the steamcmd command line (visible in `ps` while
-#     running) exactly like the official SteamPipe instructions; prefer the
-#     cached-session auth (or interactive host mode) locally and secrets in CI.
+#     running) exactly like the official SteamPipe instructions; it is only
+#     ever typed at the prompt or exported for one run, never stored.
 
 set -euo pipefail
 
@@ -69,7 +60,7 @@ REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && pwd)
 PHASER_DIR="$REPO_ROOT/phaser"
 STEAM_CONFIG_DIR="$REPO_ROOT/steam/steam_config"
 
-# --- Which app are we publishing? (STEAM_DEMO=1 → demo wrapper / CI) ---
+# --- Which app are we publishing? (STEAM_DEMO=1 → demo wrapper) ---
 DEMO="${STEAM_DEMO:-0}"
 if [ "$DEMO" = "1" ]; then
     APP_ID="4233280"
@@ -101,8 +92,10 @@ load_env() {
         return 0
     fi
     local key val
-    for key in MANA_SERVER_URL STEAM_USERNAME STEAM_PASSWORD STEAM_GUARD_CODE \
-               STEAM_CONFIG_VDF STEAM_CONFIG_VDF_B64; do
+    # Only non-secret keys are read from .env — STEAM_PASSWORD /
+    # STEAM_GUARD_CODE must be exported in the environment or typed at the
+    # prompt, so no secret ever rests in a file.
+    for key in MANA_SERVER_URL STEAM_USERNAME; do
         if [ -z "${!key:-}" ]; then
             val=$(grep -E "^${key}=" "$env_file" 2>/dev/null | tail -n 1 | cut -d= -f2- || true)
             if [ -n "$val" ]; then
@@ -150,65 +143,48 @@ else
     fi
 fi
 
-# --- Auth mode: cached session (config.vdf) or live credentials ---
-# A cached Steam login (config.vdf) makes the upload fully unattended — no
-# password or MFA prompt — which is what CI needs. Materialize it first so the
-# banner and the mount/install logic below can rely on CONFIG_VDF_PATH.
-AUTH_MODE="credential"
-CONFIG_VDF_PATH=""
+# --- Credentials: prompt for what isn't exported ---
+# STEAM_USERNAME may come from the root .env (not a secret). The password and
+# guard code are never read from .env — export them for a non-interactive run
+# or type them when asked. Cached-session auth (config.vdf) is gone: if the
+# old token vars are still set anywhere, say so and ignore them.
 if [ -n "${STEAM_CONFIG_VDF_B64:-}" ] || [ -n "${STEAM_CONFIG_VDF:-}" ]; then
-    AUTH_MODE="cached"
-    if [ -n "${STEAM_CONFIG_VDF_B64:-}" ]; then
-        CONFIG_VDF_PATH=$(mktemp "${TMPDIR:-/tmp}/mana-steam-config.XXXXXX")
-        printf '%s' "$STEAM_CONFIG_VDF_B64" | base64 -d > "$CONFIG_VDF_PATH" || {
-            echo "Error: STEAM_CONFIG_VDF_B64 is not valid base64 — check the secret."
-            exit 1
-        }
-        trap 'rm -f "$CONFIG_VDF_PATH"' EXIT
-    else
-        CONFIG_VDF_PATH="$STEAM_CONFIG_VDF"
-    fi
-    if [ ! -s "$CONFIG_VDF_PATH" ]; then
-        echo "Error: the config.vdf file is empty ($CONFIG_VDF_PATH)."
-        echo "Regenerate it: log in once locally with steamcmd and base64 the"
-        echo "resulting config.vdf (see steam/STEAM_UPLOAD.md §Automated / CI)."
-        exit 1
-    fi
-    if ! grep -q '"Accounts"' "$CONFIG_VDF_PATH"; then
-        echo "Error: the config.vdf has no cached Steam credentials (\"Accounts\" section)."
-        echo "The Steam desktop client's session can't be reused by steamcmd — generate"
-        echo "one with steamcmd itself (steamcmd +login <user> +quit, complete the MFA),"
-        echo "then re-run the encode script (see steam/STEAM_UPLOAD.md §Automated / CI)."
-        exit 1
-    fi
+    echo "Warning: STEAM_CONFIG_VDF(_B64) is set but cached-session auth was"
+    echo "removed — ignoring it. Delete that line from the root .env; you will"
+    echo "be prompted for the password + Steam Guard code instead."
+    echo ""
 fi
-
-# --- Credentials ---
 if [ -z "${STEAM_USERNAME:-}" ]; then
-    echo "Error: STEAM_USERNAME is not set."
-    echo "Set it in $REPO_ROOT/.env or the environment (the Steam account with"
-    echo "Steamworks access to app $APP_ID)."
+    if [ -t 0 ]; then
+        read -rp "Steam username: " STEAM_USERNAME
+    else
+        echo "Error: STEAM_USERNAME is not set and there is no TTY to prompt on."
+        echo "Set it in $REPO_ROOT/.env or export it (the Steam account with"
+        echo "Steamworks access to app $APP_ID)."
+        exit 1
+    fi
+fi
+if [ -z "${STEAM_USERNAME:-}" ]; then
+    echo "Error: no Steam username given."
     exit 1
 fi
-if [ "$AUTH_MODE" = "credential" ] && [ "$RUNNER_MODE" = "docker" ] && [ -z "${STEAM_PASSWORD:-}" ]; then
-    echo "Error: Docker mode runs steamcmd non-interactively — it needs the"
-    echo "credentials in env / .env: set STEAM_PASSWORD (+ STEAM_GUARD_CODE for"
-    echo "2FA accounts), or use STEAM_CMD=host for an interactive login, or set"
-    echo "STEAM_CONFIG_VDF_B64 for cached-session auth (no MFA)."
-    exit 1
+if [ -z "${STEAM_PASSWORD:-}" ]; then
+    if [ -t 0 ]; then
+        read -rsp "Steam password: " STEAM_PASSWORD
+        echo ""
+    else
+        echo "Error: STEAM_PASSWORD is not set and there is no TTY to prompt on."
+        echo "Export STEAM_PASSWORD (+ STEAM_GUARD_CODE for 2FA accounts) and retry."
+        exit 1
+    fi
+fi
+if [ -z "${STEAM_GUARD_CODE:-}" ] && [ -t 0 ]; then
+    read -rp "Steam Guard code (Enter to skip): " STEAM_GUARD_CODE
 fi
 
-LOGIN_ARGS=("$STEAM_USERNAME")
-if [ "$AUTH_MODE" = "credential" ]; then
-    # In credential mode pass the password (+ guard code). In cached mode the
-    # password MUST NOT be passed: giving steamcmd a password forces a fresh
-    # username/password login and bypasses the cached config.vdf session.
-    if [ -n "${STEAM_PASSWORD:-}" ]; then
-        LOGIN_ARGS+=("$STEAM_PASSWORD")
-        if [ -n "${STEAM_GUARD_CODE:-}" ]; then
-            LOGIN_ARGS+=("$STEAM_GUARD_CODE")
-        fi
-    fi
+LOGIN_ARGS=("$STEAM_USERNAME" "$STEAM_PASSWORD")
+if [ -n "${STEAM_GUARD_CODE:-}" ]; then
+    LOGIN_ARGS+=("$STEAM_GUARD_CODE")
 fi
 
 STEAMCMD_IMAGE="${STEAMCMD_IMAGE:-steamcmd/steamcmd:debian-12}"
@@ -222,11 +198,7 @@ if [ "$RUNNER_MODE" = "docker" ]; then
 else
     echo "  runner:            host steamcmd"
 fi
-if [ "$AUTH_MODE" = "cached" ]; then
-    echo "  auth:              cached session (config.vdf)"
-else
-    echo "  auth:              credentials (password${STEAM_GUARD_CODE:+ + guard code})"
-fi
+echo "  auth:              credentials (password${STEAM_GUARD_CODE:+ + guard code})"
 echo "  MANA_SERVER_URL:   $MANA_SERVER_URL"
 echo "  Steam account:     $STEAM_USERNAME"
 echo "  build desc:        $STEAM_BUILD_DESC"
@@ -330,56 +302,9 @@ sed -e "s/^\([[:space:]]*\"desc\"[[:space:]]*\).*/\1\"$STEAM_BUILD_DESC\"/" \
     -e "s|\"${DEPOT_PREFIX}\([a-z]*\)\.vdf\"|\"${DEPOT_PREFIX}\1.gen.vdf\"|" \
     "$STEAM_CONFIG_DIR/$BUILD_VDF" > "$STEAM_CONFIG_DIR/$GEN_VDF"
 
-# --- Config.vdf placement: Docker mounts / host install ---
-# Host mode with a cached session writes the config.vdf where the native
-# steamcmd reads it (per-OS), backing up anything already there.
-install_host_config_vdf() {
-    local src="$1" target
-    local -a targets=()
-    case "$(uname -s)" in
-        Darwin)
-            targets=("$HOME/Library/Application Support/Steam/config/config.vdf")
-            ;;
-        Linux)
-            targets=(
-                "$HOME/.local/share/Steam/config/config.vdf"
-                "$HOME/Steam/config/config.vdf"
-                "$HOME/.steam/root/config/config.vdf"
-            )
-            ;;
-        *)
-            echo "Error: cached-session auth on this OS is unsupported — use the"
-            echo "default Docker runner (unset STEAM_CMD)."
-            exit 1
-            ;;
-    esac
-    for target in "${targets[@]}"; do
-        mkdir -p "$(dirname "$target")"
-        if [ -f "$target" ]; then
-            cp "$target" "$target.mana-pre-upload.bak" 2>/dev/null || true
-        fi
-        cp "$src" "$target"
-    done
-}
-
-CONFIG_MOUNTS=()
-if [ "$AUTH_MODE" = "cached" ]; then
-    if [ "$RUNNER_MODE" = "docker" ]; then
-        # The steamcmd image runs as root with HOME=/root and keeps its Steam
-        # data in ~/.local/share/Steam (verified 2026-08-27). Mount the same
-        # file at that path plus the historical Steam/ and .steam/ locations —
-        # steamcmd picks whichever it actually reads.
-        CONFIG_MOUNTS=(
-            -v "$CONFIG_VDF_PATH:/root/.local/share/Steam/config/config.vdf"
-            -v "$CONFIG_VDF_PATH:/root/Steam/config/config.vdf"
-            -v "$CONFIG_VDF_PATH:/root/.steam/root/config/config.vdf"
-        )
-    else
-        install_host_config_vdf "$CONFIG_VDF_PATH"
-    fi
-fi
-
 # --- Build the upload command (docker is the default runner) ---
+# Credentials are collected above (prompt or env), so both runners take the
+# same +login args — Docker stays non-interactive-friendly.
 if [ "$RUNNER_MODE" = "docker" ]; then
     mkdir -p "$BUILD_OUTPUT_DIR"
     RUN_CMD=(docker run --rm -i \
@@ -387,7 +312,6 @@ if [ "$RUNNER_MODE" = "docker" ]; then
         -v "$STEAM_CONFIG_DIR:/repo/steam/steam_config" \
         -v "$PHASER_DIR/dist-electron:/repo/phaser/dist-electron:ro" \
         -v "$BUILD_OUTPUT_DIR:/repo/phaser/$BUILD_DIR_NAME" \
-        "${CONFIG_MOUNTS[@]}" \
         "$STEAMCMD_IMAGE" \
         +login "${LOGIN_ARGS[@]}" \
         +run_app_build_http "/repo/steam/steam_config/$GEN_VDF" \
@@ -416,7 +340,6 @@ if [ "$RUNNER_MODE" = "docker" ]; then
         -v "$STEAM_CONFIG_DIR:/repo/steam/steam_config" \
         -v "$PHASER_DIR/dist-electron:/repo/phaser/dist-electron:ro" \
         -v "$BUILD_OUTPUT_DIR:/repo/phaser/$BUILD_DIR_NAME" \
-        "${CONFIG_MOUNTS[@]}" \
         "$STEAMCMD_IMAGE" \
         +login "${REDACTED_LOGIN[@]}" \
         +run_app_build_http "/repo/steam/steam_config/$GEN_VDF" \
@@ -445,19 +368,17 @@ if [ "${STEAM_DRY_RUN:-0}" = "1" ]; then
 fi
 
 # Called when the steamcmd upload exits non-zero. The most common cause is the
-# login step (wrong/stale cached session, 2FA needed) — point at the fix.
+# login step (wrong password / expired guard code) — just re-run and type
+# fresh credentials when prompted.
 upload_failed() {
     local code=$?
     echo ""
     echo "!!! Steam upload failed (steamcmd exited with code $code)."
     echo ""
     echo "If the log above shows a login error (Invalid Password / Timeout /"
-    echo "Waiting for confirmation), the account needs Steam Guard — either the"
-    echo "cached session is stale or it was created by the Steam client rather"
-    echo "than steamcmd. Fix it with a one-time interactive login, then re-encode:"
+    echo "Waiting for confirmation), re-run and type a fresh Steam Guard code"
+    echo "when prompted:"
     echo ""
-    echo "  steamcmd +login <user> <password> +quit    # enter the Steam Guard code when asked"
-    echo "  make steam-config-vdf                      # re-encode the fresh session into .env"
     echo "  make steam-publish"
     echo ""
     exit 1
