@@ -1,6 +1,6 @@
 import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
-import * as OptionsScreen from "@Screens/Options/OptionsScreen";
+import { BUTTONS, LAYOUT, STYLES } from "@Screens/Options/optionsConfig";
 import { env } from "@Env";
 
 export function multipleChoice(
@@ -24,8 +24,8 @@ export function multipleChoice(
 	const decreaseButton = UIButton.create({
 		text: "<",
 		position: [
-			constants.MIDDLE_SCREEN_X - OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
-			yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
+			constants.MIDDLE_SCREEN_X - BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
+			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
 		],
 		callback: () => {
 			const currentIndex = choices.indexOf(getValue());
@@ -33,28 +33,25 @@ export function multipleChoice(
 			setValue(choices[newIndex]);
 			updateLabel();
 		},
-		width: OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_WIDTH,
+		width: BUTTONS.MULTICHOICE_BUTTON_WIDTH,
 	});
 
 	//   ~~~//~~~
 	const valueText = env.scene.add.text(0, 0, formatLabel(), {
 		...constants.titleTextConfig,
 		fontSize: "32px",
-		color: OptionsScreen.STYLES.VALUE_TEXT_COLOR,
+		color: STYLES.VALUE_TEXT_COLOR,
 	});
 
-	valueText.setPosition(
-		constants.MIDDLE_SCREEN_X,
-		yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
-	);
+	valueText.setPosition(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y);
 	valueText.setOrigin(0.5);
 
 	//   ~~~//~~~
 	const increaseButton = UIButton.create({
 		text: ">",
 		position: [
-			constants.MIDDLE_SCREEN_X + OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
-			yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
+			constants.MIDDLE_SCREEN_X + BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
+			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
 		],
 		callback: () => {
 			const currentIndex = choices.indexOf(getValue());
@@ -62,7 +59,7 @@ export function multipleChoice(
 			setValue(choices[newIndex]);
 			updateLabel();
 		},
-		width: OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_WIDTH,
+		width: BUTTONS.MULTICHOICE_BUTTON_WIDTH,
 	});
 
 	//   ~~~//~~~

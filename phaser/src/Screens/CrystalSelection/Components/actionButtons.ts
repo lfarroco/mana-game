@@ -1,19 +1,16 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import { ScreenCtx } from "@mana/framework";
-import { CrystalSelectionEvents } from "../CrystalSelectionScreen";
+import type { CrystalSelectionContext } from "../CrystalSelectionScene";
 
 const PLAY_BUTTON_Y = 830;
 const BACK_BUTTON_Y = 930;
 
 /**
- * Create the play and back action buttons.
- * Returns the button containers so the caller can track them for disposal.
+ * Create the play and back action buttons. The containers are added to the
+ * scene; Phaser destroys them on scene shutdown.
  */
-export function create(
-	ctx: ScreenCtx<never, CrystalSelectionEvents>
-): Phaser.GameObjects.Container[] {
+export function create(ctx: CrystalSelectionContext): Phaser.GameObjects.Container[] {
 	const playBtn = UIButton.create({
 		text: i18n.t("crystalSelection.play"),
 		position: [constants.MIDDLE_SCREEN_X, PLAY_BUTTON_Y],

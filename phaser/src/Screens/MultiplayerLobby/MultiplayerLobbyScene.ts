@@ -1,3 +1,16 @@
+/**
+ * MultiplayerLobbyScene — the multiplayer hub as a raw Phaser scene.
+ *
+ * Fifth screen migrated off `@mana/framework` (see `Scenes/ScreenScene.ts`).
+ * Single-view screen: `buildScreen()` loads the player's profile
+ * (`GET /api/v1/players/me`) and builds the lobby/ranking tabs, the adaptive
+ * PLAY button (RESUME / NEW GAME), LOG OUT and BACK.
+ *
+ * `buildScreen()` awaits the profile request, so `isShutDown` is checked after
+ * the await — the player can navigate away mid-load. `onScreenShutdown()`
+ * releases the module-level refs, the ranking panel and the DOM rename modal.
+ */
+
 import * as cloudsBg from "../Title/Components/cloudsBg";
 import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
@@ -12,15 +25,17 @@ import * as rankingPanel from "./Components/rankingPanel";
 import * as ratingHelp from "./Components/ratingHelp";
 import * as renameModal from "./Components/renameModal";
 import { createEvent } from "@game/Models";
-import { createScreen, ScreenCtx, screenModule, type Destroyable } from "@mana/framework";
 import { authSession, type AuthPlayer } from "../../lib/authSession";
 import { googleAuth } from "../../lib/googleAuth";
 import { itchAuth } from "../../lib/itchAuth";
 import { setMultiplayerMode } from "../../lib/multiplayerMode";
 import { remoteServer, RemoteServerError, type MultiplayerProfile } from "../../RemoteServer";
 import { env } from "@Env";
-import { GameEvent } from "../../Events";
 import { go } from "@Scenes/AppRouter";
+import { ScreenScene } from "@Scenes/ScreenScene";
+
+/** Phaser scene key — must match the route name (see Scenes/routes.ts). */
+export const MULTIPLAYER_LOBBY_SCENE_KEY = "multiplayer_lobby";
 
 export type MultiplayerLobbyEvents = {
 	playClicked: ReturnType<typeof createEvent<void>>;
@@ -28,56 +43,36 @@ export type MultiplayerLobbyEvents = {
 	backClicked: ReturnType<typeof createEvent<void>>;
 };
 
-export type Context = ScreenCtx<never, MultiplayerLobbyEvents>;
+/** Context handed to the lobby sub-components. */
+export type MultiplayerLobbyContext = {
+	events: MultiplayerLobbyEvents;
+};
 
-/**
- * Multiplayer lobby (docs/multiplayer-lobby.md) — the hub between the title
- * screen and a multiplayer run. Loads the player's profile (`GET
- * /api/v1/players/me`): display name, provider, rating, career + season
- * victory stats, and whether a run is resumable. The PLAY button adapts to
- * that (RESUME / NEW GAME); LOG OUT clears the session for provider
- * switching; BACK returns to the title screen.
- */
-const screen = createScreen<never, MultiplayerLobbyEvents>({
-	name: "multiplayer_lobby",
+export class MultiplayerLobbyScene extends ScreenScene {
+	private disposers: (() => void)[] = [];
 
-	events: () => {
-		const playClicked = createEvent<void>();
-		const logoutClicked = createEvent<void>();
-		const backClicked = createEvent<void>();
+	constructor() {
+		super({ key: MULTIPLAYER_LOBBY_SCENE_KEY });
+	}
 
-		return {
-			events: { playClicked, logoutClicked, backClicked },
-			listeners: [
-				GameEvent.screenHidden.listen(cleanup),
-				playClicked.listen(handlePlay),
-				logoutClicked.listen(handleLogout),
-				backClicked.listen(() => {
-					void go("title");
-				}),
-			],
-		};
-	},
+	protected async buildScreen(): Promise<void> {
+		resetLobbyState();
 
-	create: async (ctx) => {
-		hasActiveRun = false;
-		currentProfile = null;
-		identityPanel = null;
-		changeNameElement = null;
-		rankingElement = null;
-		lobbyContent = null;
-		lobbyTabBtn = null;
-		rankingTabBtn = null;
-		activeTab = "lobby";
-		const elements: Destroyable[] = [];
+		const events = createLobbyEvents();
+		this.disposers = [
+			events.playClicked.listen(handlePlay),
+			events.logoutClicked.listen(handleLogout),
+			events.backClicked.listen(() => {
+				void go("title");
+			}),
+		];
+		const ctx: MultiplayerLobbyContext = { events };
 
-		const background = cloudsBg.create();
-		if (background) elements.push(background);
+		cloudsBg.create();
 
-		const title = env.scene.add
+		env.scene.add
 			.text(constants.MIDDLE_SCREEN_X, 90, i18n.t("lobby.title"), constants.titleTextConfig)
 			.setOrigin(0.5);
-		elements.push(title);
 
 		// Loading indicator while the profile request is in flight.
 		const loading = env.scene.add
@@ -88,7 +83,6 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 				constants.defaultTextConfig
 			)
 			.setOrigin(0.5);
-		elements.push(loading);
 
 		try {
 			const stored = authSession.readStoredSession();
@@ -97,6 +91,11 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 			}
 
 			const profile = await remoteServer.getProfile(stored.player.playerId);
+
+			// The player may have navigated away while the request was in
+			// flight — never touch a shut-down scene.
+			if (this.isShutDown) return;
+
 			hasActiveRun = profile.hasActiveSession;
 			currentProfile = profile;
 
@@ -115,7 +114,7 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 						openConnectModal()
 					)
 				: changeName.create(profile, [constants.MIDDLE_SCREEN_X - 640, 690], () =>
-						openRenameModal(ctx)
+						openRenameModal()
 					);
 			if (!isGuest) {
 				changeNameElement = nameSection as changeName.ChangeNameElement;
@@ -163,25 +162,33 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 				},
 			});
 
-			elements.push(
-				content,
-				ranking.container,
-				lobbyTabBtn.container,
-				rankingTabBtn.container,
-				// PLAY / BACK stay visible on both tabs.
-				...actionButtons.create(ctx, hasActiveRun)
-			);
+			// PLAY / BACK stay visible on both tabs.
+			actionButtons.create(ctx, hasActiveRun);
 			showTab("lobby");
 		} catch (err) {
 			loading.destroy();
+			if (this.isShutDown) return;
 			if (handleAuthExpired(err)) return;
 			const detail = err instanceof Error ? err.message : String(err);
 			showLobbyError(`${i18n.t("lobby.loadFailed")}\n\n${detail}`);
 		}
+	}
 
-		return elements;
-	},
-});
+	protected onScreenShutdown(): void {
+		this.disposers.forEach((dispose) => dispose());
+		this.disposers = [];
+		cleanup();
+		cloudsBg.destroy();
+	}
+}
+
+function createLobbyEvents(): MultiplayerLobbyEvents {
+	return {
+		playClicked: createEvent<void>(),
+		logoutClicked: createEvent<void>(),
+		backClicked: createEvent<void>(),
+	};
+}
 
 /** True when the loaded profile reports a resumable run (drives the play button). */
 let hasActiveRun = false;
@@ -200,6 +207,19 @@ let lobbyContent: Phaser.GameObjects.Container | null = null;
 let rankingElement: rankingPanel.RankingPanelElement | null = null;
 let lobbyTabBtn: UIButton.Button | null = null;
 let rankingTabBtn: UIButton.Button | null = null;
+
+/** Reset the module-level state at the start of every screen entry. */
+function resetLobbyState(): void {
+	hasActiveRun = false;
+	currentProfile = null;
+	identityPanel = null;
+	changeNameElement = null;
+	rankingElement = null;
+	lobbyContent = null;
+	lobbyTabBtn = null;
+	rankingTabBtn = null;
+	activeTab = "lobby";
+}
 
 /** Switch tabs: toggle the content containers and mark the active tab button. */
 function showTab(tab: LobbyTab): void {
@@ -220,7 +240,7 @@ function showTab(tab: LobbyTab): void {
 	}
 }
 
-const cleanup = () => {
+function cleanup(): void {
 	hasActiveRun = false;
 	connecting = false;
 	currentProfile = null;
@@ -233,7 +253,7 @@ const cleanup = () => {
 	rankingTabBtn = null;
 	activeTab = "lobby";
 	renameModal.destroy();
-};
+}
 
 /**
  * Open the rename modal. The submitted name goes to
@@ -241,7 +261,7 @@ const cleanup = () => {
  * by the server) is written back into the identity UI, the persisted auth
  * session (so the login screen shows the new name), and `currentProfile`.
  */
-function openRenameModal(_ctx: Context): void {
+function openRenameModal(): void {
 	const currentName =
 		currentProfile?.player.displayName?.trim() || currentProfile?.player.providerId || "";
 	renameModal.open({
@@ -273,8 +293,8 @@ let connecting = false;
  * points would short-circuit on the guest's stored session) and POSTs it to
  * `remoteServer.convertAccount`. On success the stored session's player is
  * re-pointed at the linked identity and the lobby reloads through the title
- * screen so the connect button rebuilds as the rename UI (same-screen
- * navigation is dropped by the ScreenManager, so a bounce is required).
+ * screen so the connect button rebuilds as the rename UI (the router drops
+ * same-screen navigation, so a bounce is required).
  */
 function openConnectModal(): void {
 	const modal = Modal.createModal({
@@ -352,9 +372,9 @@ async function connectWith(provider: "itch" | "google", modal: Modal.Modal): Pro
 		}
 		currentProfile = null;
 		await modal.close();
-		// Leave to the title scene and come back: a fresh legacy host rebuilds
-		// the lobby from the newly linked account. `go()` resolves once each
-		// screen is actually ready, so the second hop always sees a clean host.
+		// Leave to the title scene and come back: a fresh entry rebuilds the
+		// lobby from the newly linked account. `go()` resolves once each screen
+		// is actually ready, so the second hop always sees a clean build.
 		await go("title");
 		await go("multiplayer_lobby");
 	} catch (err) {
@@ -369,10 +389,6 @@ async function connectWith(provider: "itch" | "google", modal: Modal.Modal): Pro
 		connecting = false;
 	}
 }
-
-export const { init, create, destroy, name, currentPhase } = screenModule(screen, {
-	onDestroy: () => renameModal.destroy(),
-});
 
 /** Adaptive play action: resume the active run, or start a new multiplayer game. */
 async function handlePlay(): Promise<void> {

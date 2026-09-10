@@ -12,7 +12,7 @@ rules belong in `core/`, not here** — see [purify.md](../purify.md) and
 - `src/Env.ts` — the `env` singleton (state, active scene, dispatch, updateState). `env.scene` points at the *active* screen scene and is repointed by `ScreenScene.create()`
 - `src/GameServer.ts` — `getServer()` → `LocalServer` (single-player) or `remoteServer` (multiplayer); `src/LocalServer.ts`, `src/RemoteServer.ts`
 - `src/Events.ts` — `GameEvent` (global, plain data only) + `BattlegroundEvent` (screen-scoped)
-- `src/Screens/` — screen modules. `Title/TitleScene.ts` is a raw `ScreenScene`; CrystalSelection, Options, Battleground, MultiplayerLobby and MultiplayerLogin are still legacy `@mana/framework` modules hosted by `LegacyHostScene`
+- `src/Screens/` — screen modules. Title, Options, CrystalSelection, MultiplayerLogin and MultiplayerLobby are raw `ScreenScene`s; **Battleground** is the last legacy `@mana/framework` module, hosted by `LegacyHostScene`
 - `src/Screens/Battleground/` — the main loop: `BattlegroundScreen.ts` declares phases via `createScreen({ phases })`; `Phases/` has one dir per phase; `Components/` renders HUD/board/shop
 - `src/Components/` — shared Phaser widgets (Button, Slider, Tooltip, Modal, Panel, Chara, Board, CloudsBackground, …)
 - `src/Systems/` — AudioManager, AchievementSystem (Steam adapter), Storage (provider pattern)

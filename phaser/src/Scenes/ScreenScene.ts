@@ -35,9 +35,15 @@ export abstract class ScreenScene extends Phaser.Scene {
 	private readyPromise: Promise<void> = Promise.resolve();
 	private resolveReady: (() => void) | null = null;
 
-	constructor(config: string | Phaser.Types.Scenes.SettingsConfig) {
+	/**
+	 * @param config Phaser scene config (its `key` is the route name).
+	 * @param screenName Optional display/probe name when it differs from the
+	 *   Phaser key (e.g. route "crystals" → screen "crystal_selection").
+	 */
+	constructor(config: string | Phaser.Types.Scenes.SettingsConfig, screenName?: string) {
 		super(config);
-		this.screenName = typeof config === "string" ? config : (config.key ?? "unknown");
+		this.screenName =
+			screenName ?? (typeof config === "string" ? config : (config.key ?? "unknown"));
 	}
 
 	/**
@@ -48,6 +54,15 @@ export abstract class ScreenScene extends Phaser.Scene {
 	 */
 	get ready(): Promise<void> {
 		return this.readyPromise;
+	}
+
+	/**
+	 * True once the scene has shut down. Long-running async builders (e.g. the
+	 * lobby's profile fetch) should check this after an `await` before touching
+	 * the scene — the player may have navigated away mid-request.
+	 */
+	protected get isShutDown(): boolean {
+		return this.hasShutDown;
 	}
 
 	/**

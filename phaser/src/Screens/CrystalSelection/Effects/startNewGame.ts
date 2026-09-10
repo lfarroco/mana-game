@@ -1,4 +1,4 @@
-import { getSelection } from "../CrystalSelectionScreen";
+import { getSelection } from "../selection";
 import * as GameServer from "../../../GameServer";
 import { remoteServer } from "../../../RemoteServer";
 import { env } from "@Env";

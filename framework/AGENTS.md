@@ -1,12 +1,11 @@
 # AI Agent Guide — `@mana/framework`
 
 > **Being decommissioned (2026-09-08).** Screens are migrating to raw Phaser
-> scenes; `TitleScene` is migrated and the remaining screens still use this
+> scenes; every screen is migrated except **battleground**, which still uses this
 > package through the temporary `LegacyHostScene` bridge. **Do not build new
 > screens on `createScreen()`** — extend `ScreenScene` instead and follow
 > [docs/scene-migration.md](../docs/scene-migration.md). This package and its
-> aliases can be deleted once the last route in `Scenes/routes.ts`'s
-> `LEGACY_ROUTES` is migrated.
+> aliases can be deleted once battleground is migrated.
 
 Engine-agnostic client framework: screen lifecycle, resource tracking, typed
 navigation. **Zero engine imports** — Phaser-specific work is injected by the

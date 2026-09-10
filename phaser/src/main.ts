@@ -1,6 +1,10 @@
 import * as constants from "./Constants";
 import BootScene from "./Scenes/BootScene";
 import { LegacyHostScene } from "./Scenes/LegacyHostScene";
+import { CrystalSelectionScene } from "./Screens/CrystalSelection/CrystalSelectionScene";
+import { MultiplayerLobbyScene } from "./Screens/MultiplayerLobby/MultiplayerLobbyScene";
+import { MultiplayerLoginScene } from "./Screens/MultiplayerLogin/MultiplayerLoginScene";
+import { OptionsScene } from "./Screens/Options/OptionsScene";
 import { TitleScene } from "./Screens/Title/TitleScene";
 import * as State from "@Models/ClientState";
 import { handleOAuthCallbackIfPresent } from "./lib/itchAuth";
@@ -38,7 +42,15 @@ async function startGame(): Promise<void> {
 		// One Phaser scene per screen. The first scene in the list boots
 		// automatically (BootScene loads assets, then starts the title scene);
 		// every later transition goes through Scenes/AppRouter.
-		scene: [BootScene(State.initialState()), TitleScene, LegacyHostScene],
+		scene: [
+			BootScene(State.initialState()),
+			TitleScene,
+			OptionsScene,
+			CrystalSelectionScene,
+			MultiplayerLoginScene,
+			MultiplayerLobbyScene,
+			LegacyHostScene,
+		],
 		plugins: {
 			global: [
 				{

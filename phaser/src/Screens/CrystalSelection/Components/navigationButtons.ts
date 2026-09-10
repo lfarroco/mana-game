@@ -1,22 +1,18 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as Constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import * as CrystalSelectionScreen from "../CrystalSelectionScreen";
+import { getSelection } from "../selection";
 import * as bg from "./background";
-import { ScreenCtx } from "@mana/framework";
+import type { CrystalSelectionContext } from "../CrystalSelectionScene";
 
 const NAV_BUTTON_OFFSET_X = 350;
 const NAV_BUTTON_WIDTH = 200;
 
 /**
- * Create the prev/next navigation buttons.
- * Returns the button containers so the caller can track them for disposal.
+ * Create the prev/next navigation buttons. The containers are added to the
+ * scene; Phaser destroys them on scene shutdown.
  */
-export function create(
-	ctx: ScreenCtx<never, CrystalSelectionScreen.CrystalSelectionEvents>
-): Phaser.GameObjects.Container[] {
-	const { getSelection } = CrystalSelectionScreen;
-
+export function create(ctx: CrystalSelectionContext): Phaser.GameObjects.Container[] {
 	const prevBtn = UIButton.create({
 		text: i18n.t("crystalSelection.previous"),
 		position: [Constants.MIDDLE_SCREEN_X - NAV_BUTTON_OFFSET_X, bg.CARD_DISPLAY_Y],

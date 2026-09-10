@@ -122,12 +122,12 @@ describe("AppRouter.go", () => {
 		const title = makeScene("title");
 		setScene(title);
 
-		await go("crystals");
+		await go("battleground");
 
 		expect(title.cameras.main.fade).toHaveBeenCalled();
 		expect(title.input.enabled).toBe(false);
 		expect(title.scene.start).toHaveBeenCalledWith("legacy", {
-			route: "crystals",
+			route: "battleground",
 			params: undefined,
 		});
 	});
@@ -136,12 +136,21 @@ describe("AppRouter.go", () => {
 		const title = makeScene("title");
 		setScene(title);
 
-		await go("options", { tab: "graphics" });
+		await go("battleground", { crystalId: "crystal_red" });
 
 		expect(title.scene.start).toHaveBeenCalledWith("legacy", {
-			route: "options",
-			params: { tab: "graphics" },
+			route: "battleground",
+			params: { crystalId: "crystal_red" },
 		});
+	});
+
+	it("starts a migrated scene directly, passing its params as scene data", async () => {
+		const title = makeScene("title");
+		setScene(title);
+
+		await go("options", { tab: "graphics" });
+
+		expect(title.scene.start).toHaveBeenCalledWith("options", { tab: "graphics" });
 	});
 
 	it("delegates a legacy route to the legacy navigator when the host is already active", async () => {
@@ -166,20 +175,20 @@ describe("AppRouter.go", () => {
 	});
 
 	it("coalesces rapid navigations — only the latest queued target runs", async () => {
-		const host = makeScene("legacy");
-		setScene(host);
-		const navigator = makeNavigator();
-		registerLegacyNavigator(navigator);
+		const title = makeScene("title");
+		setScene(title);
 
-		const first = go("crystals");
-		const second = go("options");
-		const third = go("battleground");
+		const first = go("options");
+		const second = go("crystals");
+		const third = go("multiplayer_lobby");
 
 		await Promise.all([first, second, third]);
 
-		expect(navigator.go).toHaveBeenCalledTimes(2);
-		expect(navigator.go).toHaveBeenNthCalledWith(1, "crystals", undefined);
-		expect(navigator.go).toHaveBeenNthCalledWith(2, "battleground", undefined);
+		// The first started immediately; the middle request is dropped and the
+		// latest queued target runs after it.
+		expect(title.scene.start).toHaveBeenCalledTimes(2);
+		expect(title.scene.start).toHaveBeenNthCalledWith(1, "options", {});
+		expect(title.scene.start).toHaveBeenNthCalledWith(2, "multiplayer_lobby", {});
 	});
 
 	it("proceeds even when the camera fade never completes (hang-proof)", async () => {
@@ -188,7 +197,7 @@ describe("AppRouter.go", () => {
 		setScene(title);
 
 		let settled = false;
-		const navigation = go("crystals").then(() => {
+		const navigation = go("battleground").then(() => {
 			settled = true;
 		});
 
@@ -204,7 +213,7 @@ describe("AppRouter.go", () => {
 
 		expect(settled).toBe(true);
 		expect(title.scene.start).toHaveBeenCalledWith("legacy", {
-			route: "crystals",
+			route: "battleground",
 			params: undefined,
 		});
 	});

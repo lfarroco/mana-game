@@ -1,50 +1,53 @@
 import * as i18n from "@i18n/i18n";
-import * as cloudsBg from "../../../Screens/Title/Components/cloudsBg";
-import * as paginationDots from "../Components/paginationDots";
-import { CardDefinition } from "@game/Models";
-import { findTrackedById } from "@mana/framework";
+import * as cloudsBg from "../../Title/Components/cloudsBg";
+import {
+	PAGINATION_DOT_ACTIVE_ALPHA,
+	PAGINATION_DOT_COLOR,
+	PAGINATION_DOT_INACTIVE_ALPHA,
+} from "../Components/paginationDots";
+import type BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
+import type { CardDefinition } from "@game/Models";
 import { getColorPresetForCrystal } from "@game/data/crystalPresentation";
 import { buildCrystalDescription } from "@game/descriptions/crystalDescription";
 import { getSettings } from "@Models/OptionsStore";
-import { CRYSTAL_IDS, paginationDotId } from "../ids";
 
 const CLOUD_BG_ANIMATION_DURATION = 1500;
 const CLOUD_BG_ANIMATION_EASE = "Sine.InOut";
 
-// TODO: recreate the phase, instead of updating elements
-// will allow not relying on element ids
+/**
+ * The crystal-display objects the screen builds once and then mutates as the
+ * selection changes. Passed explicitly instead of looked up by a framework
+ * element id (the raw-scene replacement for `findTrackedById`).
+ */
+export type CrystalDisplayRefs = {
+	sprite: Phaser.GameObjects.Image;
+	nameText: Phaser.GameObjects.Text;
+	descText: BBCodeText;
+	dots: Phaser.GameObjects.Arc[];
+};
 
-export function updateDisplay(crystals: CardDefinition[], currentIndex: number) {
+/** Refresh the crystal display (sprite, name, description, dots, background). */
+export function updateDisplay(
+	crystals: CardDefinition[],
+	currentIndex: number,
+	refs: CrystalDisplayRefs
+): void {
 	const crystal = crystals[currentIndex];
+	if (!crystal) return;
 
-	const sprite = findTrackedById<Phaser.GameObjects.Image>(CRYSTAL_IDS.sprite);
-	if (sprite) sprite.setTexture(crystal.pic);
+	refs.sprite.setTexture(crystal.pic);
 
-	const nameText = findTrackedById<Phaser.GameObjects.Text>(CRYSTAL_IDS.name);
-	if (nameText) {
-		nameText.setText(i18n.getName(crystal.id));
-		nameText.setOrigin(0.5);
-	}
+	refs.nameText.setText(i18n.getName(crystal.id));
+	refs.nameText.setOrigin(0.5);
 
-	const descText = findTrackedById<
-		import("phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText").default
-	>(CRYSTAL_IDS.description);
-	if (descText) {
-		descText.setText(buildCrystalDescription(crystal, i18n.t, getSettings().compactTooltips));
-	}
+	refs.descText.setText(buildCrystalDescription(crystal, i18n.t, getSettings().compactTooltips));
 
-	// Pagination dots
-	for (let i = 0; i < crystals.length; i++) {
-		const dot = findTrackedById<Phaser.GameObjects.Arc>(paginationDotId(i));
-		if (dot) {
-			dot.setFillStyle(
-				paginationDots.PAGINATION_DOT_COLOR,
-				i === currentIndex
-					? paginationDots.PAGINATION_DOT_ACTIVE_ALPHA
-					: paginationDots.PAGINATION_DOT_INACTIVE_ALPHA
-			);
-		}
-	}
+	refs.dots.forEach((dot, i) => {
+		dot.setFillStyle(
+			PAGINATION_DOT_COLOR,
+			i === currentIndex ? PAGINATION_DOT_ACTIVE_ALPHA : PAGINATION_DOT_INACTIVE_ALPHA
+		);
+	});
 
 	const bg = cloudsBg.getCloudsBg();
 	if (bg) {

@@ -224,9 +224,11 @@ export function currentScreen(): ActiveScreenRef | null {
 	if (!key) return null;
 	if (key === LEGACY_HOST_KEY) return legacyNavigator?.current() ?? null;
 
-	const scene = env.scene as unknown as ActiveScreenRef;
+	const scene = env.scene as unknown as ActiveScreenRef & { screenName?: string };
 	return {
-		name: key,
+		// ScreenScene carries its own display name (which may differ from the
+		// Phaser key, e.g. route "crystals" → "crystal_selection").
+		name: scene.screenName ?? key,
 		go: scene.go?.bind(scene),
 		currentPhase: scene.currentPhase?.bind(scene),
 	};

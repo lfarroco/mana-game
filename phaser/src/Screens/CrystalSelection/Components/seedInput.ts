@@ -1,16 +1,15 @@
 import * as constants from "@Constants";
 import * as keyboard from "./keyboard";
 import { env } from "@Env";
-import { Destroyable } from "@mana/framework";
-import { CRYSTAL_IDS } from "../ids";
 import { isMultiplayerMode } from "@lib/multiplayerMode";
 
-/** Minimal context — seedInput only needs track() for object tracking. */
-interface SeedInputCtx {
-	track(obj: Destroyable, opts?: { id?: string }): Destroyable;
-}
-
-export function create(ctx: SeedInputCtx) {
+/**
+ * Create the custom-seed input widget (label, value text, warning text and
+ * the clickable field that opens the DOM numpad). Everything is added to the
+ * scene, so Phaser destroys it on shutdown; the DOM keyboard is torn down by
+ * the scene's `onScreenShutdown()` (`keyboard.destroy()`).
+ */
+export function create(): void {
 	// Seed selection is server-determined in multiplayer — skip the custom seed UI.
 	// The explicit mode flag covers the pre-session flow (no session exists yet
 	// while picking a crystal); the session_type check covers a resumed run.
@@ -30,10 +29,9 @@ export function create(ctx: SeedInputCtx) {
 		.setOrigin(1, 1)
 		.setStrokeStyle(1, 0x888888)
 		.setInteractive({ useHandCursor: true });
-	ctx.track(bg);
 
 	// "Seed: " label
-	const label = env.scene.add
+	env.scene.add
 		.text(0, 0, "Seed: ", {
 			...constants.defaultTextConfig,
 			fontSize: "24px",
@@ -41,7 +39,6 @@ export function create(ctx: SeedInputCtx) {
 		})
 		.setOrigin(1, 0.5)
 		.setPosition(x - width - 10, y - height / 2);
-	ctx.track(label);
 
 	// Seed value text — passed to the keyboard for editing
 	const seedText = env.scene.add
@@ -52,7 +49,6 @@ export function create(ctx: SeedInputCtx) {
 		})
 		.setOrigin(1, 0.5)
 		.setPosition(x - 20, y - height / 2);
-	ctx.track(seedText);
 
 	// Warning text — toggled by the keyboard
 	const seedWarningText = env.scene.add
@@ -64,7 +60,6 @@ export function create(ctx: SeedInputCtx) {
 		.setOrigin(1, 0.5)
 		.setPosition(x, y - height - 20)
 		.setVisible(false);
-	ctx.track(seedWarningText, { id: CRYSTAL_IDS.seedWarning });
 
 	// Events
 	bg.on("pointerdown", () => {
@@ -74,6 +69,4 @@ export function create(ctx: SeedInputCtx) {
 	// Hover effects
 	bg.on("pointerover", () => bg.setStrokeStyle(1, 0xffffff));
 	bg.on("pointerout", () => bg.setStrokeStyle(1, 0x888888));
-
-	env.scene.add.existing(seedText);
 }

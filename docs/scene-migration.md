@@ -1,7 +1,8 @@
 # Scene Migration — decommissioning `@mana/framework`
 
-Status: **in progress** (started 2026-09-08). Title is migrated; five screens
-remain on the legacy framework behind a temporary host scene.
+Status: **in progress** (started 2026-09-08). Migrated: **title**, **options**,
+**crystals** (`CrystalSelectionScene`), **multiplayer_login**,
+**multiplayer_lobby**. Remaining on the legacy framework: **battleground**.
 
 ## Why
 
@@ -41,7 +42,10 @@ helpers (`time`, `borderedRoundRect`, `centeredRect`, `shader`,
 
 ### Navigation (`AppRouter.go`)
 
-- Migrated routes (`title`) **are** Phaser scene keys — `scene.start(route)`.
+- Migrated routes (*all except `battleground`*) **are** Phaser scene keys —
+  `scene.start(route, params)`. A screen's probe/event name can differ from its
+  key via the `ScreenScene` constructor's second argument (route `crystals` →
+  screen `crystal_selection`).
 - Legacy routes start `LegacyHostScene` with `{ route, params }`; when that host
   is already active the request is delegated to the legacy manager, which keeps
   owning its own sub-screen navigation.
@@ -54,7 +58,7 @@ helpers (`time`, `borderedRoundRect`, `centeredRect`, `shader`,
   bridge's transitions benefit too. A fade interrupted by a scene restart can no
   longer strand navigation — the reported failure mode.
 
-### Title sub-menus
+### Sub-menus and tabs
 
 `TitleScene` keeps its sub-menus (`main`, `singleplayer_submenu`,
 `options_submenu`, `language`) as scene-local state rather than framework
@@ -63,6 +67,21 @@ phases: `go(phase)` destroys the current menu's elements and builds the next.
 `onScreenShutdown()` resets module-level UI guards (`isOpen` flags, the
 how-to-play text ref, the clouds background cache) that Phaser cannot know
 about.
+
+`OptionsScene` does the same for its audio/graphics/game tabs. Its deep-link
+route param (`go("options", { tab: "graphics" })`) arrives as Phaser scene data
+and is read in `buildScreen()` — the raw-scene replacement for the framework's
+`mapDeepLink`.
+
+### Element lookup without `findTrackedById`
+
+CrystalSelection used to recover its sprite/name/description/pagination dots by
+framework element id. The surface-free replacement: the scene builds them once,
+holds the references (`CrystalDisplayRefs`) and passes them to
+`Effects/updateDisplay` explicitly. Shared selection state lives in
+`CrystalSelection/selection.ts` (a leaf module) so the scene, `navigationButtons`
+and `Effects/startNewGame` do not form an import cycle. The DOM numpad is torn
+down in `onScreenShutdown()` — the framework teardown never did.
 
 ## Migrating another screen
 

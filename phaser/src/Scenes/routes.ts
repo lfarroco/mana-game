@@ -38,13 +38,7 @@ export const LEGACY_HOST_KEY = "legacy";
  * Routes still served by the legacy `@mana/framework` screens. Shrinks as
  * screens are migrated to raw Phaser scenes.
  */
-export const LEGACY_ROUTES = [
-	"battleground",
-	"crystals",
-	"multiplayer_login",
-	"multiplayer_lobby",
-	"options",
-] as const;
+export const LEGACY_ROUTES = ["battleground"] as const;
 
 export type LegacyRoute = (typeof LEGACY_ROUTES)[number];
 

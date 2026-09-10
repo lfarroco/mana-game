@@ -19,20 +19,12 @@ import {
 } from "@mana/framework";
 import { GameEvent } from "../Events";
 import * as BattlegroundScreen from "../Screens/Battleground/BattlegroundScreen";
-import * as CrystalSelectionScreen from "../Screens/CrystalSelection/CrystalSelectionScreen";
-import * as MultiplayerLobbyScreen from "../Screens/MultiplayerLobby/MultiplayerLobbyScreen";
-import * as MultiplayerLoginScreen from "../Screens/MultiplayerLogin/MultiplayerLoginScreen";
-import * as OptionsScreen from "../Screens/Options/OptionsScreen";
 import type { ActiveScreenRef, LegacyNavigator } from "./AppRouter";
 import { FADE_COLOR, FADE_MS } from "./AppRouter";
 import type { LegacyRoute } from "./routes";
 
 const screens: Record<LegacyRoute, ScreenModule> = {
 	battleground: BattlegroundScreen,
-	crystals: CrystalSelectionScreen,
-	multiplayer_login: MultiplayerLoginScreen,
-	multiplayer_lobby: MultiplayerLobbyScreen,
-	options: OptionsScreen,
 };
 
 type LegacyRoutes = { [R in LegacyRoute]: unknown };

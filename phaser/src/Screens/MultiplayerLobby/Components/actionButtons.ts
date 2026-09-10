@@ -1,7 +1,7 @@
 import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
-import * as MultiplayerLobbyScreen from "../MultiplayerLobbyScreen";
+import type { MultiplayerLobbyContext } from "../MultiplayerLobbyScene";
 
 const PLAY_Y = 800;
 const LOGOUT_Y = 895;
@@ -11,10 +11,10 @@ const BACK_Y = 990;
  * Lobby action buttons: an adaptive PLAY button ("RESUME" when an active run
  * exists, "NEW GAME" otherwise) plus LOG OUT (clears the stored session so
  * the player can switch providers) plus BACK. All emit screen events so the
- * screen module owns the navigation logic.
+ * scene owns the navigation logic.
  */
 export function create(
-	ctx: MultiplayerLobbyScreen.Context,
+	ctx: MultiplayerLobbyContext,
 	hasActiveSession: boolean
 ): Phaser.GameObjects.Container[] {
 	const playBtn = UIButton.create({

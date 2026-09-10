@@ -76,7 +76,7 @@ Pure, framework-agnostic game logic is being extracted into a top-level `core/` 
   - Key modules: `Screen.ts` (`ScreenModule` contract), `createScreen.ts` (factory + `screenModule()`), `ScreenManager.ts` (nav core: registry, nav mutex, typed routes, deep-links + engine hooks), `Router.ts`, `Event.ts` (re-export of the core event primitive). Own jest + tsconfig; run `npm test` / `npm run typecheck` inside `framework/`
 - `phaser/src/Scenes/`
   - Purpose: Phaser scene infrastructure replacing `@mana/framework` — one scene per screen
-  - Key files: `BootScene.ts` (asset load + `env` + `__debug`, starts `title`), `ScreenScene.ts` (base class), `AppRouter.ts` (`go(route, params)`, hang-proof fades), `routes.ts`, `LegacyHostScene.ts` + `legacyScreens.ts` (temporary bridge for the 5 unmigrated screens). See [docs/scene-migration.md](docs/scene-migration.md)
+  - Key files: `BootScene.ts` (asset load + `env` + `__debug`, starts `title`), `ScreenScene.ts` (base class), `AppRouter.ts` (`go(route, params)`, hang-proof fades), `routes.ts`, `LegacyHostScene.ts` + `legacyScreens.ts` (temporary bridge for battleground). See [docs/scene-migration.md](docs/scene-migration.md)
 - `phaser/src/Screens/Battleground/`
   - Purpose: Phaser scene orchestration — main battleground screen, phase handlers, combat playback
   - Key files: `BattlegroundScreen.ts`, `Components/`, `Phases/`, `playerBoardSync.ts`
@@ -118,7 +118,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [core-code-quality.md](docs/core-code-quality.md): Verified code-quality findings for `core/` and the prioritized improvement plan (incl. the confirmed single-player win-recording bug)
 - [framework-formalization.md](docs/framework-formalization.md): Long-term vision for extracting Screen, ScreenManager, createScreen, and Router into a framework package (`@mana/framework`). Phases A–D roadmap. Screen state purity rules.
 - [framework-hardening.md](docs/framework-hardening.md): Verified evaluation findings for `@mana/framework` and the prioritized hardening plan (nav-mutex failure semantics, async teardown support, lifecycle serialization).
-- [scene-migration.md](docs/scene-migration.md): **Active migration** — decommissioning `@mana/framework` in favour of raw Phaser scenes (`Scenes/ScreenScene.ts`, `Scenes/AppRouter.ts`). Title is migrated; five screens remain on the legacy host. Migration checklist + cleanup plan.
+- [scene-migration.md](docs/scene-migration.md): **Active migration** — decommissioning `@mana/framework` in favour of raw Phaser scenes (`Scenes/ScreenScene.ts`, `Scenes/AppRouter.ts`). Every screen is migrated except **battleground**, which remains on the legacy host. Migration checklist + cleanup plan.
 - [combat-playback-performance.md](docs/combat-playback-performance.md): Further performance optimizations for the combat playback system beyond the initial July 2026 round
 - [combat-system-improvements.md](docs/combat-system-improvements.md): Remaining improvements to the effect/reaction engine, threshold reactions, and combat test infrastructure in `core/`
 - [project-architecture.md](docs/project-architecture.md): High-level architecture breakdown of the `core/`, `framework/`, `phaser/`, and `server/` packages
@@ -138,7 +138,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
    - `GameEvent` (added 2026-07-28): wired once in `Scenes/BootScene.ts` `wireGameEvents()`. Listeners must never capture Phaser game objects. Services (Tooltip, AudioManager, StatsStore) subscribe here instead of being imported by screens.
 
 2. **Screen lifecycle (raw Phaser scenes — migration in progress)** — every screen is a real `Phaser.Scene`. `Scenes/AppRouter.ts` replaces the ScreenManager; `Scenes/BootScene.ts` (first scene in `main.ts`) loads assets once, creates `env`, initialises stores and starts `title`. `Scenes/ScreenScene.ts` is the base class: it repoints `env.scene` at the active screen, emits `screenShown`/`screenHidden`, and exposes a `ready` promise. **Phaser owns teardown** — `scene.start(key)` destroys the outgoing scene's game objects, tweens, timers and `this.events` listeners, so nothing dangles or duplicates across a restart (the reason the framework existed).
-   - Screens navigate with `go(route, params)` from `@Scenes/AppRouter`. Migrated routes (`title`) are their own Phaser scene key; the other five routes are still served by `createScreen()`/`createScreenManager()` inside the transitional `Scenes/LegacyHostScene.ts` + `Scenes/legacyScreens.ts`.
+   - Screens navigate with `go(route, params)` from `@Scenes/AppRouter`. Every route is its own Phaser scene key except `battleground`, which is still served by `createScreen()`/`createScreenManager()` inside the transitional `Scenes/LegacyHostScene.ts` + `Scenes/legacyScreens.ts`. A scene's probe/event name may differ from its key (`crystals` → `crystal_selection`) via `ScreenScene`'s optional second constructor argument.
    - **New screens** extend `ScreenScene` (`npm run new:screen -- <Name>` scaffolds one): build UI in `buildScreen()`, reset module-level state (flags, DOM, `@game` subscriptions) in `onScreenShutdown()`, add the route to `Scenes/routes.ts` and the class to the `main.ts` scene list. Full checklist: [docs/scene-migration.md](docs/scene-migration.md).
    - Sub-menus are scene-local state, not framework phases: `TitleScene.go(phase)` destroys the current menu's elements and builds the next. `go`/`currentPhase` stay public for the `__debug`/e2e probes.
    - With multiple scenes, `Phaser.Scenes.Events.SHUTDOWN` **does** fire — it is the hook for cleaning up module-level state Phaser can't know about.
@@ -181,9 +181,10 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > at all** — 100% reproducible for them ("the game will never move to the next
 > screen unless I use the main-menu skip between every screen"). The migration
 > to raw Phaser scenes is the response; the new `AppRouter` makes transitions
-> hang-proof (bounded fade + bounded ready wait). Title is migrated
-> (2026-09-08); the other five screens still run on the legacy framework until
-> they are migrated — see [docs/scene-migration.md](docs/scene-migration.md).
+> hang-proof (bounded fade + bounded ready wait) and `env.fade*` is bounded too.
+> Migrated (2026-09-08): title, options, crystals, multiplayer_login,
+> multiplayer_lobby. **Battleground** is the last screen still on the legacy
+> framework — see [docs/scene-migration.md](docs/scene-migration.md).
 
 
 

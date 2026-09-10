@@ -1,6 +1,6 @@
 import * as constants from "@Constants";
 import * as Slider from "@Components/Slider/Slider";
-import * as OptionsScreen from "@Screens/Options/OptionsScreen";
+import { LAYOUT, STYLES } from "@Screens/Options/optionsConfig";
 import { env } from "@Env";
 
 const VOLUME_STEP = 0.1;
@@ -26,15 +26,15 @@ export function volume(
 
 	const valueText = env.scene.add.text(0, 0, formatLabel(getValue()), {
 		...constants.titleTextConfig,
-		color: OptionsScreen.STYLES.VALUE_TEXT_COLOR,
+		color: STYLES.VALUE_TEXT_COLOR,
 	});
-	valueText.setPosition(constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y - 20);
+	valueText.setPosition(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y - 20);
 	valueText.setOrigin(0.5);
 
 	//   ~~~//~~~
 
 	const slider = Slider.createSlider(
-		[constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y + 20],
+		[constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y + 20],
 		{
 			width: SLIDER_WIDTH,
 			min: VOLUME_MIN,
