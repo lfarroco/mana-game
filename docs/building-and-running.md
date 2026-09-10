@@ -12,12 +12,11 @@ Opens at `http://localhost:8080`
 
 ## Repository Layout
 
-Monorepo with four npm packages plus a root `Makefile`:
+Monorepo with three npm packages plus a root `Makefile`:
 
 | Package     | Purpose                                              | Commands |
 |-------------|------------------------------------------------------|----------|
 | `core/`     | Pure, framework-agnostic game logic (`@game/*`)      | `test`, `typecheck` |
-| `framework/`| Engine-agnostic client framework (`@mana/framework`) | `test`, `typecheck` |
 | `server/`   | Node multiplayer game server (express 5)             | `dev`, `test`, `typecheck`, `build` |
 | `phaser/`   | The Phaser 3 game client                             | see below |
 | root        | Prettier over the whole project + `make` targets     | `npm run format`, `make ...` |
@@ -32,13 +31,6 @@ directory (e.g. `cd core && npm test`).
 | Command                 | Description                                        |
 |-------------------------|----------------------------------------------------|
 | `npm test`              | Jest unit tests (66 suites / 602 tests)            |
-| `npm run typecheck`     | `tsc --noEmit`                                     |
-
-### framework
-
-| Command                 | Description                                        |
-|-------------------------|----------------------------------------------------|
-| `npm test`              | Jest unit tests (7 suites / 56 tests)              |
 | `npm run typecheck`     | `tsc --noEmit`                                     |
 
 ### server
@@ -57,7 +49,7 @@ directory (e.g. `cd core && npm test`).
 | `npm run dev`           | Start development server with hot reload           |
 | `npm run dev:demo`      | Start development server in demo mode              |
 | `npm run build`         | Create production web build                        |
-| `npm test`              | Jest unit tests (use `test:ci` for CI parity)      |
+| `npm test`              | Jest unit tests (23 suites / 164 tests; use `test:ci` for CI parity) |
 | `npm test:ci`           | Jest with `--ci --maxWorkers=50%`                  |
 | `npm run test:unit`     | Unit tests only (ignores `e2e`)                    |
 | `npm run test:e2e`      | Playwright end-to-end tests (**currently broken**, see AGENTS.md) |
@@ -69,7 +61,7 @@ directory (e.g. `cd core && npm test`).
 ### Running a single test file
 
 ```bash
-# core / framework / server
+# core / server
 npx jest src/path/ToFile.test.ts --runInBand
 
 # phaser (has jest-jsdom + Phaser mocks configured)
@@ -80,7 +72,7 @@ npx jest src/path/ToFile.test.ts --runInBand
 
 | Command                   | Description                                                 |
 |---------------------------|-------------------------------------------------------------|
-| `npm run format`          | Prettier over `core/`, `framework/`, `server/`, `phaser/`   |
+| `npm run format`          | Prettier over `core/`, `server/`, `phaser/`                 |
 | `npm run format:check`    | Prettier check (no writes)                                  |
 | `make dev`                | `cd phaser && npm run dev`                                  |
 | `make electron-dev`       | Run desktop app in development mode                         |

@@ -1,6 +1,6 @@
 import * as constants from "./Constants";
 import BootScene from "./Scenes/BootScene";
-import { LegacyHostScene } from "./Scenes/LegacyHostScene";
+import { BattlegroundScene } from "./Screens/Battleground/BattlegroundScene";
 import { CrystalSelectionScene } from "./Screens/CrystalSelection/CrystalSelectionScene";
 import { MultiplayerLobbyScene } from "./Screens/MultiplayerLobby/MultiplayerLobbyScene";
 import { MultiplayerLoginScene } from "./Screens/MultiplayerLogin/MultiplayerLoginScene";
@@ -49,7 +49,7 @@ async function startGame(): Promise<void> {
 			CrystalSelectionScene,
 			MultiplayerLoginScene,
 			MultiplayerLobbyScene,
-			LegacyHostScene,
+			BattlegroundScene,
 		],
 		plugins: {
 			global: [

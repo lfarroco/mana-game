@@ -7,7 +7,7 @@
  * deterministically without real timers.
  */
 import { env } from "@Env";
-import type { Destroyable } from "@mana/framework";
+import type { Destroyable } from "@Scenes/PhaseController";
 import { PHASE_TRANSITION_MS, SLIDE_DISTANCE, slideIn, slideOut } from "./phaseTransitions";
 
 jest.mock("@Env", () => {

@@ -8,7 +8,6 @@ const sharedResolve = {
 	alias: {
 		"@game": path.resolve(__dirname, "../../core/src"),
 		"@mana/core": path.resolve(__dirname, "../../core/src"),
-		"@mana/framework": path.resolve(__dirname, "../../framework/src"),
 		"@Models": path.resolve(__dirname, "../src/Models"),
 		"@Screens": path.resolve(__dirname, "../src/Screens"),
 		"@Scenes": path.resolve(__dirname, "../src/Scenes"),

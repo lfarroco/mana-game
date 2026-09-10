@@ -1,6 +1,6 @@
 import * as Board from "@Components/Board/Board";
 import * as Chara from "@Components/Chara/Chara";
-import { dispatchAction, type BGContext } from "../../BattlegroundScreen";
+import { dispatchAction, type BGContext } from "../../BattlegroundScene";
 import { displayGameComplete } from "@Screens/Battleground/Components/Results/GameCompleteUI";
 import { env } from "@Env";
 

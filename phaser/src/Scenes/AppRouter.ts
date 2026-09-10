@@ -2,12 +2,8 @@
  * AppRouter — cross-screen navigation for the one-scene-per-screen model.
  *
  * `go(route, params)` is the replacement for `getScreenManager().go(...)`.
- * It resolves the route to a Phaser scene and hands the whole screen over:
- *
- *   - migrated routes  → `scene.start(<route>)` (a real `ScreenScene`)
- *   - legacy routes    → `scene.start(LEGACY_HOST_KEY, { route, params })`;
- *     route the request through the injected legacy navigator when the legacy
- *     host is already active, so its sub-screens keep their own nav state
+ * Every route is a real `ScreenScene` whose Phaser key is the route name, so a
+ * navigation is `scene.start(<route>, params)` after a hang-proof fade.
  *
  * Requests that arrive while a transition is in flight are coalesced to the
  * latest target (same semantics as the old nav mutex) — but the transition
@@ -15,20 +11,10 @@
  * timeout as well as on `FADE_OUT_COMPLETE`. A fade interrupted by a scene
  * restart can never strand navigation, which is exactly the failure players
  * reported ("the game never moves to the next screen").
- *
- * The legacy navigator is injected via `registerLegacyNavigator()` (done at
- * boot) rather than imported, so this module never imports the legacy screen
- * modules — that keeps the dependency graph acyclic while both worlds coexist.
  */
 
 import { env } from "@Env";
-import {
-	LEGACY_HOST_KEY,
-	type LegacyRoute,
-	type ParamsFor,
-	type Route,
-	isLegacyRoute,
-} from "./routes";
+import type { ParamsFor, Route } from "./routes";
 import { ScreenScene } from "./ScreenScene";
 
 /** Duration of the cross-screen fade, in ms (matches ScreenScene). */
@@ -43,40 +29,12 @@ const FADE_TIMEOUT_SLACK_MS = 200;
 /** Upper bound on how long `go()` waits for the incoming screen to be ready. */
 const READY_TIMEOUT_MS = 8000;
 
-/** Minimal view of a legacy screen exposed to the router / debug probes. */
+/** Minimal view of a screen exposed to the router / debug probes. */
 export type ActiveScreenRef = {
 	name: string;
 	go?: (phase: string) => void | Promise<void>;
 	currentPhase?: () => string | null;
 };
-
-/** The transitional bridge to the not-yet-migrated `@mana/framework` screens. */
-export type LegacyNavigator = {
-	go: (route: LegacyRoute, params: unknown) => Promise<void>;
-	current: () => ActiveScreenRef | null;
-	/** Tear the active legacy screen down and reset the legacy manager. */
-	dispose: () => Promise<void>;
-};
-
-let legacyNavigator: LegacyNavigator | null = null;
-
-/** Register the legacy bridge (called once at boot — see Scenes/BootScene.ts). */
-export function registerLegacyNavigator(navigator: LegacyNavigator): void {
-	legacyNavigator = navigator;
-}
-
-/**
- * Build a legacy route inside the already-running legacy host. Used by
- * `LegacyHostScene` directly — routing that call back through `go()` would
- * deadlock on the in-flight-transition coalescing.
- */
-export function runLegacy(route: LegacyRoute, params: unknown): Promise<void> {
-	if (!legacyNavigator) {
-		console.warn(`[AppRouter] no legacy navigator registered — "${route}" not built.`);
-		return Promise.resolve();
-	}
-	return legacyNavigator.go(route, params);
-}
 
 let transitioning = false;
 let queued: { route: Route; params: unknown } | null = null;
@@ -112,24 +70,8 @@ async function perform(route: Route, params: unknown): Promise<void> {
 		return;
 	}
 
-	const currentKey = scene.sys.settings.key;
-
-	if (isLegacyRoute(route)) {
-		// Already inside the legacy world — its manager owns sub-screen
-		// navigation (and its own input lock) as it did before the migration.
-		if (currentKey === LEGACY_HOST_KEY && legacyNavigator) {
-			await legacyNavigator.go(route, params);
-			return;
-		}
-
-		lockInput(scene);
-		await fadeOut(scene);
-		await startScene(scene, LEGACY_HOST_KEY, { route, params });
-		return;
-	}
-
-	// A migrated screen's Phaser key is its route name.
-	if (currentKey === route) return;
+	// The active screen's Phaser key is its route name.
+	if (scene.sys.settings.key === route) return;
 
 	lockInput(scene);
 	await fadeOut(scene);
@@ -216,13 +158,13 @@ export function currentSceneKey(): string | null {
 }
 
 /**
- * The active screen as a legacy-compatible reference. Migrated screens expose
- * `go`/`currentPhase` themselves (e.g. TitleScene); returns null before boot.
+ * The active screen as a debug-probe-friendly reference. Migrated screens
+ * expose `go`/`currentPhase` themselves (e.g. TitleScene, BattlegroundScene);
+ * returns null before boot.
  */
 export function currentScreen(): ActiveScreenRef | null {
 	const key = currentSceneKey();
 	if (!key) return null;
-	if (key === LEGACY_HOST_KEY) return legacyNavigator?.current() ?? null;
 
 	const scene = env.scene as unknown as ActiveScreenRef & { screenName?: string };
 	return {
@@ -232,11 +174,6 @@ export function currentScreen(): ActiveScreenRef | null {
 		go: scene.go?.bind(scene),
 		currentPhase: scene.currentPhase?.bind(scene),
 	};
-}
-
-/** Tear down whatever screen is active — used by the legacy host on shutdown. */
-export function disposeLegacy(): Promise<void> {
-	return legacyNavigator?.dispose() ?? Promise.resolve();
 }
 
 function hexToRgb(color: number): { r: number; g: number; b: number } {

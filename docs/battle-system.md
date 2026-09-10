@@ -12,8 +12,9 @@ A run cycles through phases: **Encounter** (fight/shop/upgrade choices),
 
 Phase orchestration lives in `phaser/src/Screens/Battleground/`:
 
-- `BattlegroundScreen.ts` — owns the phase loop. Each phase is described by a
-  local `PhaseHandler` and wired through the `phaseHandlers` registry.
+- `BattlegroundScene.ts` — the `ScreenScene` that owns the phase loop: it maps
+  each `BGPhase` to a `PhaseEntry` and drives them with `Scenes/PhaseController`
+  (`ctx.go(phase)`, scoped teardown, enter/exit slide transitions).
 - `Phases/<Phase>/handle<Phase>Phase.ts` — one module per phase (Encounter,
   Shop, OrbShop, UpgradeCore, AddReactionCore, Combat, Victory, GameOver)
   that renders the phase UI and dispatches player actions.

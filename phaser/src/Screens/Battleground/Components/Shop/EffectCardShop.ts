@@ -10,7 +10,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as Effects from "../../../../FX";
 import { env } from "@Env";
-import { BGContext, dispatchAction } from "../../BattlegroundScreen";
+import { BGContext, dispatchAction } from "../../BattlegroundScene";
 import { skipButton } from "../skipButton";
 
 // Effect card shop constants (same as Encounter display)

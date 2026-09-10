@@ -47,7 +47,10 @@ export async function playUpgradeCrystalSelectionEffect({
 		targetOrb.update(time);
 	};
 
-	env.scene.events.on(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
+	// Capture the emitter: `env.scene` is repointed on navigation, so the
+	// cleanup must unsubscribe from the scene it registered on.
+	const sceneEvents = env.scene.events;
+	sceneEvents.on(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
 	env.scene.time.delayedCall(TARGET_ORB_DISSOLVE_DELAY_MS, () => {
 		targetOrb.startDissolve();
 	});
@@ -92,7 +95,7 @@ export async function playUpgradeCrystalSelectionEffect({
 
 		await animation.delay(120);
 	} finally {
-		env.scene.events.off(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
+		sceneEvents.off(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
 		shardEmitter.destroy();
 		targetOrb.destroy();
 	}

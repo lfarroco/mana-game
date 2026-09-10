@@ -1,6 +1,6 @@
 import * as EffectCardShop from "@Screens/Battleground/Components/Shop/EffectCardShop";
 import { env } from "@Env";
-import { BGContext } from "@Screens/Battleground/BattlegroundScreen";
+import { BGContext } from "@Screens/Battleground/BattlegroundScene";
 
 export const UpgradeCorePhase = (ctx: BGContext) => {
 	const upgradeIds = env.state.session.options.map((option) => option.id);

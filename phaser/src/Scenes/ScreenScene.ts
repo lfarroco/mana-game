@@ -2,11 +2,16 @@
  * ScreenScene — base class for a screen that is a real Phaser scene.
  *
  * Replaces the `createScreen()` / `ScreenManager` lifecycle with Phaser's own:
- * `scene.start(key)` shuts the outgoing scene down (destroying its game
- * objects, tweens, timers and `this.events` listeners) and runs `create()` on
- * the incoming scene. Nothing dangles across a restart because Phaser owns
- * teardown — that is the whole point of the migration away from
- * `@mana/framework`.
+ * `scene.start(key)` shuts the outgoing scene down — Phaser destroys its game
+ * objects, kills its tweens and clears its timers — and runs `create()` on the
+ * incoming scene. Nothing dangles across a restart because Phaser owns the
+ * display list, tweens and clock; that is the whole point of the migration away
+ * from `@mana/framework`.
+ *
+ * Caveat: a scene's `events` emitter is NOT cleared on shutdown (only on scene
+ * destroy). Any `scene.events.on(...)` subscription a screen adds must be
+ * removed in `onScreenShutdown()` — and the emitter should be captured at
+ * registration time, since `env.scene` is repointed on the next navigation.
  *
  * What this base adds on top of a plain `Phaser.Scene`:
  *   - repoints `env.scene` at the active screen (the game runs one scene per
@@ -16,9 +21,20 @@
  *
  * Lifecycle: override `buildScreen()` (not `create()`) and, when a screen has
  * teardown beyond Phaser's automatic cleanup (module-level flags, DOM nodes,
- * subscriptions on module-level events), override `onScreenShutdown()`.
+ * `scene.events` subscriptions, subscriptions on module-level events), override
+ * `onScreenShutdown()`.
  */
 
+/**
+ * Import Phaser explicitly rather than relying on the `Phaser` global the rest
+ * of the client uses. The global only exists as a side effect of importing the
+ * phaser package, and this module evaluates `extends Phaser.Scene` at load
+ * time — so without this import its position in the module graph decides
+ * whether Phaser is defined yet (it wasn't, after the framework decommission
+ * changed the import order). The explicit import also installs the global for
+ * every module evaluated after this one.
+ */
+import * as Phaser from "phaser";
 import { setActiveScene } from "@Env";
 import { GameEvent } from "../Events";
 

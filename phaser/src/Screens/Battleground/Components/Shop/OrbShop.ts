@@ -9,7 +9,7 @@ import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { env } from "@Env";
 import { skipButton } from "../skipButton";
-import { dispatchAction } from "@Screens/Battleground/BattlegroundScreen";
+import { dispatchAction } from "@Screens/Battleground/BattlegroundScene";
 import * as Chara from "@Components/Chara/Chara";
 import { updatePowerDisplay } from "@Components/Chara/PowerDisplay";
 import * as Effects from "../../../../FX";
@@ -72,14 +72,16 @@ export function renderOrbShop() {
 			.setWrapMode(1)
 			.setFontFamily("Arimo");
 
-		//return magicOrb;
+		// Capture the emitter: `env.scene` is repointed on navigation, so the
+		// DESTROY handler must unsubscribe from the scene it registered on.
+		const sceneEvents = env.scene.events;
 		const handler = (time: number) => {
 			magicOrb.update(time);
 		};
-		env.scene.events.on("update", handler);
+		sceneEvents.on("update", handler);
 
 		shader.on(Phaser.GameObjects.Events.DESTROY, () => {
-			env.scene.events.off("update", handler);
+			sceneEvents.off("update", handler);
 		});
 
 		return [shader, titleText, descriptionText];

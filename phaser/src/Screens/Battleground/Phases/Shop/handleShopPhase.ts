@@ -3,7 +3,7 @@ import * as Chara from "@Components/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
 import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone";
 import { env } from "@Env";
-import type { BGContext } from "../../BattlegroundScreen";
+import type { BGContext } from "../../BattlegroundScene";
 import { skipButton } from "@Screens/Battleground/Components/skipButton";
 
 export const ShopPhase = (_ctx: BGContext) => {

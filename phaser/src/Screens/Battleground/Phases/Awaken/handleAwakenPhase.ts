@@ -7,7 +7,7 @@ import * as animation from "@Utils/animation";
 import * as Effects from "../../../../FX";
 import { AWAKEN_POWERS } from "@game/content/awakenPowers";
 import { env } from "@Env";
-import { BGContext, dispatchAction } from "../../BattlegroundScreen";
+import { BGContext, dispatchAction } from "../../BattlegroundScene";
 
 // Power-card layout mirrors the shop/upgrade card row (EffectCardShop).
 const POWER_CARD_WIDTH = 700;

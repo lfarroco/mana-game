@@ -1,5 +1,12 @@
 # Framework Hardening — `@mana/framework` Improvement Plan
 
+> **Historical document (superseded 2026-09-10).** The `@mana/framework`
+> package this plan hardens has been deleted; every screen is now a raw Phaser
+> `ScreenScene` (`Scenes/ScreenScene.ts`, `Scenes/AppRouter.ts`,
+> `Scenes/PhaseController.ts`). The failure analysis below (nav-mutex hangs,
+> async teardown ordering) is the record of what the migration removed. See
+> [scene-migration.md](scene-migration.md).
+
 Evaluation of the `@mana/framework` package, produced after completing the
 BattlegroundScreen migration (a real-world stress test of the framework's
 ergonomics). Validated by reading every module and running a targeted runtime

@@ -7,7 +7,7 @@
  */
 
 import { env } from "@Env";
-import { FADE_MS, go, registerLegacyNavigator, type LegacyNavigator } from "./AppRouter";
+import { FADE_MS, currentScreen, go } from "./AppRouter";
 
 jest.mock("@Env", () => ({ env: { scene: null } }));
 
@@ -81,18 +81,8 @@ function setScene(scene: FakeScene | null): void {
 	(env as unknown as { scene: FakeScene | null }).scene = scene;
 }
 
-function makeNavigator(overrides: Partial<LegacyNavigator> = {}): LegacyNavigator {
-	return {
-		go: jest.fn(async () => {}),
-		current: () => null,
-		dispose: jest.fn(async () => {}),
-		...overrides,
-	};
-}
-
 beforeEach(() => {
 	jest.useFakeTimers();
-	registerLegacyNavigator(makeNavigator());
 });
 
 afterEach(() => {
@@ -118,7 +108,7 @@ describe("AppRouter.go", () => {
 		expect(title.scene.start).not.toHaveBeenCalled();
 	});
 
-	it("fades the outgoing scene out, locks its input and starts the legacy host", async () => {
+	it("fades the outgoing scene out, locks its input and starts the target scene", async () => {
 		const title = makeScene("title");
 		setScene(title);
 
@@ -126,52 +116,18 @@ describe("AppRouter.go", () => {
 
 		expect(title.cameras.main.fade).toHaveBeenCalled();
 		expect(title.input.enabled).toBe(false);
-		expect(title.scene.start).toHaveBeenCalledWith("legacy", {
-			route: "battleground",
-			params: undefined,
-		});
+		expect(title.scene.start).toHaveBeenCalledWith("battleground", {});
 	});
 
-	it("forwards route params into the legacy host", async () => {
+	it("forwards route params as scene data", async () => {
 		const title = makeScene("title");
 		setScene(title);
 
 		await go("battleground", { crystalId: "crystal_red" });
 
-		expect(title.scene.start).toHaveBeenCalledWith("legacy", {
-			route: "battleground",
-			params: { crystalId: "crystal_red" },
+		expect(title.scene.start).toHaveBeenCalledWith("battleground", {
+			crystalId: "crystal_red",
 		});
-	});
-
-	it("starts a migrated scene directly, passing its params as scene data", async () => {
-		const title = makeScene("title");
-		setScene(title);
-
-		await go("options", { tab: "graphics" });
-
-		expect(title.scene.start).toHaveBeenCalledWith("options", { tab: "graphics" });
-	});
-
-	it("delegates a legacy route to the legacy navigator when the host is already active", async () => {
-		const host = makeScene("legacy");
-		setScene(host);
-		const navigator = makeNavigator();
-		registerLegacyNavigator(navigator);
-
-		await go("battleground");
-
-		expect(navigator.go).toHaveBeenCalledWith("battleground", undefined);
-		expect(host.scene.start).not.toHaveBeenCalled();
-	});
-
-	it("starts the title scene when leaving the legacy host", async () => {
-		const host = makeScene("legacy");
-		setScene(host);
-
-		await go("title");
-
-		expect(host.scene.start).toHaveBeenCalledWith("title", {});
 	});
 
 	it("coalesces rapid navigations — only the latest queued target runs", async () => {
@@ -212,9 +168,27 @@ describe("AppRouter.go", () => {
 		await navigation;
 
 		expect(settled).toBe(true);
-		expect(title.scene.start).toHaveBeenCalledWith("legacy", {
-			route: "battleground",
-			params: undefined,
-		});
+		expect(title.scene.start).toHaveBeenCalledWith("battleground", {});
+	});
+});
+
+describe("AppRouter.currentScreen", () => {
+	it("reads the display name and phase probes off the active scene", () => {
+		const crystals = makeScene("crystals") as FakeScene & {
+			screenName?: string;
+			currentPhase?: () => string | null;
+		};
+		crystals.screenName = "crystal_selection";
+		crystals.currentPhase = () => "main";
+		setScene(crystals);
+
+		const current = currentScreen();
+		expect(current?.name).toBe("crystal_selection");
+		expect(current?.currentPhase?.()).toBe("main");
+	});
+
+	it("returns null before boot", () => {
+		setScene(null);
+		expect(currentScreen()).toBeNull();
 	});
 });

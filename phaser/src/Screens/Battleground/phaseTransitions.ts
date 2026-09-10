@@ -21,7 +21,7 @@
 
 import * as animation from "@Utils/animation";
 import { env } from "@Env";
-import type { Destroyable } from "@mana/framework";
+import type { Destroyable } from "@Scenes/PhaseController";
 
 export const PHASE_TRANSITION_MS = 300;
 export const SLIDE_DISTANCE = 90;

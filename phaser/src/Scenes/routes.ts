@@ -2,15 +2,13 @@
  * Route catalog — the single source of truth for screen navigation.
  *
  * The game runs one Phaser scene per screen. A "route" is the app-level name
- * screens navigate with; for a migrated screen the route IS the Phaser scene
- * key (e.g. "title"). Routes that are still served by the legacy
- * `@mana/framework` screens are marked in `LEGACY_ROUTES` and are hosted
- * inside `LegacyHostScene` until each is migrated.
+ * screens navigate with, and it IS the Phaser scene key (e.g. "title",
+ * "battleground"). Add a route here, implement a `ScreenScene` with the same
+ * key, and register it in `main.ts`.
  *
- * Migration checklist for a legacy route:
- *   1. Give the screen its own `ScreenScene` with key === route.
- *   2. Register the scene class in `main.ts`.
- *   3. Delete the route from `LEGACY_ROUTES` and from `legacyScreens.ts`.
+ * Migrating another screen: extend `ScreenScene`, register the scene class in
+ * `main.ts`, and add the route below. Full checklist:
+ * docs/scene-migration.md.
  */
 
 export type Route =
@@ -30,24 +28,3 @@ export type RouteParams = {
 };
 
 export type ParamsFor<R extends Route> = RouteParams[R];
-
-/** Phaser scene key of the transitional host for not-yet-migrated screens. */
-export const LEGACY_HOST_KEY = "legacy";
-
-/**
- * Routes still served by the legacy `@mana/framework` screens. Shrinks as
- * screens are migrated to raw Phaser scenes.
- */
-export const LEGACY_ROUTES = ["battleground"] as const;
-
-export type LegacyRoute = (typeof LEGACY_ROUTES)[number];
-
-export function isLegacyRoute(route: Route): route is LegacyRoute {
-	return (LEGACY_ROUTES as readonly string[]).includes(route);
-}
-
-/** Params carried into the legacy host scene so it knows which screen to build. */
-export type LegacyHostData = {
-	route: LegacyRoute;
-	params?: unknown;
-};

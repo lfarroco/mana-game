@@ -4,7 +4,7 @@ import * as Constants from "@Constants";
 import * as EncounterCard from "@Components/EncounterCard";
 import { ENCOUNTERS } from "@game/content/encounters";
 import { env } from "@Env";
-import { dispatchAction, BGContext } from "../../BattlegroundScreen";
+import { dispatchAction, BGContext } from "../../BattlegroundScene";
 import { encounterActionFor } from "./encounterActions";
 
 // Encounter card display layout constants

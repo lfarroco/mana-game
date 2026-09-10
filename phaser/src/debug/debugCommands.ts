@@ -32,7 +32,7 @@ import { env } from "@Env";
 import { buildRunCompleteSession, type RunCompleteOptions } from "@game/session/runComplete";
 import { BattlegroundEvent } from "../Events";
 import { currentScreen, go } from "@Scenes/AppRouter";
-import { dispatchAction } from "../Screens/Battleground/BattlegroundScreen";
+import { dispatchAction } from "../Screens/Battleground/BattlegroundScene";
 import { encounterActionFor } from "../Screens/Battleground/Phases/Encounter/encounterActions";
 import { purchaseShopUnit } from "../Screens/Battleground/Phases/Shop/purchaseShopUnit";
 import { startNewGame } from "../Screens/CrystalSelection/Effects";

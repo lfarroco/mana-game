@@ -16,16 +16,17 @@ import {
 import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
-import { dispatchAction, type BGContext } from "../../BattlegroundScreen";
+import { dispatchAction, type BGContext } from "../../BattlegroundScene";
 import * as VictoryUI from "@Screens/Battleground/Components/Results/VictoryUI";
 import * as DefeatUI from "@Screens/Battleground/Components/Results/DefeatUI";
-import { findTrackedById } from "@mana/framework";
 
 const COMBAT_START_DELAY_MS = 300;
 
-// ID under which the results panel container is tracked so the Continue handler
-// can destroy it BEFORE the player's board is re-summoned on the next phase.
-const COMBAT_RESULTS_PANEL_ID = "combat-results-panel";
+// The combat results panel (victory/defeat overlay). Held here so the Continue
+// handler can destroy it BEFORE the player's board is re-summoned on the next
+// phase; the results phase also tracks it, so the phase controller destroys it
+// again on the phase switch (GameObject.destroy() is idempotent).
+let resultsPanel: Phaser.GameObjects.Container | null = null;
 
 // The combat phase is split into a playback phase (`combat`) followed by a
 // client-only results phase (`combat_victory` / `combat_defeat`).  The playback
@@ -48,19 +49,35 @@ let state: PlaybackState = initialState();
 
 // Per-unit combat stats snapshot captured when playback finishes.  The results
 // phase reads this to render the stats table.  It is module-scoped because the
-// framework's go() takes no params; reset when combat is torn down on continue.
+// phase switch takes no params; reset when combat is torn down on continue.
 // TODO: this should come from the server
 let combatStatsSnapshot: CombatStatsTracker.CombatStatsTrackerState | null = null;
+
+/**
+ * Drop module-scoped combat playback state. Called by BattlegroundScene's
+ * `onScreenShutdown()` so a playback controller from a previous visit cannot
+ * leak into the next one.
+ *
+ * Stops any active playback FIRST: a scene's event emitter is NOT cleared by
+ * Phaser on shutdown, so the combat `update` listener must be removed explicitly
+ * (otherwise it would keep ticking against the next visit's state).
+ */
+export function resetCombatPhaseState(): void {
+	cleanupPlayback(state);
+	state = initialState();
+	combatStatsSnapshot = null;
+	resultsPanel = null;
+}
 
 const handleCombatContinueRequested = async () => {
 	const { wins: previousWins, round: previousRound } = env.state.session;
 
 	// Destroy the results panel FIRST so it disappears before the player's board
-	// is cleared and re-summoned on the next phase transition.  The container is
-	// still tracked by the results phase, so the framework's clearPhase() will
-	// call destroy() again — Phaser's GameObject.destroy() is idempotent, so the
-	// second call is a no-op.
-	findTrackedById<Phaser.GameObjects.Container>(COMBAT_RESULTS_PANEL_ID)?.destroy();
+	// is cleared and re-summoned on the next phase transition. The phase
+	// controller destroys it again on the phase switch (Phaser's
+	// GameObject.destroy() is idempotent, so the second call is a no-op).
+	resultsPanel?.destroy();
+	resultsPanel = null;
 
 	// Tear down the combat board / ForceStats / combatState BEFORE dispatching
 	// end_combat.  dispatchAction's phaseFinished.emit awaits the full next-phase
@@ -86,29 +103,42 @@ async function beginCombatPlayback(): Promise<void> {
 }
 
 const startCombatPlayback = async (): Promise<() => void> => {
+	// Capture the scene up front: the start delay below gives the player a
+	// window to navigate away, and the scene's event emitter survives shutdown,
+	// so a listener registered on a stale/dying scene would leak.
+	const scene = env.scene;
+
 	setupCombatBoard();
 
 	ForceStats.createForceStats();
 
 	await animation.delay(COMBAT_START_DELAY_MS);
 
+	// The player navigated away (or the scene was replaced) while waiting.
+	if (!scene.sys?.settings?.active) return () => {};
+
 	const controller = CombatPlaybackController.createCombatPlaybackController(
 		env.state.combatState!.logs
 	);
 	state.currentController = controller;
 
+	// Capture the emitter at registration time: `env.scene` is repointed to the
+	// incoming screen on navigation, so removing the listener through it later
+	// would target the wrong scene (and leak this handler onto the battleground
+	// scene, which Phaser does NOT clear on shutdown).
+	const sceneEvents = scene.events;
 	const updateHandler = (time: number, delta: number) => {
 		if (state.isPaused) return;
 		controller.updateFrame(env.state.combatState!, time, delta);
 		if (!controller.isActive()) {
-			env.scene.events.off("update", updateHandler);
+			sceneEvents.off("update", updateHandler);
 		}
 	};
 
-	env.scene.events.on("update", updateHandler);
+	sceneEvents.on("update", updateHandler);
 
 	return () => {
-		env.scene.events.off("update", updateHandler);
+		sceneEvents.off("update", updateHandler);
 		controller.stop();
 	};
 };
@@ -237,11 +267,13 @@ const renderCombatResults = async (
 	ctx.listen(ctx.events.combatContinueRequested, handleCombatContinueRequested);
 	ctx.listen(ctx.events.combatReplayRequested, () => ctx.go("combat"));
 
-	// Track the results panel under a known ID so the Continue handler can find
-	// and destroy it before the player's board is re-summoned.  Returning nothing
-	// (instead of the container) avoids double-tracking it in the phase scope.
+	// Track the panel in the phase scope (so the phase controller destroys it on
+	// the phase switch) and keep a reference for the Continue handler, which
+	// removes it before the player's board is re-summoned. Returning nothing
+	// (instead of the container) avoids double-tracking it.
 	const container = await containerPromise;
-	ctx.track(container, { id: COMBAT_RESULTS_PANEL_ID });
+	resultsPanel = container;
+	ctx.track(container);
 };
 
 export const CombatVictoryPhase = (ctx: BGContext) => {

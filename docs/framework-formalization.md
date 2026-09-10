@@ -1,5 +1,13 @@
 # Framework Formalization (Long-Term Vision)
 
+> **Historical document (superseded 2026-09-10).** The `@mana/framework`
+> package described here was decommissioned: every screen is now a raw Phaser
+> `ScreenScene` and the package has been deleted. The screen-purity rules and
+> the analysis of why explicit resource lifecycle matters are still useful
+> background; the package layout, imports and roadmap below are no longer
+> accurate. See [scene-migration.md](scene-migration.md) for the current
+> architecture.
+
 This document describes the long-term goal of extracting the current
 architectural patterns into a formal, reusable **application framework**
 for the client layer. It captures what exists today, what's missing, and

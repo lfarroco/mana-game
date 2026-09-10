@@ -46,12 +46,12 @@ for details.
 ## Architecture
 
 - Client (`phaser/src/`)
+  - Scenes (`Scenes/`): one `ScreenScene` per screen, navigated with `AppRouter`
   - Screens
     - (Some Screen)
       - Components
-      - Phases
+      - Phases (battleground, driven by `Scenes/PhaseController`)
   - Events
-- Client Framework (`framework/`): system for managing screens and listeners
 - Core game logic (`core/`):  pure, framework-agnostic package
 - Multiplayer server (`server/`): authoritative Node API (sessions, matchmaking, auth) — see [docs/game-server.md](docs/game-server.md)
 
@@ -82,8 +82,8 @@ See [AGENTS.md](AGENTS.md) for the AI agent guide — project knowledge index, c
 ## Contributing
 
 Issues and pull requests are welcome. Each package has its own `AGENTS.md`
-with conventions — read it before editing (`core/`, `framework/`, `server/`,
-`phaser/`). Run the package's tests + typecheck before submitting; format with
+with conventions — read it before editing (`core/`, `server/`, `phaser/`). Run
+the package's tests + typecheck before submitting; format with
 `npm run format` from the repo root. For AI-assisted contributions, start at
 [AGENTS.md](AGENTS.md).
 

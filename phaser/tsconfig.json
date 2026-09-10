@@ -12,12 +12,6 @@
             "@mana/core/*": [
                 "../core/src/*"
             ],
-            "@mana/framework": [
-                "../framework/src/index.ts"
-            ],
-            "@mana/framework/*": [
-                "../framework/src/*"
-            ],
             "@Models/*": [
                 "./src/Models/*"
             ],

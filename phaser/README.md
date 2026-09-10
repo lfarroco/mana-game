@@ -2,8 +2,8 @@
 
 The Phaser 3 game client for Mana Battle: screens, UI, audio, combat playback,
 and the server adapters. Game rules live in `core/` (`@game/*`); screen
-lifecycle/navigation live in `framework/` (`@mana/framework`). The client is a
-thin engine layer on top of both.
+lifecycle/navigation are raw Phaser scenes (`src/Scenes/ScreenScene.ts`,
+`src/Scenes/AppRouter.ts`). The client is a thin engine layer on top.
 
 ## Quick Start
 
@@ -15,10 +15,10 @@ npm run dev        # http://localhost:8080
 
 ## Key entry points
 
-- `src/Client.ts` — boot: wires `env.dispatch` → `GameServer.getServer().handleAction`, screen registry, global events
+- `src/Scenes/BootScene.ts` — boot: wires `env.dispatch` → `GameServer.getServer().handleAction`, store/event setup, starts `title`
 - `src/main.ts` — entry point
-- `src/Screens/ScreenManager.ts` — typed screen routes
-- `src/Screens/Battleground/BattlegroundScreen.ts` — the main game loop (all phases declared via `createScreen`)
+- `src/Scenes/AppRouter.ts` — `go(route, params)` screen navigation
+- `src/Screens/Battleground/BattlegroundScene.ts` — the main game loop (phases driven by `Scenes/PhaseController.ts`)
 - `src/GameServer.ts` — `getServer()` picks `LocalServer` (single-player) or `remoteServer` (multiplayer)
 
 ## Layout

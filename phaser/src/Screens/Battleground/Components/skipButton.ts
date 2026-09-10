@@ -1,7 +1,7 @@
 import * as c from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as constants from "@Constants";
-import { dispatchAction } from "../BattlegroundScreen";
+import { dispatchAction } from "../BattlegroundScene";
 
 export const skipButton = () =>
 	UIButton.create({

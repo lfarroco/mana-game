@@ -14,7 +14,7 @@ import {
 	onShopUnitDragPurchaseFailed,
 	purchaseShopUnit,
 } from "@Screens/Battleground/Phases/Shop/purchaseShopUnit";
-import { Destroyable } from "@mana/framework";
+import { Destroyable } from "@Scenes/PhaseController";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;

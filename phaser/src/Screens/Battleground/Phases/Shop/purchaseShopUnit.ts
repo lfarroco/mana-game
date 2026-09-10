@@ -13,7 +13,7 @@ import {
 	endPhaseTransition,
 	finishPhase,
 	restorePhaseExit,
-} from "../../BattlegroundScreen";
+} from "../../BattlegroundScene";
 
 const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 const SHOP_UPGRADE_PROJECTILE_COUNT = 8;

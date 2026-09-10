@@ -98,5 +98,5 @@ console.log(`  1. Add the route to Route + RouteParams in src/Scenes/routes.ts:`
 console.log(`       ${routeName}: void;`);
 console.log(`  2. Register the scene in the main.ts scene list:`);
 console.log(`       import { ${pascal}Scene } from "./Screens/${pascal}/${pascal}Scene";`);
-console.log(`       scene: [BootScene(...), TitleScene, ${pascal}Scene, LegacyHostScene]`);
+console.log(`       scene: [BootScene(...), TitleScene, ${pascal}Scene]`);
 console.log(`  3. Navigate with go("${routeName}") from @Scenes/AppRouter`);

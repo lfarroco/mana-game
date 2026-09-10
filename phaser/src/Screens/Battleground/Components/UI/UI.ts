@@ -44,7 +44,7 @@ export function create() {
 
 /**
  * Keep the HUD hearts in sync with the session. Called from
- * BattlegroundScreen.transitionToCurrentPhase (after every dispatch), so the
+ * BattlegroundScene.transitionToCurrentPhase (after every dispatch), so the
  * hearts refresh when an encounter spends or restores a life (soul_trade,
  * rest_inn, roulette_wheel). Emits livesChanged (with the correct sign) only
  * when the displayed value actually differs, so the heart update + floating
@@ -60,7 +60,7 @@ export function syncLivesDisplay(): void {
 
 /**
  * Keep the HUD round counter in sync with the session. Called from
- * BattlegroundScreen.transitionToCurrentPhase (after every dispatch), so the
+ * BattlegroundScene.transitionToCurrentPhase (after every dispatch), so the
  * round refreshes whenever a transition advances the run — including the
  * upgrade_core / add_reaction_core → next-round handoff that happens outside
  * the combat results flow. Emits roundChanged only when the displayed value
@@ -98,8 +98,14 @@ export async function handleUserMessageRequested(payload: {
 	text.destroy(true);
 }
 
+/**
+ * Drop the HUD container reference and the shared tooltip. Phaser already
+ * destroyed the game objects on scene shutdown, so the destroy call is a no-op
+ * there — the point is to release the module-level reference (and to work if
+ * called while the scene is still alive).
+ */
 export function destroy(): void {
-	uiContainer!.destroy(true);
+	uiContainer?.destroy(true);
 	uiContainer = null;
 	Tooltip.destroyTooltip();
 }
