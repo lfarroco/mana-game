@@ -48,6 +48,7 @@ export abstract class ScreenScene extends Phaser.Scene {
 	readonly screenName: string;
 
 	private hasShutDown = false;
+	private hasRevealed = false;
 	private readyPromise: Promise<void> = Promise.resolve();
 	private resolveReady: (() => void) | null = null;
 
@@ -89,6 +90,7 @@ export abstract class ScreenScene extends Phaser.Scene {
 		// Phaser reuses the scene instance across restarts — reset the per-run
 		// lifecycle state before anything else.
 		this.hasShutDown = false;
+		this.hasRevealed = false;
 		this.readyPromise = new Promise<void>((resolve) => {
 			this.resolveReady = resolve;
 		});
@@ -100,6 +102,14 @@ export abstract class ScreenScene extends Phaser.Scene {
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
 		this.events.once(Phaser.Scenes.Events.DESTROY, this.handleShutdown, this);
 
+		// Carry the outgoing screen's black over to this scene's camera. Cameras
+		// are per-scene, so the fade-out the router ran on the *previous* scene
+		// does not darken this one — and Phaser renders a scene from its first
+		// frame, before `buildScreen()` (which may await a phase transition or a
+		// profile fetch) finishes. Without this the incoming screen pops in fully
+		// visible and only then fades in from black. `revealScreen()` clears it.
+		if (this.shouldFadeIn()) this.hideScreen();
+
 		void this.runCreate();
 	}
 
@@ -109,13 +119,29 @@ export abstract class ScreenScene extends Phaser.Scene {
 	/** Optional teardown hook. Runs once, on scene shutdown. */
 	protected onScreenShutdown(): void {}
 
-	/** Screens that fade themselves in (e.g. the legacy host) return false. */
+	/** Screens that fade themselves in (e.g. a host that reveals later) return false. */
 	protected shouldFadeIn(): boolean {
 		return true;
 	}
 
-	/** Fade the scene in from black. Public so hosts can defer/override it. */
+	/** Cover the scene in the fade colour, instantly and without animation. */
+	protected hideScreen(): void {
+		const { r, g, b } = hexToRgb(SCREEN_FADE_COLOR);
+		// A zero-duration fade-out completes on the next camera update — which
+		// runs before that frame's render — leaving the camera black. `force`
+		// restarts the effect in case one was left running on a scene restart.
+		this.cameras.main.fadeEffect.start(true, 0, r, g, b, true);
+	}
+
+	/**
+	 * Fade the scene in from black. Idempotent: a screen whose `buildScreen()`
+	 * has slow async work after its visible layer is up may call this itself
+	 * (see `BattlegroundScene`), and the automatic call once `buildScreen()`
+	 * resolves is then a no-op. Public so hosts can defer/override it.
+	 */
 	revealScreen(): void {
+		if (this.hasRevealed) return;
+		this.hasRevealed = true;
 		const { r, g, b } = hexToRgb(SCREEN_FADE_COLOR);
 		this.cameras.main.fadeIn(SCREEN_FADE_MS, r, g, b);
 	}

@@ -28,6 +28,12 @@ to the `main.ts` scene list. Navigate with `go(route, params)` from
 drive them with `Scenes/PhaseController`; simple sub-menus/tabs keep their own
 scene-local `go(phase)` state (`TitleScene`, `OptionsScene`).
 
+The incoming screen starts black (`ScreenScene` covers the camera) and fades in
+once `buildScreen()` resolves. If the build has slow async work *after* the
+visible layer is up, call `this.revealScreen()` first — it is idempotent, so the
+automatic reveal no-ops. `BattlegroundScene` does this so the ~2s team-summon
+animation doesn't hold the player on black.
+
 ## Battleground phases
 
 `BattlegroundScene.ts` declares every phase as a `PhaseEntry` (`{ handler,

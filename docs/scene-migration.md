@@ -56,6 +56,20 @@ helpers (`time`, `borderedRoundRect`, `centeredRect`, `shader`,
   timeout. `env.fadeOut` / `env.fadeIn` are bounded the same way. A fade
   interrupted by a scene restart can no longer strand navigation — the reported
   failure mode.
+- **The black carries over**: cameras are per-scene, so the outgoing scene's
+  fade-out does not darken the incoming one. `ScreenScene.create()` immediately
+  covers the new camera in the fade colour (`hideScreen()`) and `revealScreen()`
+  clears it once `buildScreen()` has run. Without this the incoming screen — whose
+  `buildScreen()` may await a phase transition or a profile fetch — renders fully
+  visible for those frames and *then* fades in from black (a visible double
+  fade). The legacy single-scene host got this for free: its one shared camera
+  stayed black across `create()`.
+- **Reveal early when the build is slow**: `revealScreen()` is idempotent, so a
+  screen whose `buildScreen()` has slow async work *after* its visible layer is
+  up can call it before awaiting the rest. `BattlegroundScene` does this: the
+  persistent layer (background, board, HUD) is up in ~20ms, while summoning the
+  player's team takes ~2s — waiting for that held the player on black. The base
+  class's automatic call then no-ops.
 
 ### Sub-menus and tabs
 

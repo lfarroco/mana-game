@@ -297,6 +297,14 @@ export class BattlegroundScene extends ScreenScene {
 		Components.DiscardZone.create();
 		Components.UI.create();
 
+		// The visible layer (background, board, HUD) is up, so start the
+		// cross-screen fade now. The phase transition below is slow — it summons
+		// the player's team (~2s of spawn animation) and slides the phase UI in —
+		// and waiting for it would hold the player on a black screen.
+		// `revealScreen()` is idempotent, so the base class's call once
+		// `buildScreen()` resolves is a no-op.
+		this.revealScreen();
+
 		AudioManager.playMusic("music_battlemap_vetruv");
 
 		await transitionToCurrentPhase();
