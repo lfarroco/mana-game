@@ -13,6 +13,7 @@ let isOpen = false;
 const baseLinks = [
 	// { text: "Discord", url: "https://discord.gg/h259xFPP" },
 	// { text: "Reddit", url: "https://www.reddit.com/r/ManaBattleGame/" },
+	{ text: "GitHub", url: "https://github.com/lfarroco/mana-game" },
 	{ text: "X/Twitter", url: "https://x.com/manabattle_en" },
 	{ text: "YouTube", url: "https://www.youtube.com/@manabattle" },
 ];
