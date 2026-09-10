@@ -3,12 +3,12 @@ import * as i18n from "@i18n/i18n";
 import * as UIButton from "@Components/Button/UIButton";
 import * as CreditsPanel from "@Screens/Title/Components/CreditsPanel";
 import * as StatsPanel from "@Screens/Title/Components/StatsPanel";
-import * as TitleScreen from "../TitleScreen";
-import { getScreenManager } from "../../ScreenManager";
+import type { TitleContext } from "../TitleScene";
+import { go } from "@Scenes/AppRouter";
 
 const BUTTON_Y = 700;
 
-export function create(ctx: TitleScreen.Context) {
+export function create(ctx: TitleContext) {
 	const title = i18n.t("title.options");
 	return UIButton.create({
 		text: title,
@@ -24,7 +24,7 @@ export function create(ctx: TitleScreen.Context) {
 	}).container;
 }
 
-export function createSubmenu(ctx: TitleScreen.Context) {
+export function createSubmenu(ctx: TitleContext) {
 	const baseY = 500;
 	const spacing = 100;
 
@@ -32,7 +32,7 @@ export function createSubmenu(ctx: TitleScreen.Context) {
 		text: i18n.t("title.settings"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
 		callback: () => {
-			void getScreenManager().go("options");
+			void go("options");
 		},
 	});
 

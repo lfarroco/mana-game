@@ -29,6 +29,8 @@ module.exports = {
 		"^@Models/(.*)$": "<rootDir>/src/Models/$1",
 		"^@Screens/(.*)\\.js$": "<rootDir>/src/Screens/$1",
 		"^@Screens/(.*)$": "<rootDir>/src/Screens/$1",
+		"^@Scenes/(.*)\\.js$": "<rootDir>/src/Scenes/$1",
+		"^@Scenes/(.*)$": "<rootDir>/src/Scenes/$1",
 		"^@Systems/(.*)\\.js$": "<rootDir>/src/Systems/$1",
 		"^@Systems/(.*)$": "<rootDir>/src/Systems/$1",
 		"^@Utils/(.*)\\.js$": "<rootDir>/src/Utils/$1",

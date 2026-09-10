@@ -5,6 +5,10 @@
  * Import it in any module: `import { env } from "./Env"`.
  * Guaranteed to exist whenever any scene code runs (no null checks needed).
  *
+ * `env.scene` is the *active* screen scene; it is repointed on every screen
+ * entry by `ScreenScene.create()` (see Scenes/ScreenScene.ts) because the game
+ * runs one Phaser scene per screen.
+ *
  * env.scene gives direct Phaser API access — no wrapper layer to learn.
  * env.time, env.audio, and env.createEventChannel add value that Phaser lacks
  * (Promise-based timing, unified audio, typed events).
@@ -72,16 +76,22 @@ type Time = {
 	scale: number;
 };
 
-const makeTime = (scene: Phaser.Scene): Time => ({
+/**
+ * Time helpers read the *live* active scene, not the scene env was created
+ * with. Under one-scene-per-screen navigation `env.scene` is repointed on
+ * every screen entry, so a captured scene reference would schedule timers on
+ * a scene that has already shut down.
+ */
+const makeTime = (getScene: () => Phaser.Scene): Time => ({
 	delay: (ms) =>
 		new Promise<void>((resolve) => {
-			scene.time.addEvent({ delay: ms, callback: () => resolve() });
+			getScene().time.addEvent({ delay: ms, callback: () => resolve() });
 		}),
 	get delta() {
-		return scene.game.loop.delta;
+		return getScene().game.loop.delta;
 	},
 	get scale() {
-		return scene.time.timeScale;
+		return getScene().time.timeScale;
 	},
 });
 
@@ -110,7 +120,11 @@ const makeAudio = (): Audio => ({
 // ---------------------------------------------------------------------------
 
 export type Env = {
-	/** Direct Phaser scene access (single scene, no wrapper needed). */
+	/**
+	 * The scene currently rendering the UI. Under one-scene-per-screen
+	 * navigation this is repointed by each screen scene's `create()` (see
+	 * `Scenes/ScreenScene.ts`); it is NOT a single permanent scene.
+	 */
 	scene: Phaser.Scene;
 
 	/** Current client state snapshot (read-only — mutate only via resetState/patchState/updateState). */
@@ -194,6 +208,29 @@ export type Env = {
 
 export let env: Env;
 
+/**
+ * Extra time allowed on top of a fade's duration before it resolves anyway.
+ */
+const FADE_TIMEOUT_SLACK_MS = 250;
+
+/**
+ * Build a one-shot resolver for a camera fade. It is called by the camera's
+ * completion event, but also by a bounded timer — a fade interrupted by a
+ * scene restart may never emit its completion, and an awaiting caller must not
+ * stall forever (the reported screen-transition bug).
+ */
+function boundedFade(resolve: () => void, duration: number): () => void {
+	let settled = false;
+	const finish = () => {
+		if (settled) return;
+		settled = true;
+		clearTimeout(timeout);
+		resolve();
+	};
+	const timeout = setTimeout(finish, duration + FADE_TIMEOUT_SLACK_MS);
+	return finish;
+}
+
 // ---------------------------------------------------------------------------
 // Factory
 // ---------------------------------------------------------------------------
@@ -224,35 +261,44 @@ export const createEnv = (
 
 		dispatch,
 
-		time: makeTime(scene),
+		time: makeTime(() => instance.scene),
 		audio: makeAudio(),
 
 		createEventChannel<T>(event: string): EventChannel<T> {
 			return createChannel<T>(emitter, event);
 		},
 
-		// Phaser helpers bound to this scene
+		// Phaser helpers bound to *the live scene* — not the scene env was
+		// created with (see the Env.scene docs). `container` already reads the
+		// live env.scene inside phaser-helpers.
 		container: (children) => makeContainer(children),
 		borderedRoundRect: (pos, size, cornerRadius, color, alpha) =>
-			borderedRoundRect(scene, pos, size, cornerRadius, color, alpha),
+			borderedRoundRect(instance.scene, pos, size, cornerRadius, color, alpha),
 		centeredRect: (pos, size, color, alpha, stroke) =>
-			centeredRect(scene, pos, size, color, alpha, stroke),
-		rectangularDropZone: (name, pos, size) => rectangularDropZone(scene, name, pos, size),
-		shader: (frag, pos, size, uniforms) => makeShader(scene, frag, pos, size, uniforms),
+			centeredRect(instance.scene, pos, size, color, alpha, stroke),
+		rectangularDropZone: (name, pos, size) => rectangularDropZone(instance.scene, name, pos, size),
+		shader: (frag, pos, size, uniforms) => makeShader(instance.scene, frag, pos, size, uniforms),
 
 		fadeOut: async (duration, color) =>
 			new Promise<void>((resolve) => {
+				const camera = instance.scene.cameras.main;
 				const r = (color >> 16) & 0xff;
 				const g = (color >> 8) & 0xff;
 				const b = color & 0xff;
-				scene.cameras.main.fade(duration, r, g, b);
-				scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, resolve);
+				// Hang-proof: a fade interrupted by a scene restart may never
+				// emit its completion event, and a caller awaiting the camera
+				// would stall forever (the reported screen-transition bug).
+				const finish = boundedFade(resolve, duration);
+				camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, finish);
+				camera.fade(duration, r, g, b);
 			}),
 
 		fadeIn: async (duration) =>
 			new Promise<void>((resolve) => {
-				scene.cameras.main.fadeIn(duration);
-				scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, resolve);
+				const camera = instance.scene.cameras.main;
+				const finish = boundedFade(resolve, duration);
+				camera.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, finish);
+				camera.fadeIn(duration);
 			}),
 	};
 
@@ -266,3 +312,12 @@ export const createEnv = (
 
 	return instance;
 };
+
+/**
+ * Point `env.scene` at the scene that is now rendering the UI. Called by
+ * `ScreenScene.create()` on every screen entry; navigation between screens is
+ * one-scene-per-screen, so all `env.scene` consumers follow the active screen.
+ */
+export function setActiveScene(scene: Phaser.Scene): void {
+	env.scene = scene;
+}

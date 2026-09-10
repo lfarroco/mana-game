@@ -11,6 +11,11 @@ const PANEL_HEIGHT = 600;
 
 let isOpen = false;
 
+/** Clear the open guard on scene shutdown (the panel's objects die with the scene). */
+export function reset(): void {
+	isOpen = false;
+}
+
 export function openStats(): void {
 	if (isOpen) return;
 	isOpen = true;

@@ -11,7 +11,7 @@ import * as seedInput from "./Components/seedInput";
 import * as title from "./Components/title";
 import * as SessionManager from "../../SessionManager";
 import { CardDefinition, createEvent } from "@game/Models";
-import { getScreenManager } from "../ScreenManager";
+import { go } from "@Scenes/AppRouter";
 import { createScreen, screenModule } from "@mana/framework";
 import { CRYSTAL_IDS } from "./ids";
 import { GameEvent } from "../../Events";
@@ -45,7 +45,7 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 				GameEvent.screenHidden.listen(cleanup),
 				e.playClicked.listen(Effects.startNewGame),
 				e.backClicked.listen(() => {
-					void getScreenManager().go("title");
+					void go("title");
 				}),
 				e.crystalChanged.listen(({ index }) => {
 					currentIndex = index;

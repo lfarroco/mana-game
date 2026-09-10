@@ -3,10 +3,10 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
-import * as TitleScreen from "../TitleScreen";
+import type { TitleContext } from "../TitleScene";
 import { env } from "@Env";
 
-export function create(ctx: TitleScreen.Context) {
+export function create(ctx: TitleContext) {
 	const panelWidth = 400;
 	const languages = i18n.getAvailableLocales();
 	const panelHeight = Math.max(300, languages.length * 80 + 150);

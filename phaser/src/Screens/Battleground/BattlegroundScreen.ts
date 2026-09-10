@@ -8,7 +8,7 @@ import * as Phases from "./Phases";
 import * as PhaseTransitions from "./phaseTransitions";
 import { env } from "@Env";
 import { BattlegroundEvent, GameEvent } from "../../Events";
-import { getScreenManager } from "../ScreenManager";
+import { go as navigate } from "@Scenes/AppRouter";
 import * as UI from "./Components/UI/UI";
 import { syncPlayerBoardUnits } from "./playerBoardSync";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
@@ -151,12 +151,12 @@ const screen = createScreen<BGPhase, BGEvents>({
 
 				evs.newRunRequested.listen(() => {
 					env.resetState();
-					void getScreenManager().go("crystals");
+					void navigate("crystals");
 				}),
 
 				evs.mainMenuRequested.listen(() => {
 					env.resetState();
-					void getScreenManager().go("title");
+					void navigate("title");
 				}),
 
 				...UI.registerListeners(),

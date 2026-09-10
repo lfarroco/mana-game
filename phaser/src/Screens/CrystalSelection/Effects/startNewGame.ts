@@ -2,7 +2,7 @@ import { getSelection } from "../CrystalSelectionScreen";
 import * as GameServer from "../../../GameServer";
 import { remoteServer } from "../../../RemoteServer";
 import { env } from "@Env";
-import { getScreenManager } from "../../ScreenManager";
+import { go } from "@Scenes/AppRouter";
 import { LOCAL_PLAYER_ID } from "../../../SessionManager";
 import { isMultiplayerMode } from "@lib/multiplayerMode";
 
@@ -20,5 +20,5 @@ export const startNewGame = async () => {
 
 	env.patchState({ session });
 
-	await getScreenManager().go("battleground", { crystalId: selectedCrystal.id });
+	await go("battleground", { crystalId: selectedCrystal.id });
 };

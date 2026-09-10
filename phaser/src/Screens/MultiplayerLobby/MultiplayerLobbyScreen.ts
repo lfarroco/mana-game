@@ -20,7 +20,7 @@ import { setMultiplayerMode } from "../../lib/multiplayerMode";
 import { remoteServer, RemoteServerError, type MultiplayerProfile } from "../../RemoteServer";
 import { env } from "@Env";
 import { GameEvent } from "../../Events";
-import { getScreenManager } from "../ScreenManager";
+import { go } from "@Scenes/AppRouter";
 
 export type MultiplayerLobbyEvents = {
 	playClicked: ReturnType<typeof createEvent<void>>;
@@ -53,7 +53,7 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 				playClicked.listen(handlePlay),
 				logoutClicked.listen(handleLogout),
 				backClicked.listen(() => {
-					void getScreenManager().go("title");
+					void go("title");
 				}),
 			],
 		};
@@ -352,8 +352,11 @@ async function connectWith(provider: "itch" | "google", modal: Modal.Modal): Pro
 		}
 		currentProfile = null;
 		await modal.close();
-		await getScreenManager().go("title");
-		await getScreenManager().go("multiplayer_lobby");
+		// Leave to the title scene and come back: a fresh legacy host rebuilds
+		// the lobby from the newly linked account. `go()` resolves once each
+		// screen is actually ready, so the second hop always sees a clean host.
+		await go("title");
+		await go("multiplayer_lobby");
 	} catch (err) {
 		await modal.close();
 		if (err instanceof RemoteServerError && err.code === "account_already_linked") {
@@ -378,7 +381,7 @@ async function handlePlay(): Promise<void> {
 	} else {
 		// New run: route crystal selection through the remote server.
 		setMultiplayerMode(true);
-		await getScreenManager().go("crystals");
+		await go("crystals");
 	}
 }
 
@@ -395,7 +398,7 @@ async function resumeActiveRun(): Promise<void> {
 			// The run finished between the profile load and the click — fall
 			// through to a fresh run.
 			setMultiplayerMode(true);
-			await getScreenManager().go("crystals");
+			await go("crystals");
 			return;
 		}
 		if (session.phase === "combat" && session.combatState) {
@@ -403,7 +406,7 @@ async function resumeActiveRun(): Promise<void> {
 		} else {
 			env.patchState({ session });
 		}
-		await getScreenManager().go("battleground");
+		await go("battleground");
 	} catch (err) {
 		if (handleAuthExpired(err)) return;
 		const detail = err instanceof Error ? err.message : String(err);
@@ -432,7 +435,7 @@ function handleAuthExpired(err: unknown): boolean {
  */
 function handleLogout(): void {
 	authSession.clearSession();
-	void getScreenManager().go("multiplayer_login");
+	void go("multiplayer_login");
 }
 
 /** Small dismissible modal for lobby load/action errors. */

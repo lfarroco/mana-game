@@ -10,6 +10,11 @@ const PANEL_HEIGHT = 700;
 
 let isOpen = false;
 
+/** Clear the open guard on scene shutdown (the panel's objects die with the scene). */
+export function reset(): void {
+	isOpen = false;
+}
+
 /**
  * Opens the credits panel overlay
  */

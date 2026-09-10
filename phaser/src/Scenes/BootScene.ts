@@ -1,21 +1,32 @@
+/**
+ * BootScene — the game's first Phaser scene.
+ *
+ * Loads every asset once (Phaser's caches are game-wide, so screen scenes use
+ * them without re-loading), creates `env`, initialises the stores, installs
+ * the dev console helpers and wires global game events. It then hands over to
+ * the title screen scene.
+ *
+ * This used to be `Client` — the single scene that also hosted every screen.
+ * It no longer knows about screens: navigation lives in `Scenes/AppRouter.ts`.
+ */
+
 import * as Assets from "@assets";
 import * as BaseCollection from "@game/BaseCollection";
 import * as Config from "@config";
-import * as TitleScreen from "./Screens/Title/TitleScreen";
-import * as BattlegroundScreen from "./Screens/Battleground/BattlegroundScreen";
-import * as CrystalSelectionScreen from "./Screens/CrystalSelection/CrystalSelectionScreen";
-import * as MultiplayerLobbyScreen from "./Screens/MultiplayerLobby/MultiplayerLobbyScreen";
-import * as MultiplayerLoginScreen from "./Screens/MultiplayerLogin/MultiplayerLoginScreen";
-import * as OptionsScreen from "./Screens/Options/OptionsScreen";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
-import * as GameServer from "./GameServer";
-import * as DebugCommands from "./debug/debugCommands";
+import * as GameServer from "../GameServer";
+import * as DebugCommands from "../debug/debugCommands";
 import { createEnv } from "@Env";
 import { ClientState } from "@Models/ClientState";
-import { GameEvent } from "./Events";
-import { createScreenManager, getScreenManager, setScreenManager } from "./Screens/ScreenManager";
+import { GameEvent } from "../Events";
+
+/** Phaser scene key of the boot scene. */
+export const BOOT_SCENE_KEY = "boot";
+
+/** Scene the boot sequence hands over to. */
+export const FIRST_SCENE_KEY = "title";
 
 // Hold references to navigation disposers to prevent GC
 const _navDisposers: (() => void)[] = [];
@@ -37,7 +48,11 @@ function wireGameEvents(): (() => void)[] {
 }
 
 export default (clientState: ClientState) =>
-	class Client extends Phaser.Scene {
+	class BootScene extends Phaser.Scene {
+		constructor() {
+			super({ key: BOOT_SCENE_KEY });
+		}
+
 		preload() {
 			this.createLoadingBar();
 
@@ -178,21 +193,8 @@ export default (clientState: ClientState) =>
 				GameServer.getServer().handleAction(clientState.session.player_id, action)
 			);
 
-			// TODO: these will always be used alongside each other, so they should be merged
-			// into a single function
-			setScreenManager(
-				createScreenManager({
-					screens: {
-						title: TitleScreen,
-						battleground: BattlegroundScreen,
-						crystals: CrystalSelectionScreen,
-						multiplayer_login: MultiplayerLoginScreen,
-						multiplayer_lobby: MultiplayerLobbyScreen,
-
-						options: OptionsScreen,
-					},
-				})
-			);
+			OptionsStore.init();
+			StatsStore.init();
 
 			// Dev-only console helpers (window.__debug) — no-op in production builds.
 			DebugCommands.installDebugCommands();
@@ -200,11 +202,9 @@ export default (clientState: ClientState) =>
 			// Wire global game-event reactions (Tooltip, audio, stats, …)
 			_navDisposers.push(...wireGameEvents());
 
-			OptionsStore.init();
-
-			StatsStore.init();
-
-			// Initialize and render the title screen as the first screen
-			getScreenManager().go("title");
+			// Hand the screen over to the first real screen scene. Phaser boots
+			// only the first scene in the config array, so this is the one
+			// explicit hand-off; every later transition goes through AppRouter.
+			this.scene.start(FIRST_SCENE_KEY);
 		}
 	};

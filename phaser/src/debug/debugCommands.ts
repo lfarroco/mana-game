@@ -31,7 +31,7 @@
 import { env } from "@Env";
 import { buildRunCompleteSession, type RunCompleteOptions } from "@game/session/runComplete";
 import { BattlegroundEvent } from "../Events";
-import { getScreenManager } from "../Screens/ScreenManager";
+import { currentScreen, go } from "@Scenes/AppRouter";
 import { dispatchAction } from "../Screens/Battleground/BattlegroundScreen";
 import { encounterActionFor } from "../Screens/Battleground/Phases/Encounter/encounterActions";
 import { purchaseShopUnit } from "../Screens/Battleground/Phases/Shop/purchaseShopUnit";
@@ -88,13 +88,13 @@ const goToRunCompletePhase = async (
 	const session = buildRunCompleteSession(env.state.session, phase, opts);
 	env.updateState({ ...env.state, session });
 
-	const current = getScreenManager().current();
+	const current = currentScreen();
 	if (current?.name === "battleground") {
 		// Already on the battleground screen — re-run the phase transition.
 		await BattlegroundEvent.phaseFinished.emit({ previousPhase });
 	} else {
 		// Enter the battleground; its create() picks up session.phase and jumps to it.
-		await getScreenManager().go("battleground");
+		await go("battleground");
 	}
 
 	console.info(
@@ -107,7 +107,7 @@ const goToRunCompletePhase = async (
 // ---------------------------------------------------------------------------
 
 const clickSinglePlayer = async (): Promise<void> => {
-	const current = getScreenManager().current();
+	const current = currentScreen();
 	if (current?.name !== "title" || !current.go) {
 		throw new Error("[debug] clickSinglePlayer(): title screen is not active.");
 	}
@@ -115,11 +115,11 @@ const clickSinglePlayer = async (): Promise<void> => {
 };
 
 const clickNewRun = async (): Promise<void> => {
-	await getScreenManager().go("crystals");
+	await go("crystals");
 };
 
 const clickPlay = async (): Promise<void> => {
-	const current = getScreenManager().current();
+	const current = currentScreen();
 	if (current?.name !== "crystal_selection") {
 		throw new Error("[debug] clickPlay(): crystal selection screen is not active.");
 	}
@@ -169,9 +169,9 @@ const continueCombat = async (): Promise<void> => {
 	await BattlegroundEvent.combatContinueRequested.emit();
 };
 
-const getScreen = (): string | null => getScreenManager().current()?.name ?? null;
+const getScreen = (): string | null => currentScreen()?.name ?? null;
 
-const getScreenPhase = (): string | null => getScreenManager().current()?.currentPhase?.() ?? null;
+const getScreenPhase = (): string | null => currentScreen()?.currentPhase?.() ?? null;
 
 const getPhase = (): string => env.state.session.phase;
 

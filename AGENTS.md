@@ -74,6 +74,9 @@ Pure, framework-agnostic game logic is being extracted into a top-level `core/` 
 - `framework/` (top-level package, aliased as `@mana/framework`)
   - Purpose: Engine-agnostic client framework — screen lifecycle, resource tracking, typed navigation (Phase D of [docs/framework-formalization.md](docs/framework-formalization.md))
   - Key modules: `Screen.ts` (`ScreenModule` contract), `createScreen.ts` (factory + `screenModule()`), `ScreenManager.ts` (nav core: registry, nav mutex, typed routes, deep-links + engine hooks), `Router.ts`, `Event.ts` (re-export of the core event primitive). Own jest + tsconfig; run `npm test` / `npm run typecheck` inside `framework/`
+- `phaser/src/Scenes/`
+  - Purpose: Phaser scene infrastructure replacing `@mana/framework` — one scene per screen
+  - Key files: `BootScene.ts` (asset load + `env` + `__debug`, starts `title`), `ScreenScene.ts` (base class), `AppRouter.ts` (`go(route, params)`, hang-proof fades), `routes.ts`, `LegacyHostScene.ts` + `legacyScreens.ts` (temporary bridge for the 5 unmigrated screens). See [docs/scene-migration.md](docs/scene-migration.md)
 - `phaser/src/Screens/Battleground/`
   - Purpose: Phaser scene orchestration — main battleground screen, phase handlers, combat playback
   - Key files: `BattlegroundScreen.ts`, `Components/`, `Phases/`, `playerBoardSync.ts`
@@ -115,6 +118,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [core-code-quality.md](docs/core-code-quality.md): Verified code-quality findings for `core/` and the prioritized improvement plan (incl. the confirmed single-player win-recording bug)
 - [framework-formalization.md](docs/framework-formalization.md): Long-term vision for extracting Screen, ScreenManager, createScreen, and Router into a framework package (`@mana/framework`). Phases A–D roadmap. Screen state purity rules.
 - [framework-hardening.md](docs/framework-hardening.md): Verified evaluation findings for `@mana/framework` and the prioritized hardening plan (nav-mutex failure semantics, async teardown support, lifecycle serialization).
+- [scene-migration.md](docs/scene-migration.md): **Active migration** — decommissioning `@mana/framework` in favour of raw Phaser scenes (`Scenes/ScreenScene.ts`, `Scenes/AppRouter.ts`). Title is migrated; five screens remain on the legacy host. Migration checklist + cleanup plan.
 - [combat-playback-performance.md](docs/combat-playback-performance.md): Further performance optimizations for the combat playback system beyond the initial July 2026 round
 - [combat-system-improvements.md](docs/combat-system-improvements.md): Remaining improvements to the effect/reaction engine, threshold reactions, and combat test infrastructure in `core/`
 - [project-architecture.md](docs/project-architecture.md): High-level architecture breakdown of the `core/`, `framework/`, `phaser/`, and `server/` packages
@@ -123,27 +127,27 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 1. **Three-tier Event System** — Events are categorized by lifespan and scope:
 
-   | Tier                          | File                                                     | Wired when                              | Payload rule                              | Example                                     |
-   |-------------------------------|----------------------------------------------------------|-----------------------------------------|-------------------------------------------|---------------------------------------------|
-   | **Screen-scoped**             | Each screen module (e.g. `TitleScreen` exports `events`) | Per `init()`                            | May carry Phaser refs                     | `newGameButtonClicked`, `crystalChanged`    |
-   | **Screen-lifecycle-crossing** | `phaser/src/Events.ts` — `BattlegroundEvent`             | Per battleground entry (create/destroy) | Plain data only                           | `phaseFinished`, `combatPlaybackFinished`   |
-   | **Global game events**        | `phaser/src/Events.ts` — `GameEvent`                     | Once at boot (never torn down)          | **Plain data only — no Phaser refs ever** | `screenShown`, `screenHidden`, `runStarted` |
+   | Tier                          | File                                                       | Wired when                              | Payload rule                              | Example                                     |
+   |-------------------------------|------------------------------------------------------------|-----------------------------------------|-------------------------------------------|---------------------------------------------|
+   | **Screen-scoped**             | Migrated scenes own theirs (`TitleScene`); legacy modules export `events` | Per scene `create()` / legacy `init()` | May carry Phaser refs                     | `newGameButtonClicked`, `crystalChanged`    |
+   | **Screen-lifecycle-crossing** | `phaser/src/Events.ts` — `BattlegroundEvent`               | Per battleground entry (create/destroy) | Plain data only                           | `phaseFinished`, `combatPlaybackFinished`   |
+   | **Global game events**        | `phaser/src/Events.ts` — `GameEvent`                       | Once at boot (never torn down)          | **Plain data only — no Phaser refs ever** | `screenShown`, `screenHidden`, `runStarted` |
 
-   - Screen-scoped events: created in `init()`, wrapped by `createScreen()` (via the `screenModule()` helper) for idempotent init + automatic cleanup.
+   - Screen-scoped events: in migrated scenes they are created in `buildScreen()` and their listeners are disposed in `onScreenShutdown()`; legacy `@mana/framework` screens still use `createScreen()` / `screenModule()` for idempotent init + automatic cleanup.
    - `BattlegroundEvent`: wired per screen entry in `BattlegroundScreen.create()`, disposed in `BattlegroundScreen.destroy()`. Carries domain data only.
-   - `GameEvent` (added 2026-07-28): wired once in `Client.ts` `wireGameEvents()`. Listeners must never capture Phaser game objects. Services (Tooltip, AudioManager, StatsStore) subscribe here instead of being imported by screens.
+   - `GameEvent` (added 2026-07-28): wired once in `Scenes/BootScene.ts` `wireGameEvents()`. Listeners must never capture Phaser game objects. Services (Tooltip, AudioManager, StatsStore) subscribe here instead of being imported by screens.
 
-2. **Screen lifecycle** — Every screen is a plain module exporting `{ name, init?, create, destroy? }` matching the `ScreenModule` type in `@mana/framework`. Navigation is centralized via the **ScreenManager** (`phaser/src/Screens/ScreenManager.ts`, added 2026-07-31, Phase C of framework-formalization; since Phase D (2026-08-01) it is a thin Phaser adapter over `@mana/framework`'s nav core, injecting fades/input/scene-cleanup/`GameEvent` emission via hooks):
-   - Screens call `getScreenManager().go(route, params)` instead of emitting navigation events. `NavigationEvent` was removed from `Events.ts`.
-   - `screenHidden` (GameEvent) → `destroy()` → input disable → fadeOut → `children.removeAll(true)` → `tweens.killAll()` → `time.removeAllEvents()` → cursor reset → `init()` → `create()` → `activeScreen = screen` → `screenShown` (GameEvent) → input enable → fadeIn.
-   - All calls are **serialised** by a promise-chain mutex (added 2026-07-28). If multiple navigation events queue while one is in flight, only the latest target runs. Coalesces redundant requests.
-   - **New screens should use `createScreen()`** from `@mana/framework` (`framework/src/createScreen.ts`; added 2026-07-29 as `Screens/screenTracking.ts`, extracted to the framework package 2026-08-01). Scaffold with `npm run new:screen -- <Name>` in `phaser/`, then register the route in `Screens/ScreenManager.ts` (`Routes`) and the screen in `Client.ts`. The spec's `events()` factory replaces manual event wiring, `ctx.track(obj, { id })` auto-tracks destroyables in a persistent layer or phase scope (also accepts arrays via `ctx.track(objs)` with optional `idPrefix`), `phases` declare mutually exclusive sub-states whose tracked elements are auto-destroyed on transition — or omit `phases` entirely for single-view screens. `ctx.listen(event, cb)` (added 2026-08-03) subscribes to an event for the **current scope's lifetime**: inside a phase handler the subscription is disposed on the next phase switch / `ctx.refresh()`; in the persistent `create` layer it survives transitions and dies on screen destroy — this gives phases their own scoped listeners without a per-phase event catalog. `ctx.refresh()` destroys and re-runs the current phase handler (useful for locale changes). `ctx.findById` / `findTrackedById` recover elements by ID. The `screenModule()` helper reduces per-screen export boilerplate to a single destructure line. Components with infinite tweens must self-clean via `Phaser.GameObjects.Events.DESTROY`.
+2. **Screen lifecycle (raw Phaser scenes — migration in progress)** — every screen is a real `Phaser.Scene`. `Scenes/AppRouter.ts` replaces the ScreenManager; `Scenes/BootScene.ts` (first scene in `main.ts`) loads assets once, creates `env`, initialises stores and starts `title`. `Scenes/ScreenScene.ts` is the base class: it repoints `env.scene` at the active screen, emits `screenShown`/`screenHidden`, and exposes a `ready` promise. **Phaser owns teardown** — `scene.start(key)` destroys the outgoing scene's game objects, tweens, timers and `this.events` listeners, so nothing dangles or duplicates across a restart (the reason the framework existed).
+   - Screens navigate with `go(route, params)` from `@Scenes/AppRouter`. Migrated routes (`title`) are their own Phaser scene key; the other five routes are still served by `createScreen()`/`createScreenManager()` inside the transitional `Scenes/LegacyHostScene.ts` + `Scenes/legacyScreens.ts`.
+   - **New screens** extend `ScreenScene` (`npm run new:screen -- <Name>` scaffolds one): build UI in `buildScreen()`, reset module-level state (flags, DOM, `@game` subscriptions) in `onScreenShutdown()`, add the route to `Scenes/routes.ts` and the class to the `main.ts` scene list. Full checklist: [docs/scene-migration.md](docs/scene-migration.md).
+   - Sub-menus are scene-local state, not framework phases: `TitleScene.go(phase)` destroys the current menu's elements and builds the next. `go`/`currentPhase` stay public for the `__debug`/e2e probes.
+   - With multiple scenes, `Phaser.Scenes.Events.SHUTDOWN` **does** fire — it is the hook for cleaning up module-level state Phaser can't know about.
 
-3. **Navigation mutex** — `ScreenManager` uses a promise-chain pattern (`navChain`, `pendingNavTarget`):
-   - `go("title"); go("crystals"); go("title")` → A runs, B is skipped (coalesced), C runs.
-   - Same-screen requests are dropped immediately.
-   - Prevents interleaved fade/create/destroy sequences from rapid clicks or async emits.
-   - Typed routes with per-route params (e.g. `go("options", { tab: "graphics" })` deep-links to a tab).
+3. **Navigation (`AppRouter.go`)** — replaces the promise-chain nav mutex:
+   - `go("title"); go("crystals"); go("title")` → A runs, B is skipped (coalesced), C runs. Same-screen requests are dropped immediately.
+   - Legacy routes start `LegacyHostScene` with `{ route, params }`; when the host is already active, the request is delegated to the legacy manager, which keeps owning its sub-screen navigation.
+   - **Hang-proof**: the outgoing fade resolves on `FADE_OUT_COMPLETE` *or* a bounded timeout, and `go()` waits (bounded) for the incoming screen's `ready`. A stuck animation or a scene restarting can never strand navigation — the failure players reported.
+   - Typed routes with per-route params via `RouteParams` in `Scenes/routes.ts` (e.g. `go("options", { tab: "graphics" })`).
 
 4. **Combat Playback**: Combat is simulated server-side → produces logs → client plays back animations. Entry: `Phases/Combat/handleCombatPhase.ts` (`CombatPhase` → `beginCombatPlayback`) → `Phases/Combat/CombatPlaybackController.ts`.
 
@@ -167,11 +171,19 @@ Detailed docs live in `docs/`. Each covers a specific system:
        activeContainer = null;
    }
    ```
-   The screen's `destroy()` must call this. `create()` should call `destroy()` first for idempotency. Never rely on `Phaser.Scenes.Events.SHUTDOWN` — it never fires in the single-scene setup (added 2026-07-28).
+   The screen's `destroy()` must call this, and `create()` should call `destroy()` first for idempotency. In a migrated scene, do the same reset in `onScreenShutdown()` instead (see `TitleScene`). Legacy `@mana/framework` screens run inside `LegacyHostScene`, so their own `Phaser.Scenes.Events.SHUTDOWN` never fires — they must keep explicit teardown in `destroy()`.
 
 ## Issues
 
 > Update this section with bugs that you find that are not related with your current task.
+
+> **Reported (2026-09-07, player report): some players never transition screens
+> at all** — 100% reproducible for them ("the game will never move to the next
+> screen unless I use the main-menu skip between every screen"). The migration
+> to raw Phaser scenes is the response; the new `AppRouter` makes transitions
+> hang-proof (bounded fade + bounded ready wait). Title is migrated
+> (2026-09-08); the other five screens still run on the legacy framework until
+> they are migrated — see [docs/scene-migration.md](docs/scene-migration.md).
 
 
 

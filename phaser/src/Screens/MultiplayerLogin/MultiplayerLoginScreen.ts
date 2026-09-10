@@ -11,7 +11,7 @@ import { guestAuth } from "../../lib/guestAuth";
 import { itchAuth } from "../../lib/itchAuth";
 import { steamAuth } from "../../lib/steamAuth";
 import { GameEvent } from "../../Events";
-import { getScreenManager } from "../ScreenManager";
+import { go } from "@Scenes/AppRouter";
 import * as cloudsBg from "../Title/Components/cloudsBg";
 
 const STEAM_Y = 460;
@@ -98,7 +98,7 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 					renderAuthState();
 				}),
 				backClicked.listen(() => {
-					void getScreenManager().go("title");
+					void go("title");
 				}),
 			],
 		};
@@ -258,7 +258,7 @@ async function enterWith(login: () => Promise<unknown>): Promise<void> {
 	loggingIn = true;
 	try {
 		await login();
-		void getScreenManager().go("multiplayer_lobby");
+		void go("multiplayer_lobby");
 	} catch (err) {
 		const detail = err instanceof Error ? err.message : String(err);
 		showLoginError(`${i18n.t("title.multiplayer.loginFailed")}\n\n${detail}`);

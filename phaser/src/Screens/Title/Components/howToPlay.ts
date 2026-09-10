@@ -58,3 +58,12 @@ export function refresh(): void {
 		textObj.setText(i18n.t("title.howToPlay"));
 	}
 }
+
+/**
+ * Drop the module-level text reference on scene shutdown. Phaser destroys the
+ * text object itself, but `refresh()` (a `GameEvent.localeChanged` listener on
+ * another screen) would otherwise call `setText` on a destroyed object.
+ */
+export function reset(): void {
+	textObj = null;
+}

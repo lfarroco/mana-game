@@ -3,7 +3,7 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as Modal from "@Components/Modal/Modal";
 import * as i18n from "@i18n/i18n";
 import { env } from "@Env";
-import { getScreenManager } from "../../ScreenManager";
+import { go } from "@Scenes/AppRouter";
 import { isElectron } from "@Utils/environment";
 import { authSession } from "@lib/authSession";
 import { resolveMultiplayerEntry } from "@lib/multiplayerMode";
@@ -55,14 +55,14 @@ async function enterMultiplayer(btn: UIButton.Button): Promise<void> {
 	try {
 		const target = resolveMultiplayerEntry(authSession.readStoredSession() !== null, isElectron());
 		if (target === "lobby") {
-			void getScreenManager().go("multiplayer_lobby");
+			void go("multiplayer_lobby");
 		} else if (target === "steam_login") {
 			await steamAuth.loginWithSteam();
-			void getScreenManager().go("multiplayer_lobby");
+			void go("multiplayer_lobby");
 		} else {
 			// Browser/Android — the login screen re-reads the persisted
 			// `{ token, player }` session and drives the provider logins.
-			void getScreenManager().go("multiplayer_login");
+			void go("multiplayer_login");
 		}
 	} catch (err) {
 		const detail = err instanceof Error ? err.message : String(err);

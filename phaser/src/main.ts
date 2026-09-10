@@ -1,5 +1,7 @@
 import * as constants from "./Constants";
-import Client from "./Client";
+import BootScene from "./Scenes/BootScene";
+import { LegacyHostScene } from "./Scenes/LegacyHostScene";
+import { TitleScene } from "./Screens/Title/TitleScene";
 import * as State from "@Models/ClientState";
 import { handleOAuthCallbackIfPresent } from "./lib/itchAuth";
 import { captureLaunchReturnIfPresent } from "./lib/oauthAndroid";
@@ -33,7 +35,10 @@ async function startGame(): Promise<void> {
 			mode: Phaser.Scale.FIT,
 			autoCenter: Phaser.Scale.CENTER_BOTH,
 		},
-		scene: Client(State.initialState()),
+		// One Phaser scene per screen. The first scene in the list boots
+		// automatically (BootScene loads assets, then starts the title scene);
+		// every later transition goes through Scenes/AppRouter.
+		scene: [BootScene(State.initialState()), TitleScene, LegacyHostScene],
 		plugins: {
 			global: [
 				{

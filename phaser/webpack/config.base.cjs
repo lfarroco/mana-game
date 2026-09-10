@@ -11,6 +11,7 @@ const sharedResolve = {
 		"@mana/framework": path.resolve(__dirname, "../../framework/src"),
 		"@Models": path.resolve(__dirname, "../src/Models"),
 		"@Screens": path.resolve(__dirname, "../src/Screens"),
+		"@Scenes": path.resolve(__dirname, "../src/Scenes"),
 		"@Systems": path.resolve(__dirname, "../src/Systems"),
 		"@Env": path.resolve(__dirname, "../src/Env"),
 		"@Constants": path.resolve(__dirname, "../src/Constants"),

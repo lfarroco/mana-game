@@ -16,3 +16,14 @@ export function create() {
 export function getCloudsBg() {
 	return backgroundInstance;
 }
+
+/**
+ * Destroy the cached background. Called on scene shutdown: Phaser destroys the
+ * underlying game objects, but the module-level cache (and the shared
+ * `activeInstance` in CloudsBackground) would otherwise keep pointing at a
+ * dead instance across screens.
+ */
+export function destroy() {
+	backgroundInstance?.destroy();
+	backgroundInstance = null;
+}

@@ -3,11 +3,11 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as getSinglePlayerData from "@Systems/Storage/getSinglePlayerData";
 import * as collectionButton from "../../../Screens/Title/Components/collectionButton";
 import * as i18n from "@i18n/i18n";
-import * as TitleScreen from "../TitleScreen";
+import type { TitleContext } from "../TitleScene";
 
 const BUTTON_Y = 500;
 
-export function create(ctx: TitleScreen.Context) {
+export function create(ctx: TitleContext) {
 	const title = i18n.t("title.singlePlayer");
 	const description = i18n.t("title.tooltip.singlePlayer");
 
@@ -27,7 +27,7 @@ export function create(ctx: TitleScreen.Context) {
 	return btn.container;
 }
 
-export function createSinglePlayerSubmenu(ctx: TitleScreen.Context) {
+export function createSinglePlayerSubmenu(ctx: TitleContext) {
 	const baseY = 500;
 	const spacing = 100;
 	const hasSavedRun = getSinglePlayerData.getSinglePlayerData() != null;

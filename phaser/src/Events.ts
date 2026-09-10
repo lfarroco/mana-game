@@ -11,8 +11,8 @@
  * Screen-scoped events should live in their own screen modules.
  * Only cross-cutting concerns (navigation, global state) belong here.
  *
- * Navigation is handled by the ScreenManager (see Screens/ScreenManager.ts) —
- * screens call getScreenManager().go(route) instead of emitting navigation
+ * Navigation is handled by the AppRouter (see Scenes/AppRouter.ts) — screens
+ * call `go(route)` from `@Scenes/AppRouter` instead of emitting navigation
  * events.
  */
 

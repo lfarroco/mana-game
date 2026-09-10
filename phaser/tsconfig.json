@@ -24,6 +24,9 @@
             "@Screens/*": [
                 "./src/Screens/*"
             ],
+            "@Scenes/*": [
+                "./src/Scenes/*"
+            ],
             "@Systems/*": [
                 "./src/Systems/*"
             ],

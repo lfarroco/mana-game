@@ -11,6 +11,11 @@ const BUTTON_Y = Constants.SCREEN_HEIGHT - 80;
 
 let isOpen = false;
 
+/** Clear the open guard on scene shutdown (the overlay's objects die with the scene). */
+export function reset(): void {
+	isOpen = false;
+}
+
 export async function openTutorial(): Promise<void> {
 	if (isOpen) return;
 	isOpen = true;

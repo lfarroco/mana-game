@@ -6,7 +6,7 @@ import { audioTab } from "@Screens/Options/Components/tabs/audio";
 import { gameTab } from "@Screens/Options/Components/tabs/game";
 import { graphicsTab } from "@Screens/Options/Components/tabs/graphics";
 import { createEvent } from "@game/Models";
-import { getScreenManager } from "../ScreenManager";
+import { go as navigate } from "@Scenes/AppRouter";
 import { createScreen, screenModule } from "@mana/framework";
 
 export type OptionsScreenEvents = {
@@ -73,7 +73,7 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 			events: { backToTitle },
 			listeners: [
 				backToTitle.listen(() => {
-					void getScreenManager().go("title");
+					void navigate("title");
 				}),
 			],
 		};

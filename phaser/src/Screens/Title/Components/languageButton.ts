@@ -1,12 +1,12 @@
 import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
-import * as TitleScreen from "../TitleScreen";
+import type { TitleContext } from "../TitleScene";
 import * as i18n from "@i18n/i18n";
 
 const BUTTON_X = 120;
 const BUTTON_Y = constants.SCREEN_HEIGHT - 60;
 
-export function create(ctx: TitleScreen.Context) {
+export function create(ctx: TitleContext) {
 	const currentLangName = i18n.getNativeName(i18n.getCurrentLocale());
 
 	const button = UIButton.create({
