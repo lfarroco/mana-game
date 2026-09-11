@@ -44,13 +44,54 @@ export const createDefaultStats = (): PlayerStats => ({
   pendingUnlockUnits: [],
 });
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/**
+ * `unitUsage` must be a plain object of name → count. Arrays and non-numeric
+ * values are dropped: a stale payload with the wrong shape used to survive
+ * parsing and surface as `undefined` counts in the stats panels.
+ */
+function parseUnitUsage(value: unknown): Record<string, number> {
+  if (!isRecord(value)) return {};
+  const usage: Record<string, number> = {};
+  for (const [name, count] of Object.entries(value)) {
+    if (typeof count === "number" && Number.isFinite(count)) {
+      usage[name] = count;
+    }
+  }
+  return usage;
+}
+
+/**
+ * `coreUnitWins` is a nested record (core id → per-tier win counts). An older
+ * payload may hold a bare number or miss tiers; only well-formed entries
+ * survive, so the stats reducers can assume the shape.
+ */
+function parseCoreUnitWins(
+  value: unknown,
+): Record<string, { bronze: number; silver: number; gold: number }> {
+  if (!isRecord(value)) return {};
+  const wins: Record<string, { bronze: number; silver: number; gold: number }> =
+    {};
+  for (const [coreId, tiers] of Object.entries(value)) {
+    if (!isRecord(tiers)) continue;
+    wins[coreId] = {
+      bronze: typeof tiers.bronze === "number" ? tiers.bronze : 0,
+      silver: typeof tiers.silver === "number" ? tiers.silver : 0,
+      gold: typeof tiers.gold === "number" ? tiers.gold : 0,
+    };
+  }
+  return wins;
+}
+
 /**
  * Parse persisted player stats with the same per-field validation as the
  * original StatsStore. Returns null for empty/raw-unparseable/non-object
  * payloads; otherwise a validated PlayerStats with invalid fields falling
  * back to their defaults.
- */
-export function parseStats(raw: string | null): PlayerStats | null {
+ */ export function parseStats(raw: string | null): PlayerStats | null {
   if (!raw) return null;
   let parsed: unknown;
   try {
@@ -72,17 +113,8 @@ export function parseStats(raw: string | null): PlayerStats | null {
       typeof data.furthestInfiniteRound === "number"
         ? data.furthestInfiniteRound
         : 0,
-    unitUsage:
-      typeof data.unitUsage === "object" && data.unitUsage !== null
-        ? (data.unitUsage as Record<string, number>)
-        : {},
-    coreUnitWins:
-      typeof data.coreUnitWins === "object" && data.coreUnitWins !== null
-        ? (data.coreUnitWins as Record<
-            string,
-            { bronze: number; silver: number; gold: number }
-          >)
-        : {},
+    unitUsage: parseUnitUsage(data.unitUsage),
+    coreUnitWins: parseCoreUnitWins(data.coreUnitWins),
     totalHealed: typeof data.totalHealed === "number" ? data.totalHealed : 0,
     totalDamage: typeof data.totalDamage === "number" ? data.totalDamage : 0,
     totalShield: typeof data.totalShield === "number" ? data.totalShield : 0,

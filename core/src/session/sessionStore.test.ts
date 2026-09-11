@@ -258,9 +258,102 @@ describe("createSessionStore save validation (session_type / phase)", () => {
   const validSession = () =>
     SessionManagement.createInitialSession("p1", "seed-1");
 
+  // Capture warnings with a plain swap instead of `jest.spyOn` in a hook: this
+  // file runs as ESM under ts-jest, where the `jest` object is not reliably
+  // available inside `beforeEach`/`afterEach` in a full-suite run.
+  const originalWarn = console.warn;
+  let warnings: unknown[][];
+  beforeEach(() => {
+    warnings = [];
+    console.warn = (...args: unknown[]) => {
+      warnings.push(args);
+    };
+  });
+  afterEach(() => {
+    console.warn = originalWarn;
+  });
+
+  /** True when a warning was logged with the given first arg + substring. */
+  const warnedAbout = (tag: string, contains: string): boolean =>
+    warnings.some(
+      (args) => args[0] === tag && String(args[1]).includes(contains),
+    );
+
+  /** A minimally playable mid-combat state (what the client rebuilds from). */
+  const combatState = () => {
+    const unit = {
+      id: "u1",
+      cardId: "mana_crystal",
+      position: [1, 1],
+      power: 10,
+    };
+    return {
+      units: [unit],
+      initialUnits: [unit],
+      finalPlayerUnits: [unit],
+      logs: [],
+      wonCombat: false,
+      enemyPlayerName: "CPU",
+      unitById: [["u1", unit]],
+    };
+  };
+
   it("accepts a well-formed single-player save", () => {
     const store = storeRaw(validSession());
     expect(store.load("p1")).not.toBeNull();
+  });
+
+  it("warns with the key when it discards an incompatible save", () => {
+    // Support-facing: "the game reset my save because it was incompatible" must
+    // be distinguishable from "the game lost my save".
+    storeRaw({ id: "x" }).load("p1");
+    expect(warnedAbout("sessionStore", STORAGE_PREFIX + "p1")).toBe(true);
+  });
+
+  it("rejects a save whose units are malformed", () => {
+    for (const broken of [
+      { id: "u1" }, // no cardId / position
+      { id: "u1", cardId: "c", position: [1] }, // short position
+      { id: "u1", cardId: "c", position: ["a", "b"] }, // non-numeric
+    ]) {
+      const session = validSession();
+      session.team = { units: [broken] } as unknown as SessionData["team"];
+      expect(storeRaw(session).load("p1")).toBeNull();
+    }
+  });
+
+  it("rejects a save whose units share an id (collapses the combat index)", () => {
+    const session = validSession();
+    const unit = { id: "dup", cardId: "c", position: [0, 0], power: 1 };
+    session.team = {
+      units: [unit, { ...unit }],
+    } as unknown as SessionData["team"];
+    expect(storeRaw(session).load("p1")).toBeNull();
+  });
+
+  it("accepts a save parked mid-combat with a playable combat state", () => {
+    const session = validSession();
+    session.phase = "combat";
+    (session as unknown as { combatState: unknown }).combatState =
+      combatState();
+    expect(storeRaw(session).load("p1")).not.toBeNull();
+  });
+
+  it("rejects a combat-phase save with no combat state (resume would throw)", () => {
+    const session = validSession();
+    session.phase = "combat";
+    expect(storeRaw(session).load("p1")).toBeNull();
+  });
+
+  it("rejects a stale/partial combat state", () => {
+    const session = validSession();
+    session.phase = "combat";
+    // An older shape: no initialUnits / finalPlayerUnits snapshot to play back.
+    (session as unknown as { combatState: unknown }).combatState = {
+      units: combatState().units,
+      logs: [],
+    };
+    expect(storeRaw(session).load("p1")).toBeNull();
   });
 
   it("accepts a multiplayer-typed save (server-authored type)", () => {

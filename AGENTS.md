@@ -363,6 +363,22 @@ Detailed docs live in `docs/`. Each covers a specific system:
 >   first `screenShown` because the boot scene is about to be torn down. It can
 >   never throw (guarded render). Tests: `persistenceNotice.test.ts`,
 >   `SessionManager.test.ts` (single signal per launch).
+> - **Stale stored data now self-heals (mystery solved in the field).** The
+>   affected player's symptoms disappeared after they cleared their site data,
+>   i.e. the trigger was an *old/incompatible persisted value* rather than a
+>   storage API that always fails (clearing data fixes both a full store and a
+>   bad payload). The remaining unvalidated stored shapes were closed:
+>   `sessionStore` now checks the nested data — every unit has a non-empty id, a
+>   cardId and a 2-number position; unit ids are unique (duplicates collapse the
+>   combat `unitById` and trip `assertCombatStateIndexes`); a save parked in the
+>   `combat` phase must carry a playable `combatState` (units/initialUnits/
+>   finalPlayerUnits/logs — `CombatPhase` otherwise throws on resume); and a
+>   discarded save now logs the offending key + reason, so "the game reset my
+>   save because it was incompatible" is distinguishable from "the game lost my
+>   save". `Stats.parseStats` rejects array-shaped `unitUsage`/`coreUnitWins`
+>   (arrays are `typeof "object"`) and normalizes malformed `coreUnitWins`
+>   entries. Options/auth/locale payloads were already validated per field.
+>   Tests: `sessionStore.test.ts`, `Stats/stats.test.ts`.
 
 > The **Purify deferred** item (C1 `tutorialSlides.ts` render-layer rewrite +
 > B4 log-dispatch switch) landed 2026-08-19 — see the Phase E/F notes in

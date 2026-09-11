@@ -226,6 +226,42 @@ describe("parseStats", () => {
     expect(parseStats(JSON.stringify(s))).toEqual(s);
   });
 
+  it("drops a stale/array-shaped unitUsage instead of trusting it", () => {
+    // An array is `typeof "object"` — the old check accepted it and the stats
+    // panels then read `undefined` counts.
+    expect(
+      parseStats(JSON.stringify({ unitUsage: ["warbringer", "mend_sage"] }))
+        ?.unitUsage,
+    ).toEqual({});
+
+    expect(
+      parseStats(
+        JSON.stringify({ unitUsage: { good: 2, bad: "3", worse: null } }),
+      )?.unitUsage,
+    ).toEqual({ good: 2 });
+  });
+
+  it("normalizes malformed coreUnitWins entries", () => {
+    // Old payloads stored a bare number per core; only well-formed entries
+    // survive so the victory reducers can assume the nested shape.
+    const parsed = parseStats(
+      JSON.stringify({
+        coreUnitWins: {
+          mana_crystal: { bronze: 2, silver: 1, gold: 1 },
+          legacy_core: 7,
+          partial: { bronze: 3 },
+          empty: {},
+        },
+      }),
+    );
+
+    expect(parsed?.coreUnitWins).toEqual({
+      mana_crystal: { bronze: 2, silver: 1, gold: 1 },
+      partial: { bronze: 3, silver: 0, gold: 0 },
+      empty: { bronze: 0, silver: 0, gold: 0 },
+    });
+  });
+
   it("falls back to defaults/[] for invalid field types", () => {
     const parsed = parseStats(
       JSON.stringify({

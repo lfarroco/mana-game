@@ -64,8 +64,57 @@ function isKnownSessionType(value: unknown): boolean {
   return type === "singleplayer" || type === "multiplayer";
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Structural check for one persisted unit. Only identity/placement — the
+ * numbers are rebuilt from the card definition on load (`resetUnitStats`), but
+ * a unit without an id, a card or a board position breaks the board sync and
+ * the combat index rebuild.
+ */
+function isPlausibleUnit(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  const position = value.position;
+  return (
+    typeof value.id === "string" &&
+    value.id !== "" &&
+    typeof value.cardId === "string" &&
+    Array.isArray(position) &&
+    position.length === 2 &&
+    position.every((n) => typeof n === "number")
+  );
+}
+
+/**
+ * A stored mid-combat `CombatState` must carry what playback rebuilds from:
+ * the unit list, the pristine `initialUnits` snapshot it swaps in, the log it
+ * plays, and `finalPlayerUnits`. A stale/partial one (an older shape) used to
+ * load and then throw inside the combat phase — a blank board with the session
+ * stuck in `combat`.
+ */
+function isPlausibleCombatState(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    Array.isArray(value.units) &&
+    value.units.every(isPlausibleUnit) &&
+    Array.isArray(value.initialUnits) &&
+    Array.isArray(value.finalPlayerUnits) &&
+    Array.isArray(value.logs)
+  );
+}
+
+/** Units must have unique ids — duplicate ids collapse the combat `unitById`. */
+function hasUniqueUnitIds(units: unknown[]): boolean {
+  const ids = units.map((u) => (isRecord(u) ? u.id : undefined));
+  return new Set(ids).size === ids.length;
+}
+
 /** A save that cannot have come from the current engine is discarded. */
 function isPlausibleSession(session: SessionData): boolean {
+  const units = session.team?.units;
+
   return (
     typeof session.id === "string" &&
     typeof session.player_id === "string" &&
@@ -85,18 +134,48 @@ function isPlausibleSession(session: SessionData): boolean {
     Array.isArray(session.options) &&
     typeof session.seed === "string" &&
     typeof session.initial_seed === "string" &&
-    Array.isArray(session.team?.units)
+    Array.isArray(units) &&
+    units.every(isPlausibleUnit) &&
+    hasUniqueUnitIds(units) &&
+    // A save parked in the combat phase with no playable combat state cannot
+    // resume (`CombatPhase` throws "Missing combatState"), and any combat state
+    // that IS attached must be playable.
+    (session.phase !== "combat" ||
+      isPlausibleCombatState(session.combatState)) &&
+    (session.combatState === undefined ||
+      isPlausibleCombatState(session.combatState))
   );
 }
 
-/** Parse + validate a stored save; corrupt/shape-mismatched entries yield null. */
-function parseStoredSession(raw: string): SessionData | null {
+/**
+ * Parse + validate a stored save; corrupt/shape-mismatched entries yield null.
+ * The reason is logged (key + failure) so a support case can tell "the game
+ * discarded an incompatible save" apart from "the game lost the save" — players
+ * used to work this out by clearing their cache.
+ */
+function parseStoredSession(raw: string, key: string): SessionData | null {
+  let parsed: unknown;
   try {
-    const parsed = JSON.parse(raw) as SessionData;
-    const session = deserializeSessionFromStorage(parsed);
-    return isPlausibleSession(session) ? session : null;
-  } catch {
-    return null; // corrupt entry — ignore rather than crash at boot
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    console.warn("sessionStore", `Discarding unreadable save "${key}"`, error);
+    return null;
+  }
+
+  try {
+    const session = deserializeSessionFromStorage(parsed as SessionData);
+    if (!isPlausibleSession(session)) {
+      console.warn(
+        "sessionStore",
+        `Discarding incompatible save "${key}" — it was written by another ` +
+          `engine/build (phase, session type, units or combat state don't match)`,
+      );
+      return null;
+    }
+    return session;
+  } catch (error) {
+    console.warn("sessionStore", `Discarding malformed save "${key}"`, error);
+    return null;
   }
 }
 
@@ -129,7 +208,7 @@ export function createSessionStore(storage: KeyValueStorage): SessionStore {
       const playerId = key.substring(STORAGE_PREFIX.length);
       const raw = storage.getItem(key);
       if (!raw) continue;
-      const session = parseStoredSession(raw);
+      const session = parseStoredSession(raw, key);
       if (!session) continue;
       sessions.set(playerId, session);
     }
@@ -138,9 +217,10 @@ export function createSessionStore(storage: KeyValueStorage): SessionStore {
     return sessions;
   };
   const load = (playerId: string): SessionData | null => {
-    const raw = storage.getItem(STORAGE_PREFIX + playerId);
+    const key = STORAGE_PREFIX + playerId;
+    const raw = storage.getItem(key);
     if (!raw) return null;
-    return parseStoredSession(raw);
+    return parseStoredSession(raw, key);
   };
   const save = (playerId: string, session: SessionData): void => {
     storage.setItem(
