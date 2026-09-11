@@ -20,15 +20,21 @@
 
 import * as Board from "@Components/Board/Board";
 import * as Chara from "@Components/Chara/Chara";
+import * as Constants from "@Constants";
 import * as Models from "@game/Models";
+import * as Modal from "@Components/Modal/Modal";
 import * as AudioManager from "@Systems/AudioManager";
+import * as UIButton from "@Components/Button/UIButton";
 import * as Encounter from "./Phases/Encounter/Encounter";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
 import * as PhaseTransitions from "./phaseTransitions";
+import { authSession } from "@lib/authSession";
 import { env } from "@Env";
+import * as i18n from "@i18n/i18n";
 import { BattlegroundEvent, GameEvent } from "../../Events";
+import { RemoteServerError } from "../../RemoteServer";
 import { go as navigate } from "@Scenes/AppRouter";
 import * as UI from "./Components/UI/UI";
 import { syncPlayerBoardUnits } from "./playerBoardSync";
@@ -41,7 +47,13 @@ import {
 } from "@Scenes/PhaseController";
 import { resetCombatPhaseState } from "./Phases/Combat/handleCombatPhase";
 
-export type BGPhase = Models.PhaseType | "combat_victory" | "combat_defeat";
+/**
+ * Phases that exist only in the client — pure view states that are never
+ * written to `session.phase`: the combat results overlays.
+ */
+export const CLIENT_ONLY_PHASES = ["combat_victory", "combat_defeat"] as const;
+
+export type BGPhase = Models.PhaseType | (typeof CLIENT_ONLY_PHASES)[number];
 
 type BGEvents = typeof BattlegroundEvent;
 
@@ -78,7 +90,14 @@ let transitionInFlight = false;
  */
 const EXIT_ANIMATION_TIMEOUT_MS = 2000;
 
-const PHASES: Record<BGPhase, PhaseEntry<BGPhase, BGEvents>> = {
+/**
+ * Every phase the client can render. Exported so a test can assert it covers
+ * every phase core can put a session in — an undeclared phase makes
+ * `PhaseController.go()` warn and return, leaving the session advanced and the
+ * board frozen (the "pick an option, nothing happens" symptom an out-of-date
+ * client shows against a newer server).
+ */
+export const PHASES: Record<BGPhase, PhaseEntry<BGPhase, BGEvents>> = {
 	encounter: {
 		handler: Encounter.encounterPhase(true),
 		transition: PhaseTransitions.slideTransition,
@@ -132,6 +151,157 @@ const PHASES: Record<BGPhase, PhaseEntry<BGPhase, BGEvents>> = {
 };
 
 /**
+ * True while the battleground is the screen rendering. `env.scene` is repointed
+ * on navigation, so a late failure must not paint UI onto another screen.
+ */
+function isBattlegroundActive(): boolean {
+	const activeScene = env.scene as unknown as { screenName?: string } | undefined;
+	return activeScene?.screenName === BATTLEGROUND_SCREEN_NAME;
+}
+
+/**
+ * Guards against stacking recovery modals when several failures land at once.
+ * Reset by `onScreenShutdown()` — the modal itself is destroyed by Phaser with
+ * the rest of the scene.
+ */
+let failurePromptOpen = false;
+
+/**
+ * Show a one-button modal that explains a failure the player cannot retry out
+ * of. The action navigates away, so the scene (and this modal) is torn down by
+ * Phaser; the button therefore calls `onAction` directly instead of awaiting a
+ * close animation that navigation would interrupt.
+ */
+function showRecoveryModal(spec: {
+	title: string;
+	body: string;
+	action: string;
+	onAction: () => void;
+}): void {
+	if (failurePromptOpen || !isBattlegroundActive()) return;
+	failurePromptOpen = true;
+
+	const modal = Modal.createModal({ width: 640, height: 360, title: spec.title });
+	const body = env.scene.add
+		.text(0, -30, spec.body, {
+			...Constants.defaultTextConfig,
+			fontSize: "22px",
+			color: "#ffffff",
+			align: "center",
+			wordWrap: { width: 560 },
+		})
+		.setOrigin(0.5);
+	const button = UIButton.create({
+		text: spec.action,
+		position: [0, 120],
+		width: 320,
+		callback: spec.onAction,
+	});
+	modal.container.add([body, button.container]);
+}
+
+/**
+ * True for a rejected request carrying HTTP 401 — the persisted bearer token is
+ * missing, unknown or expired (30-day TTL, no refresh token).
+ */
+export function isAuthExpired(err: unknown): boolean {
+	return err instanceof RemoteServerError && err.status === 401;
+}
+
+/**
+ * Report a failed action to the player and the console.
+ *
+ * A rejected dispatch used to be swallowed by the component that fired it
+ * (fire-and-forget `dispatchAction(...)`, event-listener async handlers), so a
+ * single failure — an expired multiplayer token, a dropped request, a malformed
+ * session — left the board showing a phase that could no longer react: the exit
+ * animation was restored but the per-phase click guard had already latched, and
+ * nothing was shown. The player's only symptom was "I pick an option and the
+ * game never advances".
+ *
+ * Three shapes get different treatment:
+ *   - 401 → the run is intact server-side, so drop the dead credential and send
+ *     the player back through login (the lobby then offers RESUME);
+ *   - anything else → a toast: the phase was restored, so a retry is meaningful.
+ */
+export function reportActionFailure(err: unknown): void {
+	const detail = err instanceof Error ? err.message : String(err);
+	// console.error keeps the real cause (status code, server message) in
+	// player logs — the modal/toast text is deliberately generic.
+	console.error(`[BattlegroundScene] action dispatch failed: ${detail}`, err);
+
+	if (isAuthExpired(err)) {
+		promptReauth();
+		return;
+	}
+
+	if (!isBattlegroundActive()) return;
+	void UI.handleUserMessageRequested({
+		text: i18n.t("battleground.actionFailed"),
+		type: "error",
+	});
+}
+
+/**
+ * Expired multiplayer session: clear the dead bearer token and bounce to the
+ * login screen. The server owns the run, so re-authenticating restores it —
+ * the lobby shows RESUME and the player picks up where they left off.
+ *
+ * Client state is reset on the way out: leaving the dead *multiplayer* session
+ * in `env.state` would leak its `session_type` into the next entry point (a
+ * single-player new run would then be routed to the remote server). This is the
+ * same reset every other exit from the battleground performs.
+ */
+function promptReauth(): void {
+	const leave = () => {
+		authSession.clearSession();
+		env.resetState();
+		void navigate("multiplayer_login");
+	};
+
+	// A late 401 can land after the player navigated away: there is no UI to
+	// show, so just drop the dead session.
+	if (!isBattlegroundActive()) {
+		leave();
+		return;
+	}
+
+	showRecoveryModal({
+		title: i18n.t("battleground.sessionExpiredTitle"),
+		body: i18n.t("battleground.sessionExpired"),
+		action: i18n.t("battleground.sessionExpiredAction"),
+		onAction: leave,
+	});
+}
+
+/**
+ * A phase this build cannot render — a session produced by a newer server
+ * (server-authoritative multiplayer deploys before clients update). The phase
+ * controller used to only `console.warn`, leaving the board blank with the
+ * session already advanced; tell the player why and offer the main menu, since
+ * nothing in this build can advance the run.
+ */
+export function reportUnknownPhase(phase: string): void {
+	console.error(
+		`[BattlegroundScene] no handler for phase "${phase}" — this build cannot render the run`
+	);
+
+	showRecoveryModal({
+		title: i18n.t("battleground.unsupportedTitle"),
+		body: i18n.t("battleground.unsupported"),
+		action: i18n.t("battleground.unsupportedAction"),
+		// Reuse the main-menu path (reset state + title) rather than navigating
+		// directly, so the run is not left half-torn-down behind the scenes.
+		onAction: () => void BattlegroundEvent.mainMenuRequested.emit(),
+	});
+}
+
+/** Drop the failure-prompt guard (scene shutdown); Phaser destroys the modal. */
+export function resetActionFailureState(): void {
+	failurePromptOpen = false;
+}
+
+/**
  * Dispatch an action, update state, optionally run a callback, then emit phaseFinished.
  * This is the canonical single-step phase transition used by all phase handlers.
  *
@@ -143,12 +313,16 @@ const PHASES: Record<BGPhase, PhaseEntry<BGPhase, BGEvents>> = {
  * @param action - The game action to dispatch through the server adapter.
  * @param onBeforeFinish - Optional callback that fires after state update but before
  *   phaseFinished is emitted. Use for intermediate events (HUD deltas, purchase events, etc.).
+ * @returns `true` when the action was applied and the phase switch ran; `false`
+ *   when the dispatch failed and the outgoing phase was restored. Callers that
+ *   latch input (e.g. an "already resolving" flag) must release it on `false`
+ *   so the player can retry — a latched flag with a restored UI is a soft-lock.
  */
 export const dispatchAction = async (
 	action: Models.Action,
 	onBeforeFinish?: (response: Models.ActionResponse) => void | Promise<void>
-): Promise<void> => {
-	if (transitionInFlight) return;
+): Promise<boolean> => {
+	if (transitionInFlight) return false;
 
 	const previousPhase = env.state.session.phase;
 	const exitDone = beginPhaseTransition();
@@ -159,16 +333,25 @@ export const dispatchAction = async (
 			response = await env.dispatch(action);
 		} catch (err) {
 			// The action failed — bring the outgoing phase back into view
-			// instead of leaving the board empty.
+			// instead of leaving the board empty, and tell the player.
 			await restorePhaseExit().catch(() => {});
-			throw err;
+			reportActionFailure(err);
+			return false;
 		}
 
-		await awaitExitAnimation(exitDone);
+		try {
+			await awaitExitAnimation(exitDone);
 
-		env.updateState({ ...env.state, ...response });
-		if (onBeforeFinish) await onBeforeFinish(response);
-		await BattlegroundEvent.phaseFinished.emit({ previousPhase });
+			env.updateState({ ...env.state, ...response });
+			if (onBeforeFinish) await onBeforeFinish(response);
+			await BattlegroundEvent.phaseFinished.emit({ previousPhase });
+		} catch (err) {
+			// The session advanced but the phase switch itself failed (e.g. a
+			// handler threw). The run is still live — report it rather than
+			// letting the rejection disappear into an async event listener.
+			reportActionFailure(err);
+		}
+		return true;
 	} finally {
 		endPhaseTransition();
 	}
@@ -285,6 +468,9 @@ export class BattlegroundScene extends ScreenScene {
 			name: BATTLEGROUND_SCREEN_NAME,
 			events: BattlegroundEvent,
 			phases: PHASES,
+			// A session from a newer server can name a phase this build does not
+			// declare — surface it instead of leaving a blank board.
+			onUnknownPhase: reportUnknownPhase,
 		});
 		this.phaseController = phaseController;
 		controller = phaseController;
@@ -333,6 +519,7 @@ export class BattlegroundScene extends ScreenScene {
 		// Module-level state Phaser cannot know about. The game objects
 		// themselves were already destroyed by Phaser's display-list shutdown;
 		// these resets keep the next visit from reusing stale references.
+		resetActionFailureState();
 		resetCombatPhaseState();
 		Chara.clearAll();
 		Board.setIsInputEnabled(true);

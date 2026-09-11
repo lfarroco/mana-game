@@ -255,6 +255,28 @@ describe("createPhaseController", () => {
 		warn.mockRestore();
 	});
 
+	it("reports an unknown phase to the screen so it can tell the player", async () => {
+		// A phase the screen cannot render is not transient (it comes from a
+		// session authored elsewhere) — the screen needs a chance to surface it
+		// instead of leaving a blank board with the session already advanced.
+		const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+		const onUnknownPhase = jest.fn();
+		const controller = createPhaseController<Phase, Events>({
+			name: "test",
+			events: makeEvents(),
+			phases: { a: () => undefined, b: () => undefined },
+			onUnknownPhase,
+		});
+
+		await controller.go("a");
+		await controller.go("nope" as Phase);
+
+		expect(onUnknownPhase).toHaveBeenCalledWith("nope");
+		// The previous phase stays active so its UI is not torn down.
+		expect(controller.currentPhase()).toBe("a");
+		warn.mockRestore();
+	});
+
 	it("keeps the chain alive after a handler throws", async () => {
 		const order: string[] = [];
 		const controller = createPhaseController<Phase, Events>({

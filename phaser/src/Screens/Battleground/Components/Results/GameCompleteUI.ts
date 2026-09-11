@@ -18,7 +18,16 @@ export async function displayGameComplete(
 	units: Unit[],
 	isGameOver: boolean
 ): Promise<Phaser.GameObjects.Container> {
-	await deleteSavedData();
+	// Best-effort cleanup, deliberately non-fatal: this is the FIRST await of
+	// the run-complete screen, and it used to reject on a machine whose storage
+	// is blocked or over quota (the session store called `localStorage.removeItem`
+	// unguarded) — so the victory/game-over screen never rendered at all and the
+	// player was left on a cleared board. The session store now swallows storage
+	// errors itself (see SessionManager's adapter); this catch additionally keeps
+	// the screen immune to any future throw in the cleanup path.
+	await deleteSavedData().catch((err) => {
+		console.warn("GameCompleteUI", "Failed to clear the finished run's save", err);
+	});
 
 	AudioManager.playMusic("music_playmode", true, 1000);
 

@@ -87,7 +87,7 @@ function renderUpgradeCards(encounterIds: string[]) {
 				isResolvingSelection = true;
 				console.debug("EffectCardShop", `Selected upgrade: ${encounterSpec.name}`);
 
-				await dispatchAction(
+				const applied = await dispatchAction(
 					{ type: "select_encounter", encounterId },
 					async () => {
 						// Post-upgrade feedback. upgrade_core and add_reaction_core
@@ -116,6 +116,12 @@ function renderUpgradeCards(encounterIds: string[]) {
 						}
 					}
 				);
+
+				// Release the guard on a failed dispatch (the phase was restored)
+				// so every card in this shop is not dead for the rest of the phase.
+				if (!applied) {
+					isResolvingSelection = false;
+				}
 			},
 		});
 	});

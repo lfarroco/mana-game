@@ -72,11 +72,21 @@ function upgradeEffect(rankMultiplier: number, eff: Effect) {
     }
   }
 
-  if ("targets" in eff) {
-    if ("count" in eff.targets) {
-      eff.targets.count = rankMultiplier;
-    }
-  }
+  // Targeting counts are STRUCTURAL and deliberately do NOT scale with rank.
+  //
+  // They used to be overwritten with the rank multiplier
+  // (`eff.targets.count = rankMultiplier`), which was wrong twice over:
+  //   1. it discarded the authored count — a card written as `randomAlly(2)`
+  //      lost a target at its base rank (a silver card at rank 2 got count 1);
+  //   2. combined with the `increase_power` amount scaling above, per-cast
+  //      output grew with the square of the rank: a platinum `increasePower(2,
+  //      randomAlly(1), true)` granted 2×4 = 8 power to 4 allies = +32 permanent
+  //      power EVERY cast. Players reported exactly that ("+1 target per level
+  //      makes it insanely stronger than the +x to the weakest ally"), and the
+  //      single-target variants scale linearly, so the two flavors of the same
+  //      effect diverged badly.
+  // Multi-target buffs keep their authored width; their per-target magnitude
+  // still scales like every other effect.
 
   if (["charge"].includes(eff.id)) {
     if ("duration" in eff) {

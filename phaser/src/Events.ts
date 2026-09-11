@@ -86,4 +86,12 @@ export const GameEvent = {
 
 	/** Locale changed (language switch).  Payload is the new locale code. */
 	localeChanged: createEvent<{ locale: string }>(),
+
+	/**
+	 * The local session store could not be read or written (blocked storage,
+	 * quota exceeded, read-only profile). Emitted ONCE per app launch, on the
+	 * first failure — the player's run continues in memory but will not be
+	 * restored, so they need to be told rather than silently losing progress.
+	 */
+	persistenceUnavailable: createEvent<{ operation: string; detail?: string }>(),
 };

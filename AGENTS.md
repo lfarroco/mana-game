@@ -244,6 +244,126 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > in rounds 11-15 (upgrade_core tail) and 16+ (roll into the next round's
 > encounters), and losses past the threshold ending only at `LOSSES_TO_GAME_OVER`.
 
+> **Player-bugfix (2026-09-10): frozen phase after a failed action dispatch** —
+> a player reported that picking an encounter option never advanced the run
+> ("the choice is saved, but the phase never changes"), 100% reproducible for
+> them and unreproducible elsewhere. Root cause was not the phase machinery but
+> the failure path around it: the encounter cards latch a `disableInteraction`
+> guard, and `dispatchAction` **rethrew** on a failed `env.dispatch` into
+> fire-and-forget callers (an unhandled rejection nobody saw), leaving the guard
+> latched with the phase exit restored — one failed request permanently bricked
+> every card in that phase with no message. The same latch existed in the
+> effect-card shop and the awaken phase (which renders no skip button, so a
+> latched failure there has no way out at all). `getServer()` had no "neither
+> mode" branch: a session whose `session_type` was missing/unknown silently
+> routed to the **remote** server (no bearer token → every action fails) or threw
+> on `.type`. Fixes: `dispatchAction` now restores + reports the failure
+> (console + HUD toast via `reportActionFailure`) and resolves `false`, callers
+> release their latch on `false`, `getServer()` fails safe to `LocalServer` for
+> unrecognised types, `sessionStore` rejects persisted saves with an unknown
+> `session_type`/`phase`, and `SessionManager`'s raw localStorage adapter no
+> longer throws (quota/blocked storage used to reject an action after its state
+> was applied). Guards against version skew: core exposes `PHASE_TYPES` as the
+> runtime list behind `PhaseType` (single source of truth for the save check),
+> and a test asserts the client declares a renderer for every phase core can
+> produce — an undeclared phase silently no-ops in `PhaseController.go` while
+> the session advances. Regression tests: `GameServer.test.ts`,
+> `dispatchAction.test.ts`, `Encounter/encounterPhase.test.ts`,
+> `SessionManager.test.ts`, `core/src/session/sessionStore.test.ts`.
+
+> **Player-bugfix (2026-09-10, follow-up): the unescapable-failure paths around
+> that freeze.**
+> - **Expired multiplayer token (401)**: the battleground had no re-auth path,
+>   so an expired bearer token (30-day TTL, no refresh) froze the run until
+>   relaunch. `reportActionFailure` now detects 401 and shows a recovery modal
+>   ("log in" → `authSession.clearSession()` + `env.resetState()` + the
+>   multiplayer login screen); the server owns the run, so the lobby offers
+>   RESUME afterwards. Resetting client state also stops the dead session's
+>   `session_type` leaking into the next entry point.
+> - **Phase this build cannot render** (a newer *server* naming a phase an
+>   older client does not declare): `PhaseController` now takes an
+>   `onUnknownPhase` callback; the battleground console.errors and shows an
+>   "update required → main menu" modal instead of a silent `console.warn` with
+>   a blank board. A test asserts the client declares a renderer for every
+>   `PHASE_TYPES` entry.
+> - **Awaken dead end**: a save in the `awaken` phase without `awakenUnitId`
+>   renders nothing and `skip` is not allowed there — such saves are now
+>   rejected at load.
+> - **Combat results "Continue"**: the results panel + combat board were torn
+>   down *before* dispatching `end_combat`, so a failed request left the phase
+>   with no Continue button to retry. The teardown moved into
+>   `dispatchAction`'s success callback (still before the next phase builds).
+> - **Stale-mode new run**: `startNewGame` picked its adapter from the previous
+>   session's `session_type`; after a multiplayer run (or the 401 bounce) a
+>   single-player "New Run" went to the remote server with no token and the Play
+>   button silently did nothing. It now uses only the explicit
+>   `isMultiplayerMode()` flag.
+> Regression tests: `dispatchAction.test.ts` (401 modal, single-prompt guard,
+> unknown phase), `Phases/Combat/combatContinue.test.ts`,
+> `CrystalSelection/Effects/startNewGame.test.ts`, `PhaseController.test.ts`,
+> `core/src/session/sessionStore.test.ts`.
+
+> **Player-report round (2026-09-11).**
+> - **Rank-scaling squared multi-target buffs (fixed).** Players: "the shield
+>   unit's *give +x permanent to y allies* gets +1 target per level and is
+>   insanely stronger than the *+x to the weakest ally* despite being the same
+>   effect". `upgradeEffect` **assigned** the rank multiplier to the targeting
+>   count (`eff.targets.count = rankMultiplier`), which (1) discarded authored
+>   counts — a card written `randomAlly(2)` lost a target at its base rank — and
+>   (2) squared per-cast output once combined with amount scaling: a platinum
+>   `increasePower(2, randomAlly(1), true)` granted +32 permanent power EVERY
+>   cast, while single-target variants scaled linearly. Counts are now
+>   structural and do not scale; magnitudes still do. Docs updated
+>   (`docs/card-design-philosophy.md`). Tests: `Entities/UnitRankScaling.test.ts`.
+> - **Run progression verified (no defect found).** Players: "a run ended at
+>   wave 20 endless with 2 lives left" and "the victory screen is gone — 15 wins
+>   and it never showed". A full transition-level simulation shows the rules are
+>   correct: the run-complete victory fires on the **10th win** regardless of how
+>   many losses delayed it (`STARTING_LIVES = LOSSES_TO_GAME_OVER = 4`, so
+>   `game_over` needs 4 losses), and an Endless win at round 20 with 2 losses
+>   continues into round 21. Both reports therefore need in-field evidence
+>   (screenshot of the HUD + console) — the client-side paths that could hide a
+>   *screen* are the unknown-phase no-op (now loud) and the winning-build/skew
+>   cases above. Locked in by
+>   `SessionTransitions.test.ts` ("victory still fires on the 10th win when
+>   losses delayed the run", "a full run at round 20 with lives left never ends
+>   the run").
+> - **Crystal targetable by ally buffs — left as-is (design fork).** A shield
+>   unit's "a random ally permanently gains +N power" can pick the player's
+>   crystal, because `resolveTargets` treats the crystal as an ally (only the
+>   caster is excluded) — and the suite asserts that on purpose
+>   (`TriggerSystem.test.ts`: "Core is an ally too; only the source itself is
+>   excluded"). Excluding cores from ally sets is a **game-design change**
+>   (it also removes the crystal from `all_allies`/row/column/charge/burst
+>   pools and changes several burst tests), so it was reverted pending a
+>   decision. The narrow alternative is to exclude the crystal only from
+>   *permanent power* picks.
+> - **Storage-permission failure is the best remaining explanation for the two
+>   "screen" reports.** Two raw `localStorage` sites were unguarded and both are
+>   on the run-complete path: `SessionManager`'s adapter (fixed 2026-09-10 —
+>   every action applied its state and *then* threw on save, leaving the phase
+>   exit restored, the HUD unsynced and the session ahead of the screen) and
+>   `GameCompleteUI`'s `await deleteSavedData()` as the screen's **first**
+>   statement (a throwing `removeItem` meant the victory/game-over screen never
+>   rendered at all — the reported "the victory screen is just gone"). Fixes:
+>   the cleanup is now best-effort (`.catch`, so the screen always renders), and
+>   `StatsStore` + `i18n.setLocale` got guarded adapters (StatsStore was already
+>   protected by core's own try/catch; `setLocale`'s raw write was a genuine
+>   latent bug — a storage throw skipped the `localeChanged` emit, so the
+>   language silently refused to switch). Tests:
+>   `GameCompleteUI.test.ts`, `Systems/Storage/deleteSavedData.test.ts`,
+>   `Models/StatsStore.test.ts`, `i18n/i18n.test.ts`. A blocked-storage user
+>   should now play unsaved rather than hit a frozen or blank screen.
+> - **The player is now told when their run cannot be saved.** `SessionManager`
+>   records the first storage failure (sticky for the launch) and emits
+>   `GameEvent.persistenceUnavailable` once;
+>   `Systems/Storage/persistenceNotice.ts` (wired in `BootScene.wireGameEvents`)
+>   shows a single `storage.notSaved` notice on whatever screen is active —
+>   including a failure that happened at import time, which it picks up on the
+>   first `screenShown` because the boot scene is about to be torn down. It can
+>   never throw (guarded render). Tests: `persistenceNotice.test.ts`,
+>   `SessionManager.test.ts` (single signal per launch).
+
 > The **Purify deferred** item (C1 `tutorialSlides.ts` render-layer rewrite +
 > B4 log-dispatch switch) landed 2026-08-19 — see the Phase E/F notes in
 > [purify.md](purify.md).

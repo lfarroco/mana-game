@@ -75,4 +75,22 @@ describe("deleteSavedData", () => {
 		expect(SessionManager.getSession("p1")).not.toBeNull();
 		expect(localStorage.getItem(SessionManager.STORAGE_PREFIX + "p1")).not.toBeNull();
 	});
+
+	it("resolves when the storage backend refuses the delete (blocked / quota)", async () => {
+		// The run-complete screen awaits this as its first statement, so a
+		// rejection here means the victory/game-over screen never renders — the
+		// player-reported "the victory screen is just gone" on a machine whose
+		// storage writes are denied (SecurityError) or over quota.
+		SessionManager.createSession("p1", "critical_crystal");
+		const removeItem = jest.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {
+			throw new Error("SecurityError: storage denied");
+		});
+		const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+		await expect(deleteSavedData()).resolves.toBeUndefined();
+
+		expect(warn).toHaveBeenCalled();
+		removeItem.mockRestore();
+		warn.mockRestore();
+	});
 });

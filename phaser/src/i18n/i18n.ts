@@ -44,7 +44,15 @@ initialize();
 export function setLocale(locale: string) {
 	if (locales[locale]) {
 		currentLocale = locale;
-		localStorage.setItem(STORAGE_KEY, locale);
+
+		// Persisting the choice is best-effort: a blocked / quota-exceeded
+		// localStorage must not stop the language from switching (the emit below
+		// is what re-renders every screen).
+		try {
+			localStorage.setItem(STORAGE_KEY, locale);
+		} catch (error) {
+			console.warn("i18n", `Failed to persist the locale "${locale}"`, error);
+		}
 
 		GameEvent.localeChanged.emit({ locale });
 	} else {

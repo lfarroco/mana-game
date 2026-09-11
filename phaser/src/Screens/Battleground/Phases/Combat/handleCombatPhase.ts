@@ -72,19 +72,25 @@ export function resetCombatPhaseState(): void {
 const handleCombatContinueRequested = async () => {
 	const { wins: previousWins, round: previousRound } = env.state.session;
 
-	// Destroy the results panel FIRST so it disappears before the player's board
-	// is cleared and re-summoned on the next phase transition. The phase
-	// controller destroys it again on the phase switch (Phaser's
-	// GameObject.destroy() is idempotent, so the second call is a no-op).
-	resultsPanel?.destroy();
-	resultsPanel = null;
+	// The results panel and the combat board are torn down INSIDE the success
+	// callback: `dispatchAction` runs it after the server accepted `end_combat`
+	// but before the next phase builds, so the ordering against the incoming
+	// phase is unchanged. Tearing down *before* the dispatch (as this used to)
+	// meant a failed `end_combat` left the results screen without its Continue
+	// button — no way to retry the action, only the HUD main menu.
+	await dispatchAction({ type: "end_combat" }, async ({ session }) => {
+		// Destroy the panel first so it is gone before the player's board is
+		// cleared and re-summoned on the next phase transition. The phase
+		// controller destroys it again on the phase switch (Phaser's
+		// GameObject.destroy() is idempotent, so the second call is a no-op).
+		resultsPanel?.destroy();
+		resultsPanel = null;
 
-	// Tear down the combat board / ForceStats / combatState BEFORE dispatching
-	// end_combat.  dispatchAction's phaseFinished.emit awaits the full next-phase
-	// transition, so any teardown after it would race the new phase's create.
-	await teardownCombat();
+		// Tear down the combat board / ForceStats / combatState before the new
+		// phase builds. `phaseFinished.emit` awaits the full next-phase
+		// transition, so anything after it would race the new phase's create.
+		await teardownCombat();
 
-	await dispatchAction({ type: "end_combat" }, ({ session }) => {
 		const winDelta = session.wins - previousWins;
 		if (winDelta !== 0) BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
 

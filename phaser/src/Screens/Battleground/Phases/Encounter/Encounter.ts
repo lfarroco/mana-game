@@ -76,7 +76,14 @@ export const encounterPhase =
 
 			disableInteraction = true;
 
-			dispatchAction(encounterActionFor(id));
+			// Release the guard when the dispatch failed and the phase was
+			// restored — otherwise the cards stay dead for the rest of the
+			// phase (the run would look frozen even though the failure is
+			// transient).
+			const applied = await dispatchAction(encounterActionFor(id));
+			if (!applied) {
+				disableInteraction = false;
+			}
 		};
 
 		const cards = options.map((encounter, index) => {

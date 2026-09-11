@@ -96,43 +96,53 @@ export const AwakenPhase = (_ctx: BGContext) => {
 		if (isResolving) return;
 		isResolving = true;
 
-		await dispatchAction({ type: "select_encounter", encounterId: powerId }, async () => {
-			// The chosen power is already applied server-side — play the
-			// golden power-up beam and sync the rank display (gold) to its
-			// flash, exactly like the shop promotion flow.
-			const refreshedUnit = env.state.session.team.units.find((u) => u.id === awakenUnitId);
-			if (chara && refreshedUnit) {
-				await Effects.powerUpEffect({ x: chara.x, y: chara.y }, () =>
-					Chara.refreshCharaInPlace(refreshedUnit)
-				);
-			}
+		// Release the guard when the dispatch failed and the phase was restored:
+		// the awaken phase renders no skip button, so a latched failure here
+		// would leave the player with three dead cards and no way to advance.
+		const applied = await dispatchAction(
+			{ type: "select_encounter", encounterId: powerId },
+			async () => {
+				// The chosen power is already applied server-side — play the
+				// golden power-up beam and sync the rank display (gold) to its
+				// flash, exactly like the shop promotion flow.
+				const refreshedUnit = env.state.session.team.units.find((u) => u.id === awakenUnitId);
+				if (chara && refreshedUnit) {
+					await Effects.powerUpEffect({ x: chara.x, y: chara.y }, () =>
+						Chara.refreshCharaInPlace(refreshedUnit)
+					);
+				}
 
-			// ── The board is resummoned ─────────────────────────────
-			// Slots return and the other units fade back in while the
-			// awakened unit glides back to its slot.
-			Board.setPlayerSlotsVisible(true);
-			await Promise.all(
-				otherCharas.map((c) => {
-					c.setVisible(true);
-					return animation.tween({
-						targets: [c],
-						alpha: 1,
-						duration: 250,
-						ease: "Cubic.easeOut",
+				// ── The board is resummoned ─────────────────────────────
+				// Slots return and the other units fade back in while the
+				// awakened unit glides back to its slot.
+				Board.setPlayerSlotsVisible(true);
+				await Promise.all(
+					otherCharas.map((c) => {
+						c.setVisible(true);
+						return animation.tween({
+							targets: [c],
+							alpha: 1,
+							duration: 250,
+							ease: "Cubic.easeOut",
+						});
+					})
+				);
+				if (chara) {
+					await animation.tween({
+						targets: [chara],
+						x: originalPos.x,
+						y: originalPos.y,
+						duration: 350,
+						ease: "Cubic.easeInOut",
 					});
-				})
-			);
-			if (chara) {
-				await animation.tween({
-					targets: [chara],
-					x: originalPos.x,
-					y: originalPos.y,
-					duration: 350,
-					ease: "Cubic.easeInOut",
-				});
+				}
+				Board.setIsInputEnabled(true);
 			}
-			Board.setIsInputEnabled(true);
-		});
+		);
+
+		if (!applied) {
+			isResolving = false;
+		}
 	};
 
 	const cards = powerIds

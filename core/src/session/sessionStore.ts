@@ -1,4 +1,5 @@
 import type { SessionData } from "../types/session";
+import { PHASE_TYPES } from "../types/session";
 import type { Unit } from "../types/unit";
 
 /**
@@ -51,13 +52,37 @@ export function deserializeSessionFromStorage(
   return session;
 }
 
+/**
+ * The two session modes the client can route (phaser `GameServer.getServer`).
+ * A save whose `session_type` is missing or unknown used to pass validation,
+ * then route every action to the remote server (or throw on `.type`) — the run
+ * froze with the pick already applied. Reject such a save at load instead.
+ */
+function isKnownSessionType(value: unknown): boolean {
+  if (typeof value !== "object" || value === null) return false;
+  const type = (value as { type?: unknown }).type;
+  return type === "singleplayer" || type === "multiplayer";
+}
+
 /** A save that cannot have come from the current engine is discarded. */
 function isPlausibleSession(session: SessionData): boolean {
   return (
     typeof session.id === "string" &&
     typeof session.player_id === "string" &&
     session.player_id !== "" &&
+    isKnownSessionType(session.session_type) &&
     typeof session.phase === "string" &&
+    // Every phase the client can render (see PHASE_TYPES): a phase the client
+    // does not declare used to load and then silently no-op in the phase
+    // controller, leaving the session advanced and the screen frozen.
+    (PHASE_TYPES as readonly string[]).includes(session.phase) &&
+    // The awaken phase has no UI without the unit being awakened (the client
+    // renders nothing and `skip` is not allowed there), so a save missing it
+    // would be an unescapable dead end.
+    (session.phase !== "awaken" || typeof session.awakenUnitId === "string") &&
+    typeof session.round === "number" &&
+    typeof session.step === "number" &&
+    Array.isArray(session.options) &&
     typeof session.seed === "string" &&
     typeof session.initial_seed === "string" &&
     Array.isArray(session.team?.units)

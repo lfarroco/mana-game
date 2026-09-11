@@ -102,7 +102,13 @@ enemy generation (`upgradeUnitData` in `core/src/Entities/Unit.ts`):
 - `rank += 1`
 - `power = card.power × (rank − startingRank + 1) + bonusPower` (linear, not compounding)
 - effect magnitudes scale with the same multiplier (`increase_power` amounts,
-  `charge` durations, targeting counts)
+  `charge` durations). **Targeting counts do not scale** (changed 2026-09-11):
+  they are structural, and scaling them squared the per-cast output of
+  multi-target buffs (`amount × rank`, dealt to `rank` targets) while
+  single-target effects grew linearly — a platinum "give +2 permanent power to a
+  random ally" granted +32 every cast and outclassed the identical single-target
+  effect (player-reported; also silently discarded authored counts like
+  `randomAlly(2)`)
 - `maxLife × 1.5` per rank (cosmetic — only cores take damage in combat)
 
 Consequence: a bronze with base power 50 reaches **150 power at rank 3** and

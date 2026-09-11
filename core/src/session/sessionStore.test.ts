@@ -223,3 +223,97 @@ describe("createSessionStore", () => {
     expect(store.load("b")!.combatState).toBeUndefined();
   });
 });
+
+/**
+ * A save whose `session_type` is missing/unknown used to pass validation and
+ * then broke the run at the first action: the client routes anything that isn't
+ * "singleplayer" to the remote server (`phaser/src/GameServer.ts`), so the
+ * dispatch failed, the phase exit was restored, and the run froze with the
+ * player's pick already applied. Such saves must be discarded at load instead.
+ */
+describe("createSessionStore save validation (session_type / phase)", () => {
+  const memoryStorage = (): KeyValueStorage => {
+    const map = new Map<string, string>();
+    return {
+      getItem: (key) => map.get(key) ?? null,
+      setItem: (key, value) => {
+        map.set(key, value);
+      },
+      removeItem: (key) => {
+        map.delete(key);
+      },
+      keys: () => Array.from(map.keys()),
+    };
+  };
+
+  /** Store an arbitrary session-shaped object under the v2 prefix. */
+  const storeRaw = (
+    session: unknown,
+  ): ReturnType<typeof createSessionStore> => {
+    const storage = memoryStorage();
+    storage.setItem(STORAGE_PREFIX + "p1", JSON.stringify(session));
+    return createSessionStore(storage);
+  };
+
+  const validSession = () =>
+    SessionManagement.createInitialSession("p1", "seed-1");
+
+  it("accepts a well-formed single-player save", () => {
+    const store = storeRaw(validSession());
+    expect(store.load("p1")).not.toBeNull();
+  });
+
+  it("accepts a multiplayer-typed save (server-authored type)", () => {
+    const session = validSession();
+    session.session_type = { type: "multiplayer", queueType: "casual" };
+    expect(storeRaw(session).load("p1")).not.toBeNull();
+  });
+
+  it("rejects a save with no session_type", () => {
+    const session = validSession() as Partial<SessionData>;
+    delete session.session_type;
+    expect(storeRaw(session).load("p1")).toBeNull();
+  });
+
+  it("rejects a save with an unknown session_type", () => {
+    const session = validSession();
+    // A third mode the client cannot route (the reported "neither single
+    // player nor multiplayer" case).
+    session.session_type = {
+      type: "practice",
+    } as unknown as SessionData["session_type"];
+    expect(storeRaw(session).load("p1")).toBeNull();
+  });
+
+  it("rejects a save with a null session_type", () => {
+    const session = validSession();
+    session.session_type = null as unknown as SessionData["session_type"];
+    expect(storeRaw(session).load("p1")).toBeNull();
+  });
+
+  it("rejects a save whose phase the client cannot render", () => {
+    const session = validSession();
+    session.phase = "intermission" as unknown as SessionData["phase"];
+    expect(storeRaw(session).load("p1")).toBeNull();
+  });
+
+  it("rejects a save stuck in the awaken phase without an awaken unit", () => {
+    // The client renders nothing without the unit, and `skip` is not allowed in
+    // awaken — an unescapable dead end.
+    const session = validSession();
+    session.phase = "awaken";
+    delete session.awakenUnitId;
+    expect(storeRaw(session).load("p1")).toBeNull();
+
+    session.awakenUnitId = "unit-1";
+    expect(storeRaw(session).load("p1")).not.toBeNull();
+  });
+
+  it("rejects a save missing its round/step/options bookkeeping", () => {
+    for (const field of ["round", "step", "options"] as const) {
+      const session = validSession() as Partial<SessionData>;
+      delete session[field];
+      expect(storeRaw(session).load("p1")).toBeNull();
+    }
+  });
+});

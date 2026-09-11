@@ -16,6 +16,7 @@ import * as Config from "@config";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
+import * as persistenceNotice from "@Systems/Storage/persistenceNotice";
 import * as GameServer from "../GameServer";
 import * as DebugCommands from "../debug/debugCommands";
 import { createEnv } from "@Env";
@@ -44,6 +45,9 @@ function wireGameEvents(): (() => void)[] {
 		GameEvent.screenShown.listen(({ name: _name }) => {
 			Tooltip.init();
 		}),
+		// The session store can fail at import time (before this runs), so the
+		// notice service also checks the sticky failure flag on each screen.
+		...persistenceNotice.init(),
 	];
 }
 

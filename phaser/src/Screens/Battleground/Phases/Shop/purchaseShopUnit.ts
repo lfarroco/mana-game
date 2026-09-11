@@ -12,6 +12,7 @@ import {
 	beginPhaseTransition,
 	endPhaseTransition,
 	finishPhase,
+	reportActionFailure,
 	restorePhaseExit,
 } from "../../BattlegroundScene";
 
@@ -21,7 +22,7 @@ const SHOP_UPGRADE_PROJECTILE_STAGGER_MS = 45;
 
 export type PurchaseResult =
 	| { ok: true; wasUpgrade: boolean }
-	| { ok: false; reason: "PARTY_FULL" | "SLOT_OCCUPIED" | "NOT_ACQUIRED" };
+	| { ok: false; reason: "PARTY_FULL" | "SLOT_OCCUPIED" | "NOT_ACQUIRED" | "REQUEST_FAILED" };
 
 /**
  * Validate and execute a shop unit purchase (click or drag), then run the
@@ -67,9 +68,12 @@ export async function purchaseShopUnit({
 				targetSlot,
 			}));
 		} catch (err) {
-			// The request failed — bring the shop back into view.
+			// The request failed — bring the shop back into view, tell the
+			// player, and report a normal failure result instead of rejecting:
+			// callers are click/drag gesture handlers that never catch.
 			await restorePhaseExit().catch(() => {});
-			throw err;
+			reportActionFailure(err);
+			return { ok: false, reason: "REQUEST_FAILED" };
 		}
 
 		await exitDone;

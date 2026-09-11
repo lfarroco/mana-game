@@ -3,14 +3,46 @@ import { GAME_CONFIG } from "@config";
 
 export type { PlayerStats, VictoryTier } from "@game/Stats/stats";
 
-const store: StatsStoreApi = createStatsStore(
-	{
-		getItem: (key) => localStorage.getItem(key),
-		setItem: (key, value) => localStorage.setItem(key, value),
-		removeItem: (key) => localStorage.removeItem(key),
+/**
+ * localStorage-backed adapter — core never touches localStorage itself.
+ *
+ * Every access is guarded, mirroring `Systems/Storage/LocalStorageProvider` and
+ * `SessionManager`. `localStorage` throws on a machine whose storage is blocked
+ * (SecurityError / policy), locked down (some WebViews, private mode) or over
+ * quota — and this store is read at boot (`StatsStore.init()` in BootScene) and
+ * written from the run-complete screen, where an unguarded throw meant the
+ * victory/game-over screen never rendered at all (the player-reported "the
+ * victory screen is just gone"). Stats are cosmetic; losing them is always
+ * better than losing the screen.
+ */
+const guardedStorage = {
+	getItem: (key: string): string | null => {
+		try {
+			return localStorage.getItem(key);
+		} catch (error) {
+			console.warn("StatsStore", `Failed to read "${key}"`, error);
+			return null;
+		}
 	},
-	{ enableUnlocks: GAME_CONFIG.ENABLE_UNLOCKS }
-);
+	setItem: (key: string, value: string): void => {
+		try {
+			localStorage.setItem(key, value);
+		} catch (error) {
+			console.warn("StatsStore", `Failed to persist "${key}"`, error);
+		}
+	},
+	removeItem: (key: string): void => {
+		try {
+			localStorage.removeItem(key);
+		} catch (error) {
+			console.warn("StatsStore", `Failed to remove "${key}"`, error);
+		}
+	},
+};
+
+const store: StatsStoreApi = createStatsStore(guardedStorage, {
+	enableUnlocks: GAME_CONFIG.ENABLE_UNLOCKS,
+});
 
 export const init = store.init;
 export const getStats = store.getStats;

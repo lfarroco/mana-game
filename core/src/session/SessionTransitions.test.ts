@@ -395,6 +395,43 @@ describe("SessionTransitions", () => {
       expect(gameOver.phase).toBe("game_over");
       expect(gameOver.losses).toBe(Constants.LOSSES_TO_GAME_OVER);
     });
+
+    it("victory still fires on the 10th win when losses delayed the run", () => {
+      // Player report: "the victory screen is just gone / I'm at 15 wins and it
+      // never showed up". Losses push the crossing to a later ROUND, never past
+      // it: the run-complete victory is keyed to the 10th WIN, not the round.
+      const session = createTestSession("victory-delayed-001");
+      makeCoreStrong(session);
+      session.round = 12;
+      session.wins = Constants.WINS_TO_WIN_GAME - 1;
+      session.losses = 3;
+
+      const afterEnd = winCombat(session);
+
+      expect(afterEnd.wins).toBe(Constants.WINS_TO_WIN_GAME);
+      expect(afterEnd.phase).toBe("victory");
+    });
+
+    it("Endless: a full run at round 20 with lives left never ends the run", () => {
+      // Player report: "a run ended at wave 20 endless even though I had 2
+      // lives left". Neither terminal phase may fire while losses are below the
+      // cap, whatever the round — the run continues into the next round.
+      const session = createTestSession("endless-wave20-001");
+      makeCoreStrong(session);
+      session.round = 20;
+      session.step = 3; // pre_combat of the round-20 rotation
+      session.wins = 15;
+      session.losses = 2; // STARTING_LIVES - 2 = 2 lives left
+
+      const afterEnd = winCombat(session);
+
+      expect(afterEnd.phase).not.toBe("victory");
+      expect(afterEnd.phase).not.toBe("game_over");
+      expect(afterEnd.wins).toBe(16);
+      expect(afterEnd.losses).toBe(2);
+      expect(afterEnd.phase).toBe("encounter");
+      expect(afterEnd.round).toBe(21);
+    });
   });
 
   describe("transitionToNextState with options", () => {

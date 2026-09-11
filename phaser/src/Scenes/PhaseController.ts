@@ -94,6 +94,15 @@ export function createPhaseController<TPhase extends string, E extends EventReco
 	name: string;
 	events: E;
 	phases: Record<TPhase, PhaseEntry<TPhase, E>>;
+	/**
+	 * Called when `go()` targets a phase this screen does not declare. The
+	 * target can only come from outside the screen (a session authored by a
+	 * newer build), so the screen decides how to surface it — the controller
+	 * itself stays framework-free. Without a handler the run would just stop at
+	 * a blank phase: the previous UI was already exited and the session has
+	 * already advanced.
+	 */
+	onUnknownPhase?: (phase: TPhase) => void;
 }): PhaseController<TPhase> {
 	const phases = spec.phases;
 
@@ -157,6 +166,9 @@ export function createPhaseController<TPhase extends string, E extends EventReco
 				`[PhaseController:"${spec.name}"] go("${next}") ignored — no such phase ` +
 					`(declared: ${Object.keys(phases).join(", ") || "<none>"}).`
 			);
+			// Let the screen surface this to the player (it is not a transient
+			// condition: nothing in this build can render or advance the phase).
+			spec.onUnknownPhase?.(next);
 			return;
 		}
 

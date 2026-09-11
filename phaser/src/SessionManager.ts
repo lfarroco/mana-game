@@ -3,26 +3,103 @@ import * as SessionManagement from "@game/SessionManagement";
 import * as GameConstants from "@game/Constants";
 import { createSessionStore, type KeyValueStorage } from "@game/session/sessionStore";
 import { formatNumericSeed, sanitizeNumericSeedInput } from "@game/session/seed";
+import { GameEvent } from "./Events";
 
 export { STORAGE_PREFIX } from "@game/session/sessionStore";
 export const LOCAL_PLAYER_ID = "local_player";
 
 const sessions: Map<string, Models.SessionData> = new Map();
 
-// localStorage-backed adapter — core never touches localStorage itself.
+/**
+ * Set when the session store could not be read or written. The run keeps
+ * playing from memory, but it will not be restored — the UI tells the player
+ * once (see `Systems/Storage/persistenceNotice`). Sticky for the app launch:
+ * the condition (blocked storage, full quota, read-only profile) does not heal
+ * by itself.
+ */
+let persistenceFailed = false;
+let persistenceFailure: { operation: string; detail: string } | null = null;
+
+/** True once any session read/write/remove failed this launch. */
+export function hasPersistenceFailed(): boolean {
+	return persistenceFailed;
+}
+
+/** Details of the first failure (operation + error message), or null. */
+export function getPersistenceFailure(): { operation: string; detail: string } | null {
+	return persistenceFailure;
+}
+
+/**
+ * Clear the sticky failure state. Test-only: in the game the flag deliberately
+ * survives for the whole app launch (the underlying condition does not heal).
+ */
+export function resetPersistenceStateForTests(): void {
+	persistenceFailed = false;
+	persistenceFailure = null;
+}
+
+/**
+ * Record a storage failure and tell the game once. Emitting here (rather than
+ * at each call site) keeps the "not saved" signal to a single source.
+ */
+function reportPersistenceFailure(operation: string, error: unknown): void {
+	console.warn("SessionManager", `Failed to ${operation}`, error);
+
+	const first = !persistenceFailed;
+	persistenceFailed = true;
+	const detail = error instanceof Error ? error.message : String(error);
+	// Keep the first failure: it names the root cause (quota vs policy).
+	if (!persistenceFailure) persistenceFailure = { operation, detail };
+
+	// The import-time `loadSessionsFromStorage()` can fail before any listener
+	// exists; the notice service reads `hasPersistenceFailed()` on init, so a
+	// missed emission is still surfaced.
+	if (first) void GameEvent.persistenceUnavailable.emit({ operation, detail });
+}
+
+/**
+ * localStorage-backed adapter — core never touches localStorage itself.
+ *
+ * Every access is guarded: the session store is created at module load
+ * (`loadSessionsFromStorage()`), and a storage implementation that throws —
+ * quota exceeded, storage disabled, a locked-down WebView — would otherwise
+ * crash the import (the game never boots) or fail an action after its state was
+ * already applied (the choice "saves" but the phase never advances). Saving is
+ * best-effort, mirroring `Systems/Storage/LocalStorageProvider`.
+ */
 const localStorageAdapter: KeyValueStorage = {
-	getItem: (key) => localStorage.getItem(key),
+	getItem: (key) => {
+		try {
+			return localStorage.getItem(key);
+		} catch (error) {
+			reportPersistenceFailure(`read "${key}"`, error);
+			return null;
+		}
+	},
 	setItem: (key, value) => {
-		localStorage.setItem(key, value);
+		try {
+			localStorage.setItem(key, value);
+		} catch (error) {
+			reportPersistenceFailure(`persist "${key}"`, error);
+		}
 	},
 	removeItem: (key) => {
-		localStorage.removeItem(key);
+		try {
+			localStorage.removeItem(key);
+		} catch (error) {
+			reportPersistenceFailure(`remove "${key}"`, error);
+		}
 	},
 	keys: () => {
 		const keys: string[] = [];
-		for (let i = 0; i < localStorage.length; i++) {
-			const key = localStorage.key(i);
-			if (key !== null) keys.push(key);
+		try {
+			for (let i = 0; i < localStorage.length; i++) {
+				const key = localStorage.key(i);
+				if (key !== null) keys.push(key);
+			}
+		} catch (error) {
+			reportPersistenceFailure("enumerate storage keys", error);
 		}
 		return keys;
 	},
