@@ -192,6 +192,16 @@ they inherit the simplified baseline. Compensate in `generateEnemyTeam`:
 > action-only baseline's ~2–3× core AP loss: round 1: 4 units at +5 power each,
 > core life 500; round 5: +11 power each, core life 1100; round 10: +22 power
 > each, core life 1850. Locked in by `generateEnemyTeam.test.ts`.
+>
+> ✅ **Late-Infinite difficulty step (2026-09-11)** — round 15 is the last
+> authored round (`ROUND_PHASES` defines 1–15), so from round 16 the player's
+> crystal stops growing (`upgrade_core` / `add_reaction_core` no longer appear)
+> while the enemy's `1.2^(round - 10)` curve keeps compounding. Rounds past 15
+> now multiply that curve by an extra `LATE_INFINITE_DIFFICULTY_MULTIPLIER =
+> 2.5` (core life **and** distributed power). Reference values: round 15 core
+> life 6,469; round 16 jumps to 20,528 (2.5× the un-bumped round-16 value of
+> 8,211), round 20 51,855. Locked in by `generateEnemyTeam.test.ts`
+> ("late-Infinite difficulty step").
 
 ---
 

@@ -1,5 +1,6 @@
 import * as Card from "./Card";
 import * as Random from "../math/Random";
+import { MAX_UNIT_RANK } from "../math/Constants";
 import { CardDefinition, Effect, EffectReaction, Unit } from "../Models";
 
 export const testCardDefinitions = {
@@ -253,8 +254,16 @@ export function resetUnitEffectsToCardDefinition(
   }
 }
 
-export function upgradeUnitData(unit: Unit) {
+/**
+ * Rank a unit up one tier, rescaling power and effect magnitudes. Returns
+ * `false` (and mutates nothing) when the unit is already at the terminal rank
+ * — platinum (`MAX_UNIT_RANK`) — so callers that grant extra stats on top of
+ * the rank-up (e.g. `applyUpgradeOrb`'s maxLife multiplier) can skip them.
+ */
+export function upgradeUnitData(unit: Unit): boolean {
   const source = Card.getCardDefinition(unit.cardId);
+
+  if (unit.rank >= MAX_UNIT_RANK) return false;
 
   unit.rank += 1;
 
@@ -271,6 +280,7 @@ export function upgradeUnitData(unit: Unit) {
 
   resetUnitEffectsToCardDefinition(unit, source);
   upgradeUnitEffects(unit, source.rank || 1);
+  return true;
 }
 
 export function resetUnitStats(unit: Unit) {

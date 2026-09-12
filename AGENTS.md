@@ -380,6 +380,36 @@ Detailed docs live in `docs/`. Each covers a specific system:
 >   entries. Options/auth/locale payloads were already validated per field.
 >   Tests: `sessionStore.test.ts`, `Stats/stats.test.ts`.
 
+> **Player-bugfix (2026-09-11, follow-up): "Defeat at 4.5m HP" in Endless — the
+> platinum rank cap + the combat runaway guard.**
+> Players reported runs ending abruptly in Infinite mode ("the Defeat screen
+> popped up when I was at 4.5m HP", waves 18/38/39) and suspected the HUD.
+> **The HP display is consistent** — the bar (`life / core.maxLife`) and the
+> life chip both read the same combat core the simulation uses, so the display
+> was showing a real (if absurd) HP pool. Two defects produced the symptom:
+> - **Rank ups had no terminal tier.** `Unit.upgradeUnitData` did `rank += 1`
+>   unconditionally and `applyUpgradeOrb` then multiplied `maxLife` ×1.5 for
+>   any target, so repeatedly dropping `upgrade_orb` on a crystal
+>   (or any unit) grew rank and HP without bound — an Endless crystal reached
+>   4.5m HP while power scales only linearly with rank, making an unkillable
+>   low-DPS tank. Platinum (rank 4) is now the last upgrade level **for every
+>   unit**: `MAX_UNIT_RANK = 4` in `math/Constants.ts`, `upgradeUnitData`
+>   refuses to rank past it (returns `false`), and `applyUpgradeOrb` skips its
+>   maxLife multiplier on a maxed unit. The shop/validation/enemy-generation
+>   literals (`rank < 4`) now use the constant. An existing save with a
+>   super-platinum unit no longer grows (its already-inflated `maxLife` is
+>   persisted, so it stays inflated until that run ends — not migrated).
+> - **The runaway guard scored budget exhaustion as a loss.** An Endless-scale
+>   fight legitimately spends more than `MAX_COMBAT_WORK` (huge HP pools keep
+>   both cores alive while the `every_100_*` thresholds fire thousands of
+>   times), and `finishCombatRunaway` hard-coded `player_lost` — so a Defeat
+>   screen could appear while the player's core was still alive at ~half its
+>   bar. `runawayOutcome` keeps the loss only for a *degenerate* loop (budget
+>   burnt before the storm, e.g. the regen-engine repro at ~8s) and resolves a
+>   post-storm exhaustion like the 120s duration timeout (`both_won`).
+> Tests: `OrbAndCoreUpgrades.test.ts`, `Entities/UnitRankScaling.test.ts`,
+> `CombatRunawayGuard.test.ts`.
+
 > The **Purify deferred** item (C1 `tutorialSlides.ts` render-layer rewrite +
 > B4 log-dispatch switch) landed 2026-08-19 — see the Phase E/F notes in
 > [purify.md](purify.md).

@@ -65,7 +65,7 @@ export function recruitUnit(
     );
 
     const existingUnit = units[existingUnitIndex];
-    if (existingUnit.rank < 4) {
+    if (existingUnit.rank < Constants.MAX_UNIT_RANK) {
       console.debug(
         "recruitmentActions",
         `Upgrading unit ${existingUnit.id} from Rank ${existingUnit.rank} to Rank ${existingUnit.rank + 1}`,

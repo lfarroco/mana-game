@@ -74,6 +74,62 @@ describe("OrbAndCoreUpgrades", () => {
       expect((unit.effects[0] as { amount: number }).amount).toBe(10);
     });
 
+    it("upgrade_orb is a no-op on a platinum (max-rank) unit", () => {
+      Card.setCardsMap(
+        new Map([
+          [
+            "test_card",
+            {
+              id: "test_card",
+              pic: "",
+              cooldown: 5000,
+              power: 50,
+              rank: 1,
+              effects: [],
+              reactions: [],
+            },
+          ],
+        ]),
+      );
+      const unit = makeUnit({ rank: 4, power: 200, maxLife: 800, life: 500 });
+      OrbAndCoreUpgrades.applyOrb([unit], "u1", "upgrade_orb", dummyRng);
+
+      // Platinum is terminal — no rank-up, so no 1.5× maxLife multiplication
+      // and no heal-to-full. (This was the Endless crystal-tank bug: repeated
+      // orbs grew maxLife 1.5× per orb into the millions.)
+      expect(unit.rank).toBe(4);
+      expect(unit.power).toBe(200);
+      expect(unit.maxLife).toBe(800);
+      expect(unit.life).toBe(500);
+    });
+
+    it("repeated upgrade_orbs stop at platinum", () => {
+      Card.setCardsMap(
+        new Map([
+          [
+            "test_card",
+            {
+              id: "test_card",
+              pic: "",
+              cooldown: 5000,
+              power: 50,
+              rank: 1,
+              effects: [],
+              reactions: [],
+            },
+          ],
+        ]),
+      );
+      const unit = makeUnit({ rank: 1, power: 50, maxLife: 200, life: 200 });
+      for (let i = 0; i < 8; i++) {
+        OrbAndCoreUpgrades.applyOrb([unit], "u1", "upgrade_orb", dummyRng);
+      }
+
+      // Only the three real rank-ups (1→4) apply; maxLife = 200 × 1.5³.
+      expect(unit.rank).toBe(4);
+      expect(unit.maxLife).toBe(675);
+    });
+
     it("absorb_power_orb absorbs from same-row units", () => {
       const target = makeUnit({ id: "u1", position: [1, 0], power: 100 });
       const neighbor = makeUnit({ id: "u2", position: [0, 0], power: 200 });

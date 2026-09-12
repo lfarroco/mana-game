@@ -239,4 +239,44 @@ describe("generateEnemyTeam", () => {
     const scaledCore = scaled.find((u) => u.isCore)!;
     expect(scaledCore.life).toBeGreaterThan(normalCore.life);
   });
+
+  describe("late-Infinite difficulty step (past round 15)", () => {
+    it("leaves round 15 on the standard 1.2^(round-10) curve", () => {
+      const r15 = generateEnemyTeam("late-boundary", 12, 15, mockCards);
+      const core15 = r15.find((u) => u.isCore)!;
+      const base15 = 500 + 150 * (15 - 1);
+      expect(core15.life).toBe(Math.floor(base15 * Math.pow(1.2, 15 - 10)));
+      expect(core15.maxLife).toBe(core15.life);
+    });
+
+    it("multiplies round 16+ core life by an extra 2.5×", () => {
+      const r16 = generateEnemyTeam("late-core", 12, 16, mockCards);
+      const core16 = r16.find((u) => u.isCore)!;
+      const base16 = 500 + 150 * (16 - 1);
+      expect(core16.life).toBe(
+        Math.floor(base16 * Math.pow(1.2, 16 - 10) * 2.5),
+      );
+      expect(core16.maxLife).toBe(core16.life);
+      // Sanity: a hard step up from the last authored round.
+      const r15 = generateEnemyTeam("late-core", 12, 15, mockCards);
+      expect(core16.life).toBeGreaterThan(r15.find((u) => u.isCore)!.life * 2);
+    });
+
+    it("applies the 2.5× to the late-Infinite power budget too", () => {
+      const r16 = generateEnemyTeam("late-power", 12, 16, mockCards); // 9 units
+      const scaledBudget = Math.floor(16 * 20 * Math.pow(1.2, 16 - 10) * 2.5);
+      const expected = Math.floor(scaledBudget / r16.length);
+      for (const u of r16) {
+        expect(u.power).toBe(expected);
+      }
+    });
+
+    it("keeps compounding past round 16", () => {
+      const r16 = generateEnemyTeam("late-grow", 12, 16, mockCards);
+      const r20 = generateEnemyTeam("late-grow", 12, 20, mockCards);
+      expect(r20.find((u) => u.isCore)!.life).toBeGreaterThan(
+        r16.find((u) => u.isCore)!.life,
+      );
+    });
+  });
 });

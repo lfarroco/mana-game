@@ -51,9 +51,15 @@ function buildReaction(
  * (power and effect magnitudes scale by rank via upgradeUnitData; maxLife
  * grows 1.5× per rank). This is identical to buying a duplicate card in the
  * shop and matches the bronze->silver->gold->platinum progression.
+ *
+ * Platinum (`MAX_UNIT_RANK`) is terminal: a maxed unit gains nothing, so the
+ * maxLife multiplier is skipped for it. Without that guard a player could drop
+ * upgrade orbs on the same unit forever and grow its maxLife 1.5× per orb
+ * (an Endless crystal reached 4.5m HP this way), which turned the run into an
+ * unresolvable tank-vs-tank fight.
  */
 function applyUpgradeOrb(unit: Unit): void {
-  upgradeUnitData(unit);
+  if (!upgradeUnitData(unit)) return;
   unit.maxLife = Math.floor(unit.maxLife * 1.5);
   unit.life = unit.maxLife;
 }

@@ -1,5 +1,5 @@
 import * as Models from "../Models";
-import { MAX_PARTY_SIZE } from "../math/Constants";
+import { MAX_PARTY_SIZE, MAX_UNIT_RANK } from "../math/Constants";
 import type { Vec2 } from "../math/Geometry";
 import * as geom from "../math/Geometry";
 
@@ -21,7 +21,9 @@ export function checkRecruitEligibility(
 ): RecruitCheckResult {
   const units = session.team.units;
   const existingUnit = units.find((u) => u.cardId === cardId);
-  const upgradesInPlace = Boolean(existingUnit && existingUnit.rank < 4);
+  const upgradesInPlace = Boolean(
+    existingUnit && existingUnit.rank < MAX_UNIT_RANK,
+  );
 
   if (!upgradesInPlace && units.length >= MAX_PARTY_SIZE) {
     return { ok: false, reason: "PARTY_FULL" };

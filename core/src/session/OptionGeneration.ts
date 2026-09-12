@@ -11,7 +11,7 @@ import { CardDefinition } from "../Models";
 import * as Random from "../math/Random";
 import type { EncounterId } from "../types/action";
 import { ENCOUNTER_BY_ID } from "../content/encounters";
-import { LOSSES_TO_GAME_OVER } from "../math/Constants";
+import { LOSSES_TO_GAME_OVER, MAX_UNIT_RANK } from "../math/Constants";
 import { AWAKEN_POWER_LIST } from "../content/awakenPowers";
 import type { AwakenPower } from "../content/awakenPowers";
 
@@ -318,10 +318,10 @@ export function generateShopOptions(
     );
   }
 
-  // Filter out cards where player already has a platinum (rank 4) unit
+  // Filter out cards where player already has a platinum (max-rank) unit
   const playerUnits = session.team?.units || [];
   const maxRankCardIds = new Set(
-    playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId),
+    playerUnits.filter((u) => u.rank >= MAX_UNIT_RANK).map((u) => u.cardId),
   );
   filteredCards = filteredCards.filter((card) => !maxRankCardIds.has(card.id));
 

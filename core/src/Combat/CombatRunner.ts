@@ -30,8 +30,12 @@ const MAX_DEFERRED_EVENTS_PER_FRAME = 1000;
 const MAX_THRESHOLD_CROSSINGS_PER_FRAME = 500;
 
 // Total combat work budget: deferred event executions + threshold crossings +
-// unit casts. Legit combats use a few thousand at most (see the combat test
-// suite); the budget guarantees a runaway board ends within bounded CPU time.
+// unit casts. Legit early-game combats use a few thousand at most (see the
+// combat test suite); the budget guarantees a runaway board ends within bounded
+// CPU time. Endless-scale fights (huge HP pools, huge threshold stat totals)
+// legitimately exceed it, so exhausting the budget is only scored as a loss
+// before the storm starts — after that it resolves like the duration timeout
+// (see finishCombatRunaway).
 const MAX_COMBAT_WORK = 50_000;
 
 // Total combat log budget. Log entries are the simulation's memory AND the
@@ -81,6 +85,31 @@ const checkCombatOutcome = (
   return null;
 };
 
+/**
+ * Outcome for a combat whose work/log budget was exhausted before either core
+ * reached 0 life.
+ *
+ * The budget is a CPU guard, not a win condition, so it must not decide the
+ * fight on its own. A degenerate self-reinforcing loop burns the whole budget
+ * within a few seconds (the regen-engine repro trips at ~8s) with the enemy
+ * untouched — that is a loss, and scoring it a win would hand infinite-loop
+ * boards a free round. A legitimate fight can also outrun the budget, but only
+ * at Endless scale, where huge HP pools keep both cores alive while the
+ * every_100_* thresholds fire thousands of times; those fights reach the storm
+ * first. Once the storm has started the budget exhaustion no longer indicates a
+ * loop, so resolve it exactly like the 120s `MAX_COMBAT_DURATION_MS` timeout:
+ * surviving cores are not defeated. Hard-coding `player_lost` here used to pop
+ * a Defeat screen over a near-full HP bar while the player's core was still
+ * alive (player report, 2026-09: "the Defeat screen popped up when I was at
+ * 4.5m HP").
+ */
+export const runawayOutcome = (
+  combatElapsedMs: number,
+): "player_lost" | "both_won" =>
+  combatElapsedMs >= Constants.TIMEOUT_DAMAGE_START_TIME
+    ? "both_won"
+    : "player_lost";
+
 export const runCombat = (
   session: SessionData,
   combatState: CombatState,
@@ -124,12 +153,11 @@ export const runCombat = (
   // Runaway guard — a hard budget on total combat work. Self-reinforcing
   // effect loops (e.g. every_10_regen → charge/haste/power → more regen) can
   // grow the simulation's per-frame work without bound; without this guard
-  // such a board freezes the game (CPU melt / OOM) instead of resolving. Once
-  // the budget is spent the combat ends as a LOSS (player_lost) with a
-  // runaway_combat log entry: unlike the 120s MAX_COMBAT_DURATION_MS timeout
-  // (both_won — both cores genuinely survived the full fight), a runaway can
-  // trip seconds in with the enemy at full health, so scoring it a win hands
-  // degenerate infinite-loop boards a free round.
+  // such a board freezes the game (CPU melt / OOM) instead of resolving. The
+  // budget-exhausted outcome depends on when it trips — see
+  // `runawayOutcome`: a degenerate loop burns it seconds in with the enemy at
+  // full health (a loss), while an Endless-scale fight only runs past it after
+  // the storm has started (resolved like the duration timeout).
   let workBudget = MAX_COMBAT_WORK;
 
   /** Spend `units` of work budget. Returns true when the budget is exhausted. */
@@ -143,10 +171,18 @@ export const runCombat = (
 
   const finishCombatRunaway = () => {
     if (!runnerState.active) return;
-    runnerState.env.logger.log({
-      type: "runaway_combat",
-    });
-    finishCombat("player_lost");
+
+    const outcome = runawayOutcome(combatElapsedMs);
+
+    // Only a genuine early runaway is worth a `runaway_combat` marker; a long
+    // fight that merely outran the budget resolves like the duration timeout.
+    if (outcome === "player_lost") {
+      runnerState.env.logger.log({
+        type: "runaway_combat",
+      });
+    }
+
+    finishCombat(outcome);
   };
 
   const updateFrame = (

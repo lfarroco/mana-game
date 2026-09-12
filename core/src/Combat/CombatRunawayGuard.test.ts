@@ -17,6 +17,10 @@
  */
 import * as CombatSimulation from "./CombatSimulation";
 import * as CombatRunner from "./CombatRunner";
+import * as Card from "../Entities/Card";
+import * as Constants from "../math/Constants";
+import * as Models from "../Models";
+import * as EnemyGeneration from "../session/EnemyGeneration";
 import {
   makeTestUnit,
   registerBaseCollection,
@@ -198,5 +202,83 @@ describe("combat runaway guard", () => {
 
     expect(filterLogs(final.logs, "runaway_combat")).toHaveLength(0);
     expect(filterLogs(final.logs, "outcome")[0].result).toBe("player_won");
+  });
+
+  it("scores a budget exhaustion before the storm as a runaway loss", () => {
+    expect(CombatRunner.runawayOutcome(8_000)).toBe("player_lost");
+    expect(
+      CombatRunner.runawayOutcome(Constants.TIMEOUT_DAMAGE_START_TIME - 1),
+    ).toBe("player_lost");
+  });
+
+  it("scores a budget exhaustion after the storm as a surviving-core win", () => {
+    expect(
+      CombatRunner.runawayOutcome(Constants.TIMEOUT_DAMAGE_START_TIME),
+    ).toBe("both_won");
+    expect(CombatRunner.runawayOutcome(60_000)).toBe("both_won");
+  });
+
+  it("does not pop a Defeat screen over a live Endless-scale HP bar", () => {
+    // Player report (wave 38): the crystal had ~4.5m HP and the Defeat screen
+    // appeared while the bar was still ~half full. The fight is not degenerate
+    // (no self-reinforcing loop) — at Endless scale a fight simply spends more
+    // than MAX_COMBAT_WORK because both HP pools are enormous, so every
+    // every_100_* threshold fires thousands of times. It must therefore end
+    // like the 120s duration timeout (a surviving core is not defeated), not
+    // as a hard-coded loss. The seed is one that reliably fights past the work
+    // budget with both cores alive.
+    const seed = "endless-hp-scratch";
+    const playerCore = Card.makeUnit(
+      Constants.FORCE_ID_PLAYER,
+      "critical_crystal",
+      [1, 1],
+    );
+    playerCore.maxLife = 4_500_000;
+    playerCore.life = 4_500_000;
+    playerCore.power = 80_000;
+    playerCore.cooldown = 5200;
+
+    const team = [playerCore];
+    for (const position of [
+      [0, 0],
+      [0, 1],
+      [0, 2],
+    ] as Array<[number, number]>) {
+      const ally = Card.makeUnit(
+        Constants.FORCE_ID_PLAYER,
+        "gunslinger",
+        position,
+      );
+      ally.power = 80_000;
+      team.push(ally);
+    }
+
+    const session: Models.SessionData = {
+      id: "endless-hp-regression",
+      player_id: "test-player",
+      phase: "combat",
+      session_type: { type: "singleplayer" },
+      round: 38,
+      step: 4,
+      seed,
+      initial_seed: seed,
+      options: [],
+      team: { units: team },
+      wins: 10,
+      losses: 0,
+      action_log: [],
+    };
+
+    const enemy = EnemyGeneration.generateEnemyTeamForRound(38, 10, seed);
+    const combatState = CombatSimulation.createCombatState(session, enemy);
+    const final = CombatSimulation.simulateCombat(session, combatState);
+
+    // The budget exhaustion after the storm is not a degenerate runaway …
+    expect(filterLogs(final.logs, "runaway_combat")).toHaveLength(0);
+    // … the player's core is still standing when the fight ends …
+    expect(final.playerCore.life).toBeGreaterThan(0);
+    // … so the run must not be scored as an abrupt defeat at a near-full bar.
+    expect(filterLogs(final.logs, "outcome")[0].result).not.toBe("player_lost");
+    expect(final.wonCombat).toBe(true);
   });
 });

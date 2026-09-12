@@ -96,3 +96,27 @@ describe("rank scaling — effect magnitudes vs targeting counts", () => {
     });
   });
 });
+
+describe("platinum is the terminal rank", () => {
+  it("does not rank a platinum unit any further", () => {
+    const unit = make("timebender");
+    Unit.upgradeUnitData(unit); // bronze → silver
+    Unit.upgradeUnitData(unit); // silver → gold
+    Unit.upgradeUnitData(unit); // gold → platinum
+
+    const powerAmount = (u: UnitType) =>
+      (effectWithTargets(u, "increase_power") as Effect & { amount: number })
+        .amount;
+
+    expect(unit.rank).toBe(Constants.MAX_UNIT_RANK);
+    const platinumPower = unit.power;
+    const platinumAmount = powerAmount(unit);
+
+    // A further upgrade is a no-op (returns false) — no rank, power or
+    // effect-magnitude growth past platinum.
+    expect(Unit.upgradeUnitData(unit)).toBe(false);
+    expect(unit.rank).toBe(Constants.MAX_UNIT_RANK);
+    expect(unit.power).toBe(platinumPower);
+    expect(powerAmount(unit)).toBe(platinumAmount);
+  });
+});

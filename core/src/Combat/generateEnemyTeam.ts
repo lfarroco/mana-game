@@ -2,7 +2,7 @@ import { Unit } from "../Models";
 import * as Card from "../Entities/Card";
 import { CardDefinition } from "../Models";
 import { upgradeUnitData } from "../Entities/Unit";
-import { FORCE_ID_CPU, MAX_PARTY_SIZE } from "../math/Constants";
+import { FORCE_ID_CPU, MAX_PARTY_SIZE, MAX_UNIT_RANK } from "../math/Constants";
 import * as Random from "../math/Random";
 import type { Vec2 } from "../math/Geometry";
 
@@ -17,6 +17,16 @@ const UNITS_PER_ROUND = 3;
 // before facing it at full strength.
 const ENEMY_POWER_POINTS_PER_ROUND = 20;
 const ENEMY_CORE_LIFE_PER_ROUND = 150;
+
+// Late-Infinite difficulty step (2026-09-11). Round 15 is the last authored
+// round — `ROUND_PHASES` (PhaseSystem/PhaseConfig) only defines 1–15, so from
+// round 16 the run repeats the pure 5-phase loop with no more `upgrade_core` /
+// `add_reaction_core` phases to grow the player's crystal. The enemy's standard
+// Infinite scaling (`1.2^(round - 10)`, see `generateEnemyTeam`) keeps
+// compounding, but the player's own growth has stopped by then, so an extra
+// flat ×2.5 on top of that curve keeps the late waves a real threat.
+const LATE_INFINITE_ROUND = 15;
+const LATE_INFINITE_DIFFICULTY_MULTIPLIER = 2.5;
 
 function calculateUnitsForRound(round: number): number {
   if (round === 0) return 1;
@@ -36,14 +46,14 @@ function distributeUpgrades(units: Unit[], upgradeCount: number): void {
   const remainder = cappedUpgradeCount % units.length;
 
   units.forEach((unit) => {
-    for (let i = 0; i < upgradesPerUnit && unit.rank < 4; i++) {
+    for (let i = 0; i < upgradesPerUnit && unit.rank < MAX_UNIT_RANK; i++) {
       upgradeUnitData(unit);
     }
   });
 
   for (let i = 0; i < remainder; i++) {
     const unit = units[i % units.length];
-    if (unit.rank < 4) {
+    if (unit.rank < MAX_UNIT_RANK) {
       upgradeUnitData(unit);
     }
   }
@@ -152,10 +162,16 @@ export function generateEnemyTeam(
 
   const powerPoints = round * ENEMY_POWER_POINTS_PER_ROUND;
   if (wins >= 10) {
-    const multiplier = Math.pow(1.2, round - 10);
-    coreUnit.life = Math.floor(coreUnit.life * multiplier);
-    coreUnit.maxLife = Math.floor(coreUnit.maxLife * multiplier);
-    distributePowerPoints(units, powerPoints, multiplier);
+    // Infinite mode: the 1.2×-per-round curve, plus the late-game step once
+    // the authored rounds (1–15) are exhausted.
+    const infiniteMultiplier = Math.pow(1.2, round - 10);
+    const difficultyMultiplier =
+      round > LATE_INFINITE_ROUND
+        ? infiniteMultiplier * LATE_INFINITE_DIFFICULTY_MULTIPLIER
+        : infiniteMultiplier;
+    coreUnit.life = Math.floor(coreUnit.life * difficultyMultiplier);
+    coreUnit.maxLife = Math.floor(coreUnit.maxLife * difficultyMultiplier);
+    distributePowerPoints(units, powerPoints, difficultyMultiplier);
   } else {
     distributePowerPoints(units, powerPoints);
   }
