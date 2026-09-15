@@ -22,6 +22,8 @@
  *   __debug.skip()                       // skip a drag-only encounter (upgrade orb, ...)
  *   __debug.replayCombat()               // replay the finished match
  *   __debug.continueCombat()             // proceed past combat results
+ *   __debug.tutorial                     // interactive-tutorial probe (or null)
+ *   __debug.tutorial?.next()             // advance (respects the slide gate)
  *   __debug.getScreen()                  // current screen name
  *   __debug.getScreenPhase()             // active sub-phase of the current screen
  *   __debug.getPhase()                   // current session phase
@@ -36,6 +38,8 @@ import { dispatchAction } from "../Screens/Battleground/BattlegroundScene";
 import { encounterActionFor } from "../Screens/Battleground/Phases/Encounter/encounterActions";
 import { purchaseShopUnit } from "../Screens/Battleground/Phases/Shop/purchaseShopUnit";
 import { startNewGame } from "../Screens/CrystalSelection/Effects";
+import { getAllCharas, getUnit } from "../Components/Chara/Chara";
+import type { TutorialDebugProbe } from "../Screens/Title/Components/TutorialOverlay";
 
 export { buildRunCompleteSession, type RunCompleteOptions } from "@game/session/runComplete";
 
@@ -78,6 +82,45 @@ export type DebugApi = {
 	getPhase: () => string;
 	/** IDs of the current phase's options (encounter cards, shop cards, ...). */
 	getOptions: () => string[];
+
+	/**
+	 * Interactive-tutorial probe, published while the overlay is open (null
+	 * otherwise). Drives the lesson flow through the real gate checks, so the
+	 * e2e suite does not depend on slide pixel positions.
+	 */
+	tutorial: TutorialDebugProbe | null;
+
+	/**
+	 * Summoned charas with their live screen positions. Used to verify tutorial
+	 * slide layout (units must never sit on a palette chip or a readout panel).
+	 */
+	getCharas: () => { id: string; cardId: string; x: number; y: number; active: boolean }[];
+
+	/** Dev probe: tutorial scheduler count + total loop ticks. */
+	tutorialSchedules: () => {
+		schedulers: number;
+		ticks: number;
+		cancels: number;
+		taskRuns: number;
+		armed: number;
+	};
+
+	/** Dev probe: how many palette-chip taps have been captured. */
+	tutorialTaps: () => number;
+
+	/** Dev probe: does a game-space point hit an interactive chip? */
+	hitTestChip: (
+		x: number,
+		y: number
+	) => {
+		chip: boolean;
+		chipXY?: number[];
+		local?: number[];
+		hitArea?: number[] | null;
+		inList?: number;
+		listLength?: number;
+		list?: string[];
+	};
 };
 
 const goToRunCompletePhase = async (
@@ -193,10 +236,27 @@ export function installDebugCommands(): void {
 	debug.replayCombat = replayCombat;
 	debug.continueCombat = continueCombat;
 
+	debug.getCharas = () =>
+		getAllCharas().map((c) => ({
+			id: c.getData?.("id") ?? getUnit(c).id,
+			cardId: getUnit(c).cardId,
+			x: c.x,
+			y: c.y,
+			active: c.active,
+		}));
+
 	debug.getScreen = getScreen;
 	debug.getScreenPhase = getScreenPhase;
 	debug.getPhase = getPhase;
 	debug.getOptions = getOptions;
+
+	// The tutorial probe is published by the overlay itself (`__debugTutorial`);
+	// re-expose it under `__debug.tutorial` so a test has one namespace to reach.
+	Object.defineProperty(debug, "tutorial", {
+		enumerable: true,
+		get: () =>
+			(window as Window & { __debugTutorial?: TutorialDebugProbe | null }).__debugTutorial ?? null,
+	});
 
 	(window as Window & { __debug?: DebugApi }).__debug = debug;
 

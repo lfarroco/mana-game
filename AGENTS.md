@@ -427,3 +427,24 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > `lucky_pig` was removed from the encounter pool. See
 > [docs/new-encounter-types.md](docs/new-encounter-types.md) E1.
 
+> **Interactive tutorial landed (2026-09-12).** The title-screen "How to play"
+> overlay was a slideshow; it is now interactive — every slide gates its **Next**
+> button on the player actually performing the mechanic (cast an ability in a
+> live sandbox, drag a recruit onto a board tile, tap a card's effect rows and
+> watch them play). Same 14 lessons. Entry points: the permanent `Tutorial`
+> menu button (`TUTORIAL_BUTTON_Y = 400`, above the single-player row) and a
+> one-time first-launch offer (`maybeOfferTutorial`, suppressed after the first
+> visit and held behind unlock modals). Progress persists under
+> `mana-game-tutorial` so a resumed tutorial reopens at the furthest slide.
+> Full design, lesson table, and the two client traps found while building it
+> (Phaser `TimerEvent` runs on game speed, not wall-clock; the dev webpack
+> filesystem cache could serve stale modules) are in
+> [docs/interactive-tutorial.md](docs/interactive-tutorial.md).
+> Code: `core/src/content/tutorialSlides.ts` (slide + gate data),
+> `tutorialSandbox.ts` (pure sandbox rules), `tutorialStore.ts` (progress);
+> `phaser/src/Screens/Title/Components/Tutorial/` (builder + panels +
+> `tutorialScheduler.ts`), `TutorialOverlay.ts`, `tutorialButton.ts`.
+> Runtime probe for the e2e suite: `__debug.tutorial`. Verified end-to-end:
+> 14/14 slides, all gates unlocked, no console errors.
+> Tests: `core/src/content/tutorialSlides.test.ts`, `tutorialSandbox.test.ts`,
+> `tutorialStore.test.ts`, `phaser/.../Tutorial/slideProgress.test.ts`.

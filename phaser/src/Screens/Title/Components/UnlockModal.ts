@@ -10,9 +10,26 @@ import { env } from "@Env";
 const PANEL_WIDTH = 1400;
 const PANEL_HEIGHT = 700;
 
+/**
+ * True while an unlock modal is on screen. The title screen uses it to hold
+ * back the first-launch tutorial offer: both are modal prompts and stacking
+ * them hides the unlock the player just earned.
+ */
+let unlockModalOpen = false;
+
+export const isUnlockModalOpen = (): boolean => unlockModalOpen;
+
+/** Make `isUnlockModalOpen()` observable so the title can sequence its prompts. */
+export const whenUnlockModalsClosed = async (): Promise<void> => {
+	while (unlockModalOpen) {
+		await new Promise((resolve) => setTimeout(resolve, 200));
+	}
+};
+
 export const render = (unitId: string) =>
 	new Promise<void>(async (resolve) => {
 		const unitData = Card.getCardDefinition(unitId);
+		unlockModalOpen = true;
 
 		const modal = Modal.createModal({
 			width: PANEL_WIDTH,
@@ -63,5 +80,6 @@ export const render = (unitId: string) =>
 		]);
 
 		await modal.onClose;
+		unlockModalOpen = false;
 		resolve();
 	});

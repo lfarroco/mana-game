@@ -31,6 +31,9 @@ import { ScreenScene } from "../../Scenes/ScreenScene";
 import { loadGame } from "@Systems/Storage/loadGame";
 import { setMultiplayerMode } from "@lib/multiplayerMode";
 
+/** Menu slot for the tutorial entry (above the single-player row, 100px grid). */
+const TUTORIAL_BUTTON_Y = 400;
+
 /** Phaser scene key / route name. */
 export const TITLE_SCENE_KEY = "title";
 
@@ -83,8 +86,10 @@ export class TitleScene extends ScreenScene {
 		await this.go("main");
 
 		// Fire-and-forget (as before): unlock modals gate the menu but must not
-		// delay `screenShown` / the fade-in.
+		// delay `screenShown` / the fade-in. The first-launch tutorial offer
+		// waits behind them (see `tutorialButton.maybeOfferTutorial`).
 		void checkUnlocks();
+		void Components.tutorialButton.maybeOfferTutorial();
 	}
 
 	/** Switch the visible sub-menu, destroying the previous one's elements. */
@@ -147,6 +152,7 @@ function mainPhase(ctx: TitleContext): Destroyable[] {
 	return [
 		Components.singlePlayerButton.create(ctx),
 		Components.arenaButton.create(),
+		Components.tutorialButton.createTutorialButton(TUTORIAL_BUTTON_Y),
 		Components.optionsButton.create(ctx),
 		Components.linksButton.create(),
 		environment.isElectron() ? Components.exitButton.create() : env.container(),
