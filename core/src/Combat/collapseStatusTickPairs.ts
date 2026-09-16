@@ -13,8 +13,10 @@ import type * as CombatLogger from "./CombatLogger";
  *
  * The merged entry reuses the `regen_tick` shape — its `newLife` is the final
  * life for the tick and its `lifeDelta`/`amount` are the net deltas — so the
- * existing regen tick handler renders it unchanged. Poison-only or regen-only
- * ticks pass through untouched.
+ * existing regen tick handler renders it unchanged. Poison absorbs shield
+ * before life, so a shield delta from the poison tick rides along on the
+ * merged entry (optional fields) and the regen handler syncs the shield bar.
+ * Poison-only or regen-only ticks pass through untouched.
  */
 export const collapseStatusTickPairs = (
   logs: CombatLogger.CombatLogEntry[],
@@ -36,6 +38,9 @@ export const collapseStatusTickPairs = (
         ...next,
         amount: next.amount - log.amount,
         lifeDelta: log.lifeDelta + next.lifeDelta,
+        ...(log.shieldDelta !== 0
+          ? { newShield: log.newShield, shieldDelta: log.shieldDelta }
+          : {}),
       });
       i++; // skip the regen_tick we just merged
       continue;

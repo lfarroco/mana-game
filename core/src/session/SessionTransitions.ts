@@ -209,8 +209,11 @@ const ACTION_HANDLERS: Record<
         return session;
       }
 
+      // Awaken powers are authored as flat bonuses for the gold-rank unit
+      // (see awakenPowers.ts — "stacked on an already-×3-scaled rank-3 unit"),
+      // so unlike the identity orbs they are NOT rank-scaled at acquisition.
+      // Ledger the grant so a later rank-up keeps it.
       unit.reactions = [...unit.reactions, structuredClone(power.reaction)];
-      // Ledger the grant so a later rank-up keeps the awaken power.
       Unit.recordGrantedReaction(unit, power.reaction);
       delete session.awakenUnitId;
       return transitionToNextStep(session);
@@ -294,8 +297,10 @@ const ACTION_HANDLERS: Record<
             reactionPool,
           );
           session.seed = seed;
-          core.reactions = [...core.reactions, structuredClone(def.reaction!)];
+          // Ledger + re-derive (rank-scaled) rather than a raw push: the core
+          // may already be platinum when the wheel lands here.
           Unit.recordGrantedReaction(core, def.reaction!);
+          Unit.syncUnitGrants(core);
         }
       }
       return transitionToNextStep(session);
@@ -691,25 +696,53 @@ function canCoreGainRouletteReaction(session: Models.SessionData): boolean {
 }
 
 /**
- * True when the identity orb's effect/reaction is already present on the core
- * — deep-equality (JSON.stringify) against the core's effects/reactions arrays.
- * Used to dedupe already-applied identity orbs out of upgrade options.
+ * True when the identity orb's effect/reaction is already present on the core.
+ *
+ * Two comparisons, because the live arrays are rank-scaled (upgradeUnitEffects)
+ * while catalog entries and ledger entries are pristine:
+ *   1. deep-equality against the grant ledger (catches grants applied before a
+ *      rank-up, and legacy grants left unscaled on a maxed unit);
+ *   2. deep-equality against the orb payload scaled to the core's CURRENT rank
+ *      (catches everything in the live arrays, including grants that predate
+ *      the ledger).
+ *
+ * The old check compared pristine catalog payloads against the scaled live
+ * arrays, so EVERY identity orb already applied looked "unapplied" after the
+ * core ranked up: `generateCoreUpgradeOptions` re-offered spent orbs and the
+ * roulette reaction forge could imprint a reaction the core already carried
+ * (players: "it just costs you 1 life and does nothing").
  */
 function hasIdentityOrbApplied(
   core: Models.Unit,
   orb: CoreUpgradeDefinition,
 ): boolean {
   if (orb.kind === "effect" && orb.effect) {
-    return core.effects.some(
-      (effect) => JSON.stringify(effect) === JSON.stringify(orb.effect),
-    );
+    return hasGrantApplied(core, orb.effect, "effect");
   }
   if (orb.kind === "reaction" && orb.reaction) {
-    return core.reactions.some(
-      (reaction) => JSON.stringify(reaction) === JSON.stringify(orb.reaction),
-    );
+    return hasGrantApplied(core, orb.reaction, "reaction");
   }
   return false;
+}
+
+function hasGrantApplied(
+  core: Models.Unit,
+  payload: Models.Effect | Models.EffectReaction,
+  kind: "effect" | "reaction",
+): boolean {
+  const ledger =
+    kind === "effect" ? core.grantedEffects : core.grantedReactions;
+  if (
+    (ledger ?? []).some(
+      (entry) => JSON.stringify(entry) === JSON.stringify(payload),
+    )
+  ) {
+    return true;
+  }
+
+  const live = kind === "effect" ? core.effects : core.reactions;
+  const scaled = Unit.scaleGrantToUnitRank(core, payload, kind);
+  return live.some((entry) => JSON.stringify(entry) === JSON.stringify(scaled));
 }
 
 /**
@@ -755,8 +788,29 @@ export function generateCoreUpgradeOptions(
   const seedNum = Random.stringToSeed(
     `${session.seed}:core-upgrade:${session.round}`,
   );
-  const shuffled = Random.shuffleWithSeed(available, seedNum);
-  return shuffled.slice(0, 3).map((orb) => ({
+
+  // Guarantee at least one uncollected identity orb per offer while any remain.
+  //
+  // A run only reaches ~15 core-upgrade phases before Infinite mode drops them
+  // (`PhaseConfig.ROUND_PHASES` — rounds 2/6/10 are the explicit
+  // `add_reaction_core` windows), and a uniform 3-of-12 draw can leave the theme
+  // pool permanently unfinished (players: "seems random how many reactions you
+  // get before that event stops firing"). Identity orbs are one-time picks, so
+  // reserving one slot for them makes the whole pool collectible; the other two
+  // slots stay a free choice over the remaining identity + repeatable stat orbs.
+  const identityOrbs = available.filter((orb) => orb.kind !== "stat");
+  const statOrbs = available.filter((orb) => orb.kind === "stat");
+  const shuffledIdentity = Random.shuffleWithSeed(identityOrbs, seedNum);
+  const filler = Random.shuffleWithSeed(
+    [...shuffledIdentity.slice(1), ...statOrbs],
+    seedNum,
+  );
+  const guaranteedIdentity = shuffledIdentity.slice(0, 1);
+  const picked = [
+    ...guaranteedIdentity,
+    ...filler.slice(0, 3 - guaranteedIdentity.length),
+  ];
+  return picked.map((orb) => ({
     id: orb.id as CoreUpgradeOrbId,
   }));
 }

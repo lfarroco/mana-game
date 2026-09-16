@@ -8,10 +8,17 @@ import {
 } from "./coreUpgradeOrbs";
 
 describe("core upgrade orbs content", () => {
-  it("has unique ids and exactly 80 identity orbs", () => {
+  it("has unique ids: 80 themed identity orbs + 1 shared answer", () => {
     const ids = Object.keys(CORE_UPGRADE_DEFINITIONS);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids.length).toBe(80);
+    // 80 themed identity orbs, plus the theme-agnostic battle-start answer
+    // injected into every pool by getThemeUpgradePool.
+    expect(ids.length).toBe(81);
+    expect(
+      Object.values(CORE_UPGRADE_DEFINITIONS)
+        .filter((orb) => orb.shared)
+        .map((orb) => orb.id),
+    ).toEqual(["core_battle_start_rush"]);
   });
 
   it("keeps every entry themed by CORE_THEMES", () => {
@@ -43,20 +50,29 @@ describe("core upgrade orbs content", () => {
     );
   });
 
-  it("builds each theme pool from its identity orbs + 3 stat orbs", () => {
+  it("builds each theme pool from its identity orbs + shared answer + 3 stat orbs", () => {
     for (const theme of CORE_THEMES) {
       const pool = getThemeUpgradePool(theme);
       // All themes ship 9 identity orbs except haste — its 4th (Regen) moved
       // into quickstone's baseline (absolute basic-effect rule, see
       // docs/core-unit-onboarding.md §2 decision 4).
       const expectedIdentity = theme === "haste" ? 8 : 9;
-      expect(pool).toHaveLength(expectedIdentity + 3);
+      expect(pool).toHaveLength(expectedIdentity + 1 + 3);
 
-      const identityOrbs = pool.filter((orb) => orb.kind !== "stat");
+      const identityOrbs = pool.filter(
+        (orb) => orb.kind !== "stat" && !orb.shared,
+      );
+      const sharedOrbs = pool.filter((orb) => orb.shared);
       const statOrbs = pool.filter((orb) => orb.kind === "stat");
 
       expect(identityOrbs).toHaveLength(expectedIdentity);
       for (const orb of identityOrbs) {
+        expect(orb.theme).toBe(theme);
+      }
+
+      expect(sharedOrbs).toHaveLength(1);
+      for (const orb of sharedOrbs) {
+        // Shared orbs are re-themed per pool, never the catalog placeholder.
         expect(orb.theme).toBe(theme);
       }
 
@@ -69,7 +85,7 @@ describe("core upgrade orbs content", () => {
     }
   });
 
-  it("places the three stat orbs after the identity orbs, in order", () => {
+  it("places the shared answer after the identity orbs and the stats last", () => {
     for (const theme of CORE_THEMES) {
       const pool = getThemeUpgradePool(theme);
       const identityCount = theme === "haste" ? 8 : 9;
@@ -77,8 +93,9 @@ describe("core upgrade orbs content", () => {
       expect(
         kinds.slice(0, identityCount).every((kind) => kind !== "stat"),
       ).toBe(true);
-      expect(kinds.slice(identityCount)).toEqual(["stat", "stat", "stat"]);
-      expect(pool.slice(identityCount).map((orb) => orb.id)).toEqual([
+      expect(pool[identityCount].shared).toBe(true);
+      expect(kinds.slice(identityCount + 1)).toEqual(["stat", "stat", "stat"]);
+      expect(pool.slice(identityCount + 1).map((orb) => orb.id)).toEqual([
         ...CORE_STAT_ORBS,
       ]);
     }

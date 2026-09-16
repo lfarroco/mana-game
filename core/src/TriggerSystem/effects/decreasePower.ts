@@ -24,7 +24,11 @@ export const decreasePower = (
       type: "decrease_power",
       sourceId: sourceUnit?.id,
       targetId: target.id,
-      amount: -appliedDelta,
+      // `-0` must be normalised to `0`: JSON.stringify(-0) is "0", so a session
+      // persisted and reloaded (multiplayer SQLite round-trip) would not
+      // deep-equal the live log. A no-op decrease (target already at 0 power)
+      // is exactly that case.
+      amount: appliedDelta === 0 ? 0 : -appliedDelta,
       permanent: permanent,
       affectedUnitId: target.id,
     });

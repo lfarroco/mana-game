@@ -71,12 +71,28 @@ export const manipulateCoreShield = (
   return actualChange;
 };
 
+/**
+ * Damage a force's core.
+ *
+ * Every damage type absorbs the core's shield before life — including poison.
+ * Poison used to skip the shield entirely (`damageType === "poison"` short-cut
+ * straight to life), which made shields worthless against the one source a
+ * defensive build most needs them for: a poison wave that outscales raw HP
+ * killed through a full shield bar (player report, 2026-09-15 — "there is no
+ * reason I should have died with this Shield + Regen vs. Poison"). The
+ * `damageType` parameter is kept for call-site clarity and future damage kinds,
+ * but no type pierces any more; `shieldPiercingPercentage` is the only pierce.
+ *
+ * @returns The absolute life actually removed (0 when the shield absorbed it
+ *          all) — callers that surface a number to the player should prefer
+ *          their own pre/post snapshots.
+ */
 export const applyDamageToForce = (
   state: CombatState,
   targetForce: string,
   damage: number,
   shieldPiercingPercentage: number = 0,
-  damageType?: "poison" | "normal" | "timeout",
+  _damageType?: "poison" | "normal" | "timeout",
   _critical = false,
 ): number => {
   if (damage <= 0) return 0;
@@ -89,12 +105,6 @@ export const applyDamageToForce = (
   }
 
   let remainingDamage = damage;
-
-  if (damageType === "poison") {
-    const lifeChange = manipulateCoreLife(state, targetForce, -damage, false);
-
-    return Math.abs(lifeChange);
-  }
 
   let effectiveShield = core.shield;
   if (shieldPiercingPercentage > 0 && core.shield > 0) {

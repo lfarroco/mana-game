@@ -83,9 +83,10 @@ describe("orb presentations content", () => {
     expect(getOrbPresentationData("missing")).toBeNull();
   });
 
-  it("defines a themed presentation for every core-upgrade identity orb (CUB-E1)", () => {
+  it("defines a themed presentation for every core-upgrade orb (CUB-E1)", () => {
     const ids = Object.keys(CORE_UPGRADE_DEFINITIONS);
-    expect(ids).toHaveLength(80);
+    // 80 themed identity orbs + the shared battle-start answer.
+    expect(ids).toHaveLength(81);
     for (const id of ids) {
       const orb = ORB_PRESENTATION_DATA[id];
       expect(orb).toBeDefined();

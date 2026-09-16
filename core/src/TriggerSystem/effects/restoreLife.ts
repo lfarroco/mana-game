@@ -66,10 +66,16 @@ export const restoreLife = (
         );
       }
 
+      // Dispel poison off the RAW heal (heal + overheal), not the life actually
+      // restored. Keying it off `actualHealing` made the mechanic useless in the
+      // situation it exists for: a healthy core heals for the cap (overheal) and
+      // dispelled nothing, so late-run poison could never be answered (player
+      // report, 2026-09-15). `actualHealing` also still gates the on_over_heal
+      // reaction below — only the dispel uses the raw amount.
       const newPoisonState = PoisonSystem.reducePoison(
         combatStates.poisonSystemState,
         sourceForce,
-        actualHealing,
+        healAmount,
       );
       combatStates.poisonSystemState = newPoisonState;
 

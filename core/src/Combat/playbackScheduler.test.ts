@@ -15,7 +15,9 @@ const tickLog = (
   force: "player",
   amount,
   newLife: 100,
+  newShield: 0,
   lifeDelta: type === "poison_tick" ? -amount : amount,
+  shieldDelta: 0,
   timeMs,
 });
 

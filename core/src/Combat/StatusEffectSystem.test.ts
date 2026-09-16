@@ -156,4 +156,53 @@ describe("StatusEffectSystem — tick cadence", () => {
     )!;
     expect(core.life).toBe(10_000 - 50 + 20);
   });
+
+  it("poison spends the core's shield before life and logs the shield delta", () => {
+    const { env, combatState } = createEnvWithRates(50, 0);
+    const core = combatState.units.find(
+      (u) => u.force === Constants.FORCE_ID_PLAYER && u.isCore,
+    )!;
+    core.shield = 30;
+    const lifeBefore = core.life;
+
+    let state = StatusEffectSystem.initialize(env.combatState);
+    state = advance(env, state, 1100);
+
+    const tick = env.logger
+      .getLogs()
+      .find(
+        (l): l is PoisonTickLog =>
+          l.type === "poison_tick" && l.force === Constants.FORCE_ID_PLAYER,
+      );
+    expect(tick).toBeDefined();
+    // 50 poison: 30 eaten by the shield, the remaining 20 through to life.
+    expect(tick!.shieldDelta).toBe(-30);
+    expect(tick!.newShield).toBe(0);
+    expect(tick!.lifeDelta).toBe(-20);
+    expect(core.shield).toBe(0);
+    expect(core.life).toBe(lifeBefore - 20);
+  });
+
+  it("a fully-shielded poison tick deals no life damage", () => {
+    const { env, combatState } = createEnvWithRates(50, 0);
+    const core = combatState.units.find(
+      (u) => u.force === Constants.FORCE_ID_PLAYER && u.isCore,
+    )!;
+    core.shield = 500;
+    const lifeBefore = core.life;
+
+    let state = StatusEffectSystem.initialize(env.combatState);
+    state = advance(env, state, 1100);
+
+    const tick = env.logger
+      .getLogs()
+      .find(
+        (l): l is PoisonTickLog =>
+          l.type === "poison_tick" && l.force === Constants.FORCE_ID_PLAYER,
+      );
+    expect(tick!.lifeDelta).toBe(0);
+    expect(tick!.shieldDelta).toBe(-50);
+    expect(core.life).toBe(lifeBefore);
+    expect(core.shield).toBe(450);
+  });
 });

@@ -16,6 +16,7 @@ import * as Absorb from "../TriggerSystem/effects/absorbPower";
 import * as Sacrifice from "../TriggerSystem/effects/sacrificeEffect";
 import * as Multiply from "../TriggerSystem/effects/multiplyPower";
 import * as Distribute from "../TriggerSystem/effects/distributePower";
+import * as Decrease from "../TriggerSystem/effects/decreasePower";
 
 beforeAll(registerBaseCollection);
 afterAll(resetCardRegistry);
@@ -122,5 +123,30 @@ describe("Effect integration — edge cases", () => {
     expect(distributor.power).toBe(51); // 101 - 50
     expect(r1.power).toBe(35); // 10 + 25
     expect(r2.power).toBe(35); // 10 + 25
+  });
+
+  it("a no-op decrease_power logs 0, never -0", () => {
+    // Regression: `-appliedDelta` on a target already at 0 power produced -0.
+    // JSON.stringify(-0) is "0", so a session persisted and reloaded (the
+    // multiplayer SQLite round-trip) no longer deep-equalled the live log —
+    // a flaky server test. Decreased magnitudes must normalise to 0.
+    const source = makeTestUnit({ effects: [], power: 10, cooldown: 99999 });
+    source.id = "source";
+    const drained = makeTestUnit({
+      effects: [],
+      power: 0,
+      cooldown: 99999,
+      position: [1, 0],
+    });
+    drained.id = "drained";
+
+    const { combatRunner } = setupCombat([source, drained], 5000);
+    const env = combatRunner.getEnv();
+
+    Decrease.decreasePower(env, [drained], 50, false, source);
+
+    const log = env.logger.getLogs().find((l) => l.type === "decrease_power")!;
+    expect(log.amount).toBe(0);
+    expect(Object.is(log.amount, -0)).toBe(false);
   });
 });

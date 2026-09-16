@@ -136,6 +136,47 @@ export function recordGrantedReaction(
 }
 
 /**
+ * Rebuild the unit's live effects/reactions from its card definition plus the
+ * pristine grant ledger, then rank-scale the result to the unit's CURRENT rank.
+ *
+ * Every grant path must funnel through this (record the pristine payload, then
+ * sync) instead of pushing the payload straight onto the live array. A raw push
+ * skips `upgradeUnitEffects`, so a grant applied to an already-ranked unit —
+ * most visibly the crystal at gold/platinum — stayed at its rank-1 magnitude
+ * forever. Players hit exactly that: "you have to leave your core at Gold until
+ * you get all the reactions, otherwise they never reach platinum tier".
+ *
+ * Idempotent: the source arrays are re-derived from base + ledger (both
+ * pristine), so repeated calls never compound.
+ */
+export function syncUnitGrants(unit: Unit): void {
+  const cardDef = Card.getCardDefinition(unit.cardId);
+  resetUnitEffectsToCardDefinition(unit, cardDef);
+  upgradeUnitEffects(unit, cardDef.rank || 1);
+}
+
+/**
+ * The rank-scaled shape `payload` would take on `unit` at its current rank.
+ * Mirrors the probe in `scaledBaseEffects`/`scaledBaseReactions` so callers can
+ * compare a pristine catalog entry against the unit's live (rank-scaled)
+ * arrays — e.g. "is this identity orb already applied?".
+ */
+export function scaleGrantToUnitRank<T extends Effect | EffectReaction>(
+  unit: Unit,
+  payload: T,
+  kind: "effect" | "reaction",
+): T {
+  const probe = {
+    rank: unit.rank,
+    effects: kind === "effect" ? [structuredClone(payload)] : [],
+    reactions: kind === "reaction" ? [structuredClone(payload)] : [],
+  } as unknown as Unit;
+  const cardDef = Card.getCardDefinition(unit.cardId);
+  upgradeUnitEffects(probe, cardDef.rank || 1);
+  return (kind === "effect" ? probe.effects[0] : probe.reactions[0]) as T;
+}
+
+/**
  * Drop one ledger entry matching a removed ability so a sacrificed
  * effect/reaction is not resurrected by the next rank-up. Matches by deep
  * equality first; falls back to the lineage key because the live copy is

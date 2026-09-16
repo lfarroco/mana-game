@@ -7,10 +7,12 @@
 /// <reference types="jest" />
 
 import * as Card from "../Entities/Card";
+import * as Unit from "../Entities/Unit";
 import * as Constants from "../math/Constants";
 import * as Models from "../Models";
 import * as SessionTransitions from "./SessionTransitions";
 import * as SessionManagement from "./SessionManagement";
+import * as OrbAndCoreUpgrades from "../Actions/OrbAndCoreUpgrades";
 import * as CoreUpgradeOrbs from "../content/coreUpgradeOrbs";
 import { AWAKEN_POWERS } from "../content/awakenPowers";
 
@@ -526,13 +528,22 @@ describe("SessionTransitions", () => {
 
   describe("generateCoreUpgradeOptions (CUB-B1)", () => {
     const STAT_IDS = [...CoreUpgradeOrbs.CORE_STAT_ORBS];
+    // Shared orbs are injected into every theme's pool, so they belong in each
+    // theme's expected option set.
+    const SHARED_IDS = Object.values(CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS)
+      .filter((def) => def.shared)
+      .map((def) => def.id);
 
     const damageIdentityIds = Object.values(
       CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS,
     )
       .filter((def) => def.theme === "damage")
       .map((def) => def.id);
-    const damagePoolIds = new Set([...damageIdentityIds, ...STAT_IDS]);
+    const damagePoolIds = new Set([
+      ...damageIdentityIds,
+      ...SHARED_IDS,
+      ...STAT_IDS,
+    ]);
 
     it("is deterministic — same session twice gives identical ids", () => {
       const session = createTestSession("cub-b1-determinism");
@@ -565,7 +576,11 @@ describe("SessionTransitions", () => {
       )
         .filter((def) => def.theme === "overflow")
         .map((def) => def.id);
-      const overflowPoolIds = new Set([...overflowIdentityIds, ...STAT_IDS]);
+      const overflowPoolIds = new Set([
+        ...overflowIdentityIds,
+        ...SHARED_IDS,
+        ...STAT_IDS,
+      ]);
 
       const options = SessionTransitions.generateCoreUpgradeOptions(session);
 
@@ -585,7 +600,11 @@ describe("SessionTransitions", () => {
       )
         .filter((def) => def.theme === "thorns")
         .map((def) => def.id);
-      const thornsPoolIds = new Set([...thornsIdentityIds, ...STAT_IDS]);
+      const thornsPoolIds = new Set([
+        ...thornsIdentityIds,
+        ...SHARED_IDS,
+        ...STAT_IDS,
+      ]);
 
       const options = SessionTransitions.generateCoreUpgradeOptions(session);
 
@@ -602,7 +621,11 @@ describe("SessionTransitions", () => {
       )
         .filter((def) => def.theme === "void")
         .map((def) => def.id);
-      const voidPoolIds = new Set([...voidIdentityIds, ...STAT_IDS]);
+      const voidPoolIds = new Set([
+        ...voidIdentityIds,
+        ...SHARED_IDS,
+        ...STAT_IDS,
+      ]);
 
       const options = SessionTransitions.generateCoreUpgradeOptions(session);
 
@@ -642,6 +665,49 @@ describe("SessionTransitions", () => {
       expect(SessionTransitions.isOrbEligibleForRound(minRoundOrb, 4)).toBe(
         true,
       );
+    });
+
+    it("guarantees at least one uncollected non-stat orb per offer while any remain", () => {
+      // Player report: "seems random how many [reactions] you get before that
+      // event stops firing". The offer used to be a uniform 3-of-12 draw, so a
+      // run could reach Infinite mode without ever seeing some theme orbs.
+      const session = createTestSession("cub-b1-guarantee");
+      const pickableIds = new Set(
+        CoreUpgradeOrbs.getThemeUpgradePool("damage")
+          .filter((def) => def.kind !== "stat")
+          .map((def) => def.id),
+      );
+
+      const options = SessionTransitions.generateCoreUpgradeOptions(session);
+
+      expect(options).toHaveLength(3);
+      expect(options.some((o) => pickableIds.has(o.id))).toBe(true);
+    });
+
+    it("lets a run collect the entire theme pool across upgrade windows", () => {
+      const session = createTestSession(
+        "cub-b1-collect-all",
+        "critical_crystal",
+      );
+      const core = session.team.units.find((u) => u.isCore)!;
+      const pickableIds = new Set(
+        CoreUpgradeOrbs.getThemeUpgradePool("damage")
+          .filter((def) => def.kind !== "stat")
+          .map((def) => def.id),
+      );
+
+      // Take a guaranteed uncollected orb each window until the pool is spent.
+      for (let i = 0; i < pickableIds.size; i++) {
+        const options = SessionTransitions.generateCoreUpgradeOptions(session);
+        const pick = options.find((o) => pickableIds.has(o.id));
+        expect(pick).toBeDefined();
+        OrbAndCoreUpgrades.applyCoreUpgrade(core, pick!.id, 1);
+      }
+
+      const remaining = SessionTransitions.generateCoreUpgradeOptions(session)
+        .map((o) => o.id)
+        .filter((id) => pickableIds.has(id));
+      expect(remaining).toEqual([]);
     });
 
     it("falls back to exactly the 3 stat ids when the session has no core", () => {
@@ -750,6 +816,98 @@ describe("SessionTransitions", () => {
         ]),
       );
     });
+
+    it("excludes roulette_core_reaction once a RANKED-UP core carries every identity reaction", () => {
+      // Regression: the dedup check compared pristine catalog payloads against
+      // the live (rank-scaled) reaction array. After any rank-up every applied
+      // orb looked "unapplied", so the wheel could imprint a reaction the core
+      // already had (players: "it just costs you 1 life and does nothing").
+      const session = createTestSession("a11-ranked-reactions", "mana_crystal");
+      const core = session.team.units[0];
+      for (const def of Object.values(
+        CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS,
+      )) {
+        if (def.kind === "reaction" && def.reaction) {
+          Unit.recordGrantedReaction(core, def.reaction);
+        }
+      }
+      Unit.upgradeUnitData(core); // rank 1 → 2: live reactions are now scaled
+      Unit.syncUnitGrants(core);
+
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "select_encounter",
+        encounterId: "roulette_wheel",
+      });
+
+      expect(result.session.options.map((o) => o.id)).not.toContain(
+        "roulette_core_reaction",
+      );
+    });
+  });
+
+  describe("identity-orb dedup after a rank-up", () => {
+    it("never re-offers an identity orb the core already carries", () => {
+      const session = createTestSession("dedup-ranked", "mana_crystal");
+      const core = session.team.units[0];
+      // The whole pool, including the shared battle-start orb: every non-stat
+      // option is a one-time pick.
+      const themeOrbs = CoreUpgradeOrbs.getThemeUpgradePool("regen").filter(
+        (def) => def.kind !== "stat",
+      );
+      for (const orb of themeOrbs) {
+        OrbAndCoreUpgrades.applyCoreUpgrade(core, orb.id, 1);
+      }
+
+      // Rank the core up — this scales every granted orb's live magnitude.
+      while (Unit.upgradeUnitData(core)) {
+        /* to platinum */
+      }
+
+      const options = SessionTransitions.generateCoreUpgradeOptions(session);
+      const statIds = new Set<string>(CoreUpgradeOrbs.CORE_STAT_ORBS);
+      // Every identity orb is spent, so only the repeatable stat orbs remain.
+      expect(options.every((o) => statIds.has(o.id))).toBe(true);
+    });
+
+    it("rank-scales an identity orb granted after the core reached platinum", () => {
+      const atPlatinum = Card.makeUnit("player", "mana_crystal", [1, 1]);
+      while (Unit.upgradeUnitData(atPlatinum)) {
+        /* to platinum */
+      }
+      OrbAndCoreUpgrades.applyCoreUpgrade(
+        atPlatinum,
+        "mana_reactive_charge",
+        1,
+      );
+
+      const rankedUpAfter = Card.makeUnit("player", "mana_crystal", [1, 1]);
+      OrbAndCoreUpgrades.applyCoreUpgrade(
+        rankedUpAfter,
+        "mana_reactive_charge",
+        1,
+      );
+      while (Unit.upgradeUnitData(rankedUpAfter)) {
+        /* to platinum */
+      }
+
+      const chargeReaction = (unit: Models.Unit) =>
+        unit.reactions.find(
+          (r) =>
+            r.effectId === "damage" && r.effects.some((e) => e.id === "charge"),
+        )!;
+
+      // A grant acquired at platinum must match the same grant scaled by a
+      // rank-up — otherwise identity orbs taken late are permanently weaker
+      // (players: "you have to leave the core at Gold until you have them all").
+      expect(JSON.stringify(chargeReaction(atPlatinum))).toBe(
+        JSON.stringify(chargeReaction(rankedUpAfter)),
+      );
+      // charge(200) × rank multiplier 4.
+      expect(
+        (chargeReaction(atPlatinum).effects[0] as { duration: number })
+          .duration,
+      ).toBe(800);
+    });
   });
 
   describe("roulette wheel results (A11 redesign)", () => {
@@ -803,6 +961,41 @@ describe("SessionTransitions", () => {
         ),
       ).toBe(true);
       expect(result.session.phase).not.toBe("encounter");
+    });
+
+    it("roulette_core_reaction imprints a NEW reaction even on a ranked-up core", () => {
+      // Player report: "imprint a random reaction from the wheel does not add a
+      // reaction, it simply costs you 1 life." The forge drew from a pool that
+      // wrongly counted already-applied (rank-scaled) reactions as missing, so
+      // it could imprint a duplicate and look like a no-op.
+      const session = createTestSession("a11-reaction-ranked", "mana_crystal");
+      const core = session.team.units[0];
+      const reactionOrbs = Object.values(
+        CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS,
+      ).filter((def) => def.kind === "reaction" && def.reaction);
+      const missing = reactionOrbs[reactionOrbs.length - 1];
+      for (const def of reactionOrbs.slice(0, -1)) {
+        Unit.recordGrantedReaction(core, def.reaction!);
+      }
+      Unit.upgradeUnitData(core); // rank 1 → 2: live reactions are scaled
+      Unit.syncUnitGrants(core);
+
+      const before = core.reactions.length;
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "select_encounter",
+        encounterId: "roulette_core_reaction",
+      });
+
+      const afterCore = result.session.team.units[0];
+      expect(afterCore.reactions.length).toBe(before + 1);
+      const added = afterCore.reactions[afterCore.reactions.length - 1];
+      // The only remaining candidate was the one missing reaction — never a
+      // duplicate of one the core already carried.
+      expect(JSON.stringify(added)).toBe(
+        JSON.stringify(
+          Unit.scaleGrantToUnitRank(afterCore, missing.reaction!, "reaction"),
+        ),
+      );
     });
 
     it("roulette_upgrade_orb routes to orb_shop with the upgrade orb", () => {

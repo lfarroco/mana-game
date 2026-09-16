@@ -231,7 +231,10 @@ export type PoisonTickEntry = {
   force: string;
   amount: number;
   newLife: number;
+  /** Post-tick shield — poison absorbs shield first, so the bar must follow. */
+  newShield: number;
   lifeDelta: number;
+  shieldDelta: number;
 };
 
 export type RegenTickEntry = {
@@ -240,6 +243,12 @@ export type RegenTickEntry = {
   amount: number;
   newLife: number;
   lifeDelta: number;
+  /**
+   * Shield delta carried over when `collapseStatusTickPairs` folds a
+   * shield-absorbed poison tick into this regen tick. Absent for pure regen.
+   */
+  newShield?: number;
+  shieldDelta?: number;
 };
 
 // Timeout / storm

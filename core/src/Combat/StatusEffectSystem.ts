@@ -29,9 +29,14 @@ function tickForce(env: CombatEnvironment, forceId: string): void {
   const core = Card.getBattleCore(env.combatState)(forceId);
   if (!core || core.life <= 0) return;
 
-  // Apply poison damage
+  // Apply poison damage. Poison absorbs the core's shield first (Force.
+  // applyDamageToForce) like every other damage type, so the tick logs the
+  // shield delta as well — the client drives the shield bar from `newShield`/
+  // `shieldDelta` and would otherwise leave it stale while a fully-shielded
+  // core "takes no damage".
   if (poisonAmount > 0) {
     const oldLife = core.life;
+    const oldShield = core.shield;
     Force.applyDamageToForce(
       env.combatState,
       forceId,
@@ -45,7 +50,9 @@ function tickForce(env: CombatEnvironment, forceId: string): void {
       force: forceId,
       amount: poisonAmount,
       newLife: core.life,
+      newShield: core.shield,
       lifeDelta: core.life - oldLife,
+      shieldDelta: core.shield - oldShield,
     });
   }
 

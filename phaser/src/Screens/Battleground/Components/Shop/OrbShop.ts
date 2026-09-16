@@ -7,9 +7,12 @@ import * as colorUtils from "@Utils/colorUtils";
 import * as Layout from "@game/board/layout";
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
+import * as i18n from "@i18n/i18n";
+import { isOrbApplicable } from "@game/Actions/OrbAndCoreUpgrades";
 import { env } from "@Env";
 import { skipButton } from "../skipButton";
 import { dispatchAction } from "@Screens/Battleground/BattlegroundScene";
+import * as UI from "@Screens/Battleground/Components/UI/UI";
 import * as Chara from "@Components/Chara/Chara";
 import { updatePowerDisplay } from "@Components/Chara/PowerDisplay";
 import * as Effects from "../../../../FX";
@@ -132,6 +135,19 @@ function handleOrbDrop(params: {
 		"OrbShop",
 		`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`
 	);
+
+	// Platinum is terminal: an upgrade_orb dropped on a maxed unit is a silent
+	// no-op server-side, but it still consumes the shop encounter. Refuse the
+	// drop, return the orb, and tell the player instead of wasting the reward.
+	if (!isOrbApplicable(existingUnit, orbSpec.id)) {
+		console.debug("OrbShop", `${orbSpec.id} has no effect on a maxed unit`);
+		MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
+		void UI.handleUserMessageRequested({
+			text: i18n.t("battleground.unitMaxRank"),
+			type: "warning",
+		});
+		return;
+	}
 
 	AudioManager.playSoundEffect("sfx_spell_deathstrikeseal");
 

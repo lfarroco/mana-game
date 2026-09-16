@@ -410,6 +410,92 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > Tests: `OrbAndCoreUpgrades.test.ts`, `Entities/UnitRankScaling.test.ts`,
 > `CombatRunawayGuard.test.ts`.
 
+> **Player-bugfix (2026-09-15): the platinum upgrade trap, the rank-scaled
+> dedup, Walking Reactor's frozen power chip, and the three balance reports.**
+> Seven defects/gaps behind the 2026-09-11..15 player reports, all fixed with
+> regressions.
+> - **Identity-orb dedup broke at every rank-up.** `hasIdentityOrbApplied`
+>   compared the pristine catalog payload against the core's live
+>   `effects`/`reactions` arrays — but `upgradeUnitEffects` rank-scales those in
+>   place, so once the crystal left rank 1 *every* applied orb looked unapplied.
+>   Consequences: `generateCoreUpgradeOptions` re-offered spent orbs (the "seems
+>   random how many reactions you get before it stops firing"), and the roulette
+>   reaction forge could imprint a reaction the core already carried (players:
+>   "imprint a random reaction does not add a reaction, it just costs you 1
+>   life"). Dedup now checks the pristine grant ledger **or** the payload scaled
+>   to the core's current rank (`Unit.scaleGrantToUnitRank`). Tests:
+>   `SessionTransitions.test.ts` ("never re-offers an identity orb…",
+>   "imprints a NEW reaction even on a ranked-up core").
+> - **Grants applied after a rank-up were never rank-scaled.** Orb/identity
+>   grants pushed the pristine payload straight onto the live array, skipping
+>   `upgradeUnitEffects` — so an identity orb taken at platinum stayed at rank-1
+>   magnitude forever, which is why players felt forced to "leave your core at
+>   Gold until you get all 11-12 reactions". All orb/core-upgrade grants now
+>   ledger the pristine payload and rebuild the live arrays via
+>   `Unit.syncUnitGrants` (reset base+ledger, re-scale). Awaken powers are the
+>   deliberate exception — they are authored as flat rank-3 bonuses
+>   (`content/awakenPowers.ts`), so they stay unscaled at acquisition.
+>   Tests: `SessionTransitions.test.ts` ("rank-scales an identity orb granted
+>   after the core reached platinum"), `Entities/UnitGrants.test.ts`.
+> - **upgrade_orb on a platinum unit silently ate the encounter.** Platinum is
+>   terminal (`upgradeUnitData` returns false), so the drop did nothing while the
+>   shop still advanced. `OrbAndCoreUpgrades.isOrbApplicable` is the new rule;
+>   `OrbShop` refuses the drop, returns the orb and shows
+>   `battleground.unitMaxRank`. Tests: `OrbAndCoreUpgrades.test.ts`
+>   ("isOrbApplicable").
+> - **Walking Reactor's power chip never moved.** `distributePower` lowered the
+>   distributor's own power in the simulation but logged nothing, and the client
+>   rebuilds displayed power by replaying the log stream — so a delta with no log
+>   is invisible. It now logs the applied `decrease_power` for the source (same
+>   shape as `absorbPower`). Test:
+>   `Combat/EffectIntegrationTransferEffects.test.ts`.
+> - **"Sandstorm ignores shield" was poison — and poison now hits shield first.**
+>   Verified first: `Force.applyDamageToForce` already sent `"timeout"` storm
+>   damage through the shield-absorb path; only `"poison"` short-cut straight to
+>   life. So the report was exactly what the player's own follow-up concluded.
+>   That short-cut was removed — every damage type now spends the core's shield
+>   before life (`shieldPiercingPercentage` is the only way through), because
+>   poison punching through a full shield bar made shields worthless for the
+>   defensive builds they exist for. `poison_tick` now carries `newShield`/
+>   `shieldDelta` (the tick had to keep the shield bar in sync; a fully-shielded
+>   tick reports `lifeDelta: 0` and pops on the shield chip), and
+>   `collapseStatusTickPairs` forwards that delta when it folds a poison tick
+>   into a regen tick. Tests: `Entities/Force.test.ts`,
+>   `Combat/StatusEffectSystem.test.ts`, `Combat/collapseStatusTickPairs.test.ts`.
+> - **`-0` in combat logs broke the persisted-session round-trip (flaky server
+>   suite).** `decreasePower` logged `amount: -appliedDelta`, which is `-0` when
+>   the target was already at 0 power. `JSON.stringify(-0)` is `"0"`, so a
+>   session written to and read back from SQLite no longer deep-equalled the
+>   live log (`createSqliteSessionRepo` round-trip, ~1 in 3 runs). Both
+>   `decreasePower` and `distributePower` now normalise the no-op case to `0`.
+>   Test: `Combat/EffectIntegrationEdgeCases.test.ts` ("a no-op decrease_power
+>   logs 0, never -0").
+> - **Healing now dispels poison off RAW healing (maintainer's pick).**
+>   `restoreLife` fed `reducePoison` the *actual* life restored, which is capped
+>   at maxLife — so a healthy core healed entirely into overheal and dispelled
+>   nothing. It now passes `healAmount` (heal + overheal); the 5% rate and the
+>   ≥20 gate are unchanged. `on_over_heal` still uses `actualHealing`. Tests:
+>   `EffectIntegration.test.ts` ("dispels poison even when the heal is entirely
+>   overheal").
+> - **Warbringer counterplay: a shared `on_battle_start` answer.** The
+>   2026-08-28 core rebalance stripped the crystals' baseline charge reactions
+>   and moved core depth into the orb catalog, but no orb answered an opening
+>   burst — so Warbringer's `on_battle_start` mass haste had no counter. New
+>   `core_battle_start_rush` (`on_battle_start → haste(1500, all_allies)`) is
+>   injected into every theme's pool via `getThemeUpgradePool` (catalog entries
+>   marked `shared: true`, re-themed per pool). It is a deliberate, obtainable
+>   build choice that turns the enemy alpha strike into a race. i18n added in all
+>   6 locales; the balance gate prices it explicitly and excludes it from the
+>   per-theme identity sweep. Tests: `Combat/ReactionIntegration.test.ts`,
+>   `content/coreUpgradeOrbs.test.ts`, `content/coreUpgrades.balance.test.ts`.
+> - **Core-upgrade offers now guarantee an uncollected orb.** The offer was a
+>   uniform 3-of-12 draw and only ~15 windows exist before Infinite mode drops
+>   the upgrade phases, so a run could finish a theme pool never. While any
+>   uncollected non-stat orb remains, one slot is reserved for it (the other two
+>   stay a free choice over remaining identity + repeatable stat orbs). Tests:
+>   `SessionTransitions.test.ts` ("guarantees at least one uncollected non-stat
+>   orb…", "lets a run collect the entire theme pool…").
+
 > The **Purify deferred** item (C1 `tutorialSlides.ts` render-layer rewrite +
 > B4 log-dispatch switch) landed 2026-08-19 — see the Phase E/F notes in
 > [purify.md](purify.md).

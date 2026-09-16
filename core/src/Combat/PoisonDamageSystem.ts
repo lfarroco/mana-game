@@ -34,6 +34,15 @@ export function getPoisonRate(
   return poisonState.poisonRates.get(forceId) || 0;
 }
 
+/**
+ * Reduce a force's poison stacks from a heal cast.
+ *
+ * `healAmount` is the RAW heal — heal + overheal (the caster's power × crit ×
+ * scale), not the life actually restored. Do not pass `actualHealing`: a core at
+ * full life heals entirely into overheal and would dispel nothing, which is the
+ * exact situation the mechanic needs to cover. Reduction is 5% of the raw heal,
+ * ignored for heals under 20.
+ */
 export function reducePoison(
   poisonState: PoisonSystemState,
   forceId: string,

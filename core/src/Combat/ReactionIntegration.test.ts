@@ -16,6 +16,7 @@ import {
 import * as Constants from "../Constants";
 import * as Models from "../Models";
 import * as Card from "../Entities/Card";
+import * as OrbAndCoreUpgrades from "../Actions/OrbAndCoreUpgrades";
 
 beforeAll(registerBaseCollection);
 afterAll(resetCardRegistry);
@@ -52,6 +53,40 @@ describe("Reaction — on_battle_start", () => {
     expect(incLogs[0].amount).toBe(5);
     const csReactor = combatState.unitById.get("battle-start-reactor")!;
     expect(csReactor.power).toBe(15);
+  });
+
+  it("core_battle_start_rush hastes the player's board at combat start", () => {
+    // The shared core orb that answers an enemy alpha strike (Warbringer's
+    // on_battle_start mass haste): the player's board also opens hasted.
+    const core = Card.makeUnit(
+      Constants.FORCE_ID_PLAYER,
+      "critical_crystal",
+      [1, 1],
+    );
+    OrbAndCoreUpgrades.applyCoreUpgrade(core, "core_battle_start_rush", 1);
+    expect(
+      core.reactions.some((r) => r.effectId === "on_battle_start"),
+    ).toBe(true);
+
+    const ally = makeTestUnit({
+      effects: [{ id: "damage" }],
+      power: 10,
+      cooldown: 99999,
+      position: [0, 0],
+    });
+    ally.id = "rush-ally";
+    const { combatState, combatRunner } = setupCombat([ally, core]);
+
+    const logs = runFrames(combatRunner, combatState, 30);
+
+    const allyHaste = logs.find(
+      (l) => l.type === "haste_hit" && l.targetId === "rush-ally",
+    );
+    expect(allyHaste).toBeDefined();
+    // haste_hit carries the applied duration.
+    expect(
+      (allyHaste as { effectDuration?: number }).effectDuration,
+    ).toBe(1500);
   });
 });
 

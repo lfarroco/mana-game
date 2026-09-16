@@ -14,6 +14,7 @@ import {
   filterLogs,
 } from "../__test_utils__/combatHarness";
 import * as Constants from "../Constants";
+import * as Poison from "./PoisonDamageSystem";
 
 beforeAll(registerBaseCollection);
 afterAll(resetCardRegistry);
@@ -177,6 +178,41 @@ describe("Effect integration — poison", () => {
     for (const tick of tickLogs) {
       expect(tick.force).toBe(Constants.FORCE_ID_CPU);
     }
+  });
+});
+
+describe("Effect integration — healing dispels poison from raw healing", () => {
+  it("dispels poison even when the heal is entirely overheal", () => {
+    // Player report (2026-09-15): "it only dispels poison off actual healing
+    // ... by the time you have enough poison to get full heals you're already
+    // dead." Dispelling from the raw heal (heal + overheal) is what makes the
+    // mechanic usable: a healthy core still pays down its poison stacks.
+    const healer = makeTestUnit({
+      effects: [{ id: "heal" }],
+      power: 100,
+      cooldown: 100,
+      position: [0, 0],
+    });
+    healer.id = "overheal-unit";
+    const { combatState, combatRunner, env } = setupCombat([healer]);
+
+    // Full-life core: none of the heal can land as real life.
+    const playerCore = combatState.playerCore;
+    playerCore.life = playerCore.maxLife;
+
+    env.combatStates.poisonSystemState = Poison.applyPoison(
+      env.combatStates.poisonSystemState,
+      Constants.FORCE_ID_PLAYER,
+      200,
+    );
+
+    const logs = runFrames(combatRunner, combatState, 20);
+    const healHits = logs.filter((l) => l.type === "heal_hit");
+    expect(healHits.length).toBeGreaterThanOrEqual(1);
+
+    // 5% of the raw 100 heal, despite 0 life actually restored.
+    expect(healHits[0].lifeDelta).toBe(0);
+    expect(healHits[0].newPoison).toBe(195);
   });
 });
 

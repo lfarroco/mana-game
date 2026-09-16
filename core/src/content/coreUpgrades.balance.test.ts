@@ -50,9 +50,16 @@ for (const card of ALL_CARDS) {
   }
 }
 
-/** The identity orbs in a theme's pool (excludes the generic stat orbs). */
+/** The themed identity orbs in a theme's pool (excludes shared + stat orbs). */
 function identityOrbs(theme: CoreTheme): CoreUpgradeDefinition[] {
-  return getThemeUpgradePool(theme).filter((orb) => orb.kind !== "stat");
+  return getThemeUpgradePool(theme).filter(
+    (orb) => orb.kind !== "stat" && !orb.shared,
+  );
+}
+
+/** The theme-agnostic shared orbs injected into every pool. */
+function sharedOrbs(): CoreUpgradeDefinition[] {
+  return getThemeUpgradePool("damage").filter((orb) => orb.shared);
 }
 
 /**
@@ -128,6 +135,35 @@ describe("core upgrade balance (CUB-C1)", () => {
             `${orb.id}: marginal AP ${marginal.toFixed(1)} is negative — the orb is a net nerf`,
           );
         }
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+
+  it("injects the shared battle-start answer into every theme's pool", () => {
+    const shared = sharedOrbs();
+    expect(shared.map((orb) => orb.id)).toEqual(["core_battle_start_rush"]);
+    for (const [theme] of CORES_BY_THEME) {
+      expect(getThemeUpgradePool(theme).some((orb) => orb.shared)).toBe(true);
+      // The pool copy is re-themed, never the placeholder from the catalog.
+      expect(getThemeUpgradePool(theme).find((orb) => orb.shared)!.theme).toBe(
+        theme,
+      );
+    }
+  });
+
+  it("keeps the shared battle-start answer inside the core band on every core", () => {
+    // Shared orbs are excluded from the per-theme identity sweep above (they
+    // would be counted nine times), so they are priced explicitly here.
+    const orbital = sharedOrbs();
+    expect(orbital).toHaveLength(1);
+    const failures: string[] = [];
+    for (const [theme, core] of CORES_BY_THEME) {
+      const built = actualPower(core) + marginalAp(core, orbital[0]);
+      if (built > CORE_AP_BAND.max) {
+        failures.push(
+          `${theme}: baseline + ${orbital[0].id} = ${built.toFixed(0)} exceeds band max ${CORE_AP_BAND.max}`,
+        );
       }
     }
     expect(failures).toEqual([]);

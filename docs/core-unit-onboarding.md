@@ -143,6 +143,16 @@ export type CoreUpgradeDefinition = {
 > tempo trio of Regen Charge/Growth/Haste) much harder to assemble, and the
 > combat runaway guard (docs/combat-system-improvements.md §1.2) keeps any
 > leftover combo bounded.
+>
+> **Shared answer (2026-09-15):** every pool also carries one theme-agnostic
+> orb, `core_battle_start_rush` (`on_battle_start → haste(1500, all_allies)`),
+> injected by `getThemeUpgradePool` (marked `shared: true` in the catalog — its
+> `theme` field is a placeholder). It answers mass-haste openers (Warbringer's
+> `on_battle_start` haste on every damage ally) after the 2026-08-28 core
+> rebalance stripped the crystals' baseline charge reactions. Shared orbs are
+> one-time picks like identity orbs (deduped by `hasIdentityOrbApplied`) and are
+> excluded from the per-theme identity counts above; the balance gate prices
+> them explicitly.
 
 ---
 

@@ -12,9 +12,11 @@ import {
   recordGrantedReaction,
   removeUnitEffect,
   removeUnitReaction,
+  syncUnitGrants,
   upgradeUnitData,
 } from "../Entities/Unit";
 import * as Random from "../math/Random";
+import { MAX_UNIT_RANK } from "../math/Constants";
 import * as OrbConstants from "../Orbs/OrbConstants";
 import { ORB_DEFINITIONS, OrbDefinition } from "../Orbs/OrbDefinitions";
 import {
@@ -62,6 +64,20 @@ function applyUpgradeOrb(unit: Unit): void {
   if (!upgradeUnitData(unit)) return;
   unit.maxLife = Math.floor(unit.maxLife * 1.5);
   unit.life = unit.maxLife;
+}
+
+/**
+ * Whether applying `orbId` to `unit` would actually change anything.
+ *
+ * Only `upgrade_orb` can be a no-op: platinum (`MAX_UNIT_RANK`) is terminal, so
+ * `applyUpgradeOrb` returns without touching the unit. The shop uses this to
+ * refuse the drop with a notice instead of letting the player burn a whole
+ * encounter on nothing (players: "it lets you waste your upgrades with no
+ * warning").
+ */
+export function isOrbApplicable(unit: Unit, orbId: string): boolean {
+  if (orbId === "upgrade_orb") return unit.rank < MAX_UNIT_RANK;
+  return true;
 }
 
 /**
@@ -217,9 +233,11 @@ function applyIncreaseCriticalOrb(
     amount: 10,
     targets: { id: "self" },
   } as const;
-  targetUnit.effects.push({ ...granted });
-  // A synthesized grant like any other — survives rank-ups via the ledger.
+  // A synthesized grant like any other — ledger it pristine, then re-derive the
+  // live array so it is rank-scaled to the unit's current rank (a raw push
+  // would leave a +10 crit effect unscaled on a platinum unit).
   recordGrantedEffect(targetUnit, { ...granted });
+  syncUnitGrants(targetUnit);
   return true;
 }
 
@@ -286,11 +304,12 @@ export function applyOrb(
       break;
     case "reaction": {
       const reaction = buildReaction(def, rng);
-      targetUnit.reactions = targetUnit.reactions || [];
-      targetUnit.reactions.push(reaction);
-      // Ledger the pristine grant so the next rank-up keeps it (void-crystal
-      // class bug: resetUnitEffectsToCardDefinition used to drop it).
+      // Ledger the pristine grant, then re-derive the live array so the new
+      // reaction is rank-scaled like every other ability (void-crystal class
+      // bug: resetUnitEffectsToCardDefinition used to drop it; a raw push then
+      // left it unscaled on an already-ranked unit).
       recordGrantedReaction(targetUnit, reaction);
+      syncUnitGrants(targetUnit);
       console.info(
         "orbAndCoreUpgrades",
         `Added reaction ${orbId} to unit ${targetUnit.id}`,
@@ -486,13 +505,16 @@ export function applyCoreUpgrade(
   }
 
   if (def.kind === "effect" && def.effect) {
-    core.effects = [...core.effects, structuredClone(def.effect)];
+    // Record pristine, then re-derive + rank-scale the live arrays. A raw push
+    // would leave a grant acquired after a rank-up (usually the crystal's
+    // platinum identity orbs) at rank-1 magnitude forever.
     recordGrantedEffect(core, def.effect);
+    syncUnitGrants(core);
     return;
   }
   if (def.kind === "reaction" && def.reaction) {
-    core.reactions = [...core.reactions, structuredClone(def.reaction)];
     recordGrantedReaction(core, def.reaction);
+    syncUnitGrants(core);
     return;
   }
   if (def.kind === "stat" && def.stat) {

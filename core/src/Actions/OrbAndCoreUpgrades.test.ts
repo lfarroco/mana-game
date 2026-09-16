@@ -468,8 +468,9 @@ describe("OrbAndCoreUpgrades", () => {
 
       OrbAndCoreUpgrades.applyCoreUpgrade(core, def.id, 1);
 
-      expect(core.effects).toHaveLength(1);
-      expect(JSON.stringify(core.effects[0])).toBe(JSON.stringify(def.effect));
+      // The live array is rebuilt from the card definition + grant ledger, so
+      // the identity orb lands alongside the card's own base effects.
+      expect(core.effects).toContainEqual(def.effect);
     });
 
     it("appends a reaction orb's reaction to the core (identity orb)", () => {
@@ -479,10 +480,7 @@ describe("OrbAndCoreUpgrades", () => {
 
       OrbAndCoreUpgrades.applyCoreUpgrade(core, def.id, 1);
 
-      expect(core.reactions).toHaveLength(1);
-      expect(JSON.stringify(core.reactions[0])).toBe(
-        JSON.stringify(def.reaction),
-      );
+      expect(core.reactions).toContainEqual(def.reaction);
     });
 
     it("applies the generic stat ids via the stat helpers", () => {
@@ -499,6 +497,28 @@ describe("OrbAndCoreUpgrades", () => {
       ).not.toThrow();
       expect(core.effects).toHaveLength(0);
       expect(core.reactions).toHaveLength(0);
+    });
+  });
+
+  describe("isOrbApplicable", () => {
+    it("rejects upgrade_orb on a platinum unit (the rank cap makes it a no-op)", () => {
+      const maxed = makeUnit({ id: "maxed", rank: 4 });
+      expect(OrbAndCoreUpgrades.isOrbApplicable(maxed, "upgrade_orb")).toBe(
+        false,
+      );
+      // One rank below the cap is still a real upgrade.
+      const gold = makeUnit({ id: "gold", rank: 3 });
+      expect(OrbAndCoreUpgrades.isOrbApplicable(gold, "upgrade_orb")).toBe(true);
+    });
+
+    it("every other orb is always applicable", () => {
+      const maxed = makeUnit({ id: "maxed", rank: 4 });
+      expect(
+        OrbAndCoreUpgrades.isOrbApplicable(maxed, "distribute_power_orb"),
+      ).toBe(true);
+      expect(
+        OrbAndCoreUpgrades.isOrbApplicable(maxed, "sacrifice_effect_orb"),
+      ).toBe(true);
     });
   });
 });

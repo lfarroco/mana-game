@@ -17,6 +17,7 @@
 import type { CoreTheme, Effect, EffectReaction } from "../Models";
 import {
   absorbPower,
+  allAllies,
   charge,
   column,
   damage,
@@ -48,13 +49,20 @@ import {
  * applied. Stat orbs (kind "stat") are the generic "bigger numbers" fallback
  * present in every theme's pool — they reference the existing stat helpers via
  * `stat`. `minRound` gates when an orb may appear in upgrade options (mirrors
- * encounter minRound); left unset on all current entries.
+ * encounter minRound); left unset on all current entries. `shared` orbs are the
+ * theme-agnostic answers injected into every pool (see
+ * `CORE_BATTLE_START_RUSH`).
  */
 export type CoreUpgradeDefinition = {
   id: string;
   /** The core theme this orb belongs to — the single filter key for pools. */
   theme: CoreTheme;
   kind: "effect" | "reaction" | "stat";
+  /**
+   * Injected into every theme's pool instead of only `theme`'s. `theme` is a
+   * placeholder for these — never match on it (see `getThemeUpgradePool`).
+   */
+  shared?: boolean;
   /** Appended to the core's `effects` when applied (kind "effect"). */
   effect?: Effect;
   /** Appended to the core's `reactions` when applied (kind "reaction"). */
@@ -93,6 +101,24 @@ export type CoreUpgradeDefinition = {
  * (e.g. "regen" from "left_ally"), mirroring the static-card charge rule.
  */
 export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
+  // --- shared (every theme's pool) ------------------------------------
+  // Player report (2026-09-15): "there is now literally no counter play to
+  // Warbringer — you just die." The enemy gold engine opens with
+  // `on_battle_start → haste(2000)` on every damage ally, so the whole enemy
+  // board reaches its first cast after ~half a cooldown while the player's
+  // board waits out a full one. The 2026-08-28 core rebalance deliberately
+  // stripped the crystals' baseline charge reactions and moved core depth into
+  // this catalog — but no orb answered an opening burst, so the answer is a
+  // shared battle-start rush: the player's board also opens hasted, turning a
+  // free enemy alpha strike into a race. Shared orbs are injected into every
+  // theme's pool by `getThemeUpgradePool`.
+  core_battle_start_rush: {
+    id: "core_battle_start_rush",
+    theme: "haste",
+    shared: true,
+    kind: "reaction",
+    reaction: reaction("on_battle_start", "allies", haste(1500, allAllies)),
+  },
   // --- regen theme (mana_crystal): Column Growth, Reactive Charge, Overflow Shield, Regen Charge ---
   mana_column_growth: {
     id: "mana_column_growth",
@@ -730,18 +756,23 @@ export const CORE_STAT_ORBS = [
 
 /**
  * The full upgrade-orb pool for a theme: its identity orbs (in definition
- * order) followed by the three generic stat orbs. Deterministic — used by
- * CUB-B1's seeded option generation.
+ * order), the shared theme-agnostic answers, then the three generic stat orbs.
+ * Deterministic — used by CUB-B1's seeded option generation.
  */
 export function getThemeUpgradePool(theme: CoreTheme): CoreUpgradeDefinition[] {
   const identityOrbs = Object.values(CORE_UPGRADE_DEFINITIONS).filter(
-    (def) => def.theme === theme && def.kind !== "stat",
+    (def) => !def.shared && def.theme === theme && def.kind !== "stat",
   );
+  const sharedOrbs: CoreUpgradeDefinition[] = Object.values(
+    CORE_UPGRADE_DEFINITIONS,
+  )
+    .filter((def) => def.shared)
+    .map((def) => ({ ...def, theme }));
   const statOrbs: CoreUpgradeDefinition[] = CORE_STAT_ORBS.map((stat) => ({
     id: stat,
     theme,
     kind: "stat",
     stat,
   }));
-  return [...identityOrbs, ...statOrbs];
+  return [...identityOrbs, ...sharedOrbs, ...statOrbs];
 }

@@ -48,6 +48,15 @@ describe("Effect integration — distribute_power", () => {
     const csDistributor = combatState.unitById.get("distributor")!;
     expect(csDistributor.power).toBeLessThan(initialDistPower);
 
+    // The distributor's own loss must be IN THE LOG STREAM: the client rebuilds
+    // the displayed unit power by replaying logs onto a fresh combat state, so a
+    // simulated delta with no log stays invisible on screen (Walking Reactor's
+    // power chip showed its starting value however often it distributed).
+    const selfDecreaseLogs = logs.filter(
+      (l) => l.type === "decrease_power" && l.affectedUnitId === "distributor",
+    );
+    expect(selfDecreaseLogs.length).toBeGreaterThanOrEqual(1);
+
     const incLogs = logs.filter(
       (l) => l.type === "increase_power" && l.targetId === receiver.id,
     );
