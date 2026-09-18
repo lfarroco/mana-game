@@ -424,6 +424,10 @@ const transitionToCurrentPhase = async (): Promise<void> => {
 	// is outside the combat-results continue flow.
 	UI.syncRoundDisplay();
 
+	// Keep the core-upgrade counter in sync — it drops as the run moves past
+	// each upgrade_core / add_reaction_core window (rounds 1–15 only).
+	UI.syncCoreUpgradesDisplay();
+
 	await controller?.go(phase);
 };
 

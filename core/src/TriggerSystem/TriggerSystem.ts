@@ -437,6 +437,16 @@ export function resolveTargets(
       const strongestEnemies = enemies.sort((a, b) => b.power - a.power);
       return strongestEnemies.length > 0 ? [strongestEnemies[0]] : [];
 
+    // The opposing force's crystal, independent of its power. See the
+    // `enemy_core` Targeting doc: the enemy core is almost never the enemy's
+    // strongest unit, so `strongest_enemy` made the Void Crystal's baseline sap
+    // asymmetric in a mirror (the player's sap hit an enemy unit while the
+    // enemy's hit the player's core).
+    case "enemy_core": {
+      const enemyCore = enemies.find((u) => u.isCore);
+      return enemyCore ? [enemyCore] : [];
+    }
+
     case "weakest_enemy":
       const weakestEnemies = enemies.sort((a, b) => a.power - b.power);
       return weakestEnemies.length > 0 ? [weakestEnemies[0]] : [];

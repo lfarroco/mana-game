@@ -33,6 +33,9 @@ const fakeT: Translate = (key, params) => {
     "crystalSelection.life": "Life",
     "crystalSelection.noAbilities": "No abilities",
     "tooltip.sentence.target.all_allies_type": "all {type}",
+    "tooltip.sentence.decrease_power": "{target} loses {amount} power",
+    "tooltip.sentence.target.enemy_core": "the enemy crystal",
+    "tooltip.targets.enemy_core": "Enemy crystal",
   };
   let s = table[key] ?? key;
   if (params)
@@ -84,6 +87,21 @@ describe("descriptions", () => {
       } as unknown as Effect;
       const result = buildCompactEffectBlock(effect, 5, fakeT);
       expect(result).toContain("+5*");
+    });
+
+    it("renders enemy_core targeting in both modes (Void Crystal's sap)", () => {
+      const effect = {
+        id: "decrease_power",
+        amount: 10,
+        targets: { id: "enemy_core" },
+      } as unknown as Effect;
+
+      expect(buildEffectBlock(effect, 0, fakeT, false)).toContain(
+        "the enemy crystal loses 10 power",
+      );
+      expect(buildEffectBlock(effect, 0, fakeT, true)).toContain(
+        "Enemy crystal",
+      );
     });
   });
 

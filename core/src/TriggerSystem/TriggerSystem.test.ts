@@ -15,6 +15,9 @@ import {
   increasePower,
   allAlliesOfType,
   allAllies,
+  decreasePower,
+  strongestEnemy,
+  enemyCore,
 } from "../data/effectBuilders";
 import * as Models from "../Models";
 
@@ -134,5 +137,46 @@ describe("resolveTargets — all_allies with ofType", () => {
     );
 
     expect(resolved).toHaveLength(0);
+  });
+});
+
+describe("resolveTargets — enemy_core", () => {
+  it("returns the enemy crystal even when another enemy has more power", () => {
+    const source = makeTestUnit({
+      effects: [decreasePower(10, enemyCore)],
+      position: [0, 0],
+    });
+    source.id = "source";
+
+    const { env, byId } = setupTargeting([source]);
+    const cpuCore = env.combatState.units.find(
+      (u) => u.force !== byId("source").force && u.isCore,
+    )!;
+
+    // A decoy enemy unit far stronger than its own crystal — exactly the shape
+    // real enemy teams have (generateEnemyTeam gives units full card power and
+    // the core only a flat share of the round's power points).
+    const strongEnemy = makeTestUnit({
+      effects: [{ id: "damage" }],
+      power: 9999,
+      position: [1, 1],
+    });
+    strongEnemy.id = "strong-enemy";
+    strongEnemy.force = cpuCore.force;
+    env.combatState.units.push(strongEnemy);
+
+    const viaStrongest = TriggerSystem.resolveTargets(
+      env,
+      byId("source"),
+      decreasePower(10, strongestEnemy),
+    );
+    const viaEnemyCore = TriggerSystem.resolveTargets(
+      env,
+      byId("source"),
+      decreasePower(10, enemyCore),
+    );
+
+    expect(viaStrongest.map((u) => u.id)).toEqual(["strong-enemy"]);
+    expect(viaEnemyCore.map((u) => u.id)).toEqual([cpuCore.id]);
   });
 });

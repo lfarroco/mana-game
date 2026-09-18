@@ -534,3 +534,62 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > 14/14 slides, all gates unlocked, no console errors.
 > Tests: `core/src/content/tutorialSlides.test.ts`, `tutorialSandbox.test.ts`,
 > `tutorialStore.test.ts`, `phaser/.../Tutorial/slideProgress.test.ts`.
+
+> **Player-report round (2026-09-16): the Void Crystal mirror, silence/dispel
+> legibility, and the core-shop counter.**
+> Three fixes from a player bug report thread; the balance/design items in the
+> same thread (poison counterplay, thorns/overheal oppression, Thornback, the
+> `rest_inn` life faucet, a core reaction cap) were **deliberately left out of
+> scope** — see "Open design questions" below.
+> - **Void Crystal mirror was asymmetric and effectively unwinnable.** The
+>   baseline sap targeted `strongestEnemy`. Enemy teams are generated with
+>   full-card-power units and a core that only receives a flat share of the
+>   round's power points (`generateEnemyTeam`), so the enemy core is essentially
+>   never the enemy's *strongest* unit: the player's sap drained an enemy unit
+>   while the enemy's sap drained the player's core — which IS the player's
+>   strongest as soon as they invest in it, exactly the "stack power on the
+>   core" meta the same player reported. Reproduced deterministically in a
+>   simulation before fixing. New `enemy_core` targeting (+ `enemyCore` builder,
+>   `resolveTargets` case, description plumbing, i18n in all 6 locales) and the
+>   Void Crystal baseline now saps the enemy crystal. Tests:
+>   `core/src/Combat/VoidCrystalMirror.test.ts`,
+>   `TriggerSystem.test.ts` ("returns the enemy crystal even when another enemy
+>   has more power"), `descriptions.test.ts` (enemy_core rendering).
+> - **Silence and Dispel were undocumented.** The tooltips read "Silence
+>   {target} for 1.5s" / "Dispel {target}" with nothing explaining that silence
+>   makes a unit *skip its next cast* or that dispel removes
+>   shield/haste/slow/charge/silence plus the target force's poison and regen.
+>   Both sentences now carry that explanation, as do the `void_nullify` /
+>   `void_dispel` orb tooltips (all 6 locales; key parity is test-enforced by
+>   `phaser/src/i18n/locales.test.ts`).
+> - **The core-upgrade shop countdown is now visible.** There are exactly 15
+>   `upgrade_core` / `add_reaction_core` windows across rounds 1–15 and Infinite
+>   mode (round 16+) drops them, which is why the shop felt like it "randomly
+>   stops at some point". `PhaseConfig.remainingCoreUpgradeWindows(round, step)`
+>   (+ `TOTAL_CORE_UPGRADE_WINDOWS`, `isCoreUpgradePhase`) exposes the countdown;
+>   the new `coreUpgradesDisplay` HUD chip renders it next to round/lives/wins
+>   with an explanatory tooltip, synced from `transitionToCurrentPhase`. Tests:
+>   `core/src/PhaseSystem/PhaseConfig.test.ts`.
+>
+> **Open design questions (not implemented, need a maintainer decision):**
+> - **Poison has no counterplay by construction.** Stacks are force-keyed and
+>   never decay; each 1s tick deals the *full* accumulated rate, and the only
+>   reductions are heal (−5% of the raw heal, `reducePoison`) and dispel. Any
+>   board with a couple of poison casters eventually out-scales every defensive
+>   line.
+> - **Thorns lock.** `on_crystal_hit` reaction shields apply *before* the hit
+>   resolves and equal the core's power (`dealDamage` → `processReactions` →
+>   reaction `shield`), so any damage below core power can never connect; and
+>   reaction-sourced damage fires no reactions, so there is no answer.
+> - **Thornback** (silver `on_crystal_hit → damage` at full power) reflects
+>   ~105 at round 4–5 against a 500-life crystal.
+> - **`rest_inn`** (rounds 2–6, restores 1 life, blocked only at full lives)
+>   makes losing nearly impossible.
+> - **Silence does not match its design doc.** `docs/card-design-philosophy.md`
+>   §3.2 specifies silence as "prevents target unit from triggering *reactions*
+>   for N seconds" — a counter to synergy engines. The shipped implementation
+>   makes the unit waste a turn, and a 1.5s silence against a 4–6s cooldown
+>   usually expires before it bites (the player's "silence never does anything").
+> - **No core reaction cap.** The remembered "3 reactions cap" is the
+>   *card-authoring* slot cap (`effects + reactions ≤ 3`,
+>   `BaseCollection.balance.test.ts`); crystals have no cap.

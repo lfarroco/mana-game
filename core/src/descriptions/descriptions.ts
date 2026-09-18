@@ -89,6 +89,7 @@ const isTargetPlural = (targets?: Targeting): boolean => {
     case "weakest_ally":
     case "strongest_enemy":
     case "weakest_enemy":
+    case "enemy_core":
     case "trigger":
     case "top_ally":
     case "bottom_ally":

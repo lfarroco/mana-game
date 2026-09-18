@@ -168,6 +168,7 @@ Targeting increases effect cost based on effective number of targets, with dimin
 | Target Type | Raw Targets | Effective Targets | Target Multiplier |
 | :--- | :--- | :--- | :--- |
 | Directional | 1 | 1 | 1 |
+| Single enemy pick (`strongest_enemy`, `weakest_enemy`, `enemy_core`) | 1 | 1 | 1 |
 | Row / Column | 2–3 | √n | √2 ≈ 1.41 / √3 ≈ 1.73 |
 | All Allies | up to 8 | √n | √8 ≈ 2.83 |
 | All Enemies | up to 9 | √n | 3 |
@@ -175,6 +176,15 @@ Targeting increases effect cost based on effective number of targets, with dimin
 > Target Multiplier = √(number of possible targets)
 
 This prevents wide targeting from scaling linearly.
+
+`enemy_core` targets the opposing crystal specifically, unlike
+`strongest_enemy`, which picks by current power. It exists because enemy teams
+are generated with full-card-power units and a core that only receives a flat
+share of the round's power points, so the enemy core is almost never the
+enemy's *strongest* unit. The Void Crystal's baseline power sap uses
+`enemy_core`: with `strongest_enemy` the mirror match was asymmetric and
+effectively unwinnable (the player's sap drained an enemy unit while the
+enemy's drained the player's crystal — player report, 2026-09-16).
 
 ## 11. Conditional Discounts
 

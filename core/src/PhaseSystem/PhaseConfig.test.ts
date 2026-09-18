@@ -45,6 +45,41 @@ describe("PhaseConfig", () => {
     });
   });
 
+  describe("remainingCoreUpgradeWindows", () => {
+    it("counts all 15 windows at the start of a run", () => {
+      expect(PhaseConfig.TOTAL_CORE_UPGRADE_WINDOWS).toBe(15);
+      expect(PhaseConfig.remainingCoreUpgradeWindows(1, 0)).toBe(15);
+    });
+
+    it("counts the window the session is currently parked on", () => {
+      // Round 1 step 5 IS the first upgrade_core window.
+      expect(PhaseConfig.remainingCoreUpgradeWindows(1, 5)).toBe(15);
+    });
+
+    it("drops by one after each window is passed", () => {
+      // Round 2 opens with the second window still ahead (step 5).
+      expect(PhaseConfig.remainingCoreUpgradeWindows(2, 0)).toBe(14);
+      expect(PhaseConfig.remainingCoreUpgradeWindows(2, 5)).toBe(14);
+      expect(PhaseConfig.remainingCoreUpgradeWindows(2, 6)).toBe(13);
+    });
+
+    it("counts down to 1 on the final window (round 15 step 5)", () => {
+      expect(PhaseConfig.remainingCoreUpgradeWindows(15, 5)).toBe(1);
+    });
+
+    it("is zero from round 16 — Infinite mode drops the upgrade phases", () => {
+      expect(PhaseConfig.remainingCoreUpgradeWindows(16, 0)).toBe(0);
+      expect(PhaseConfig.remainingCoreUpgradeWindows(30, 4)).toBe(0);
+    });
+
+    it("classifies both upgrade phases as core-upgrade windows", () => {
+      expect(PhaseConfig.isCoreUpgradePhase("upgrade_core")).toBe(true);
+      expect(PhaseConfig.isCoreUpgradePhase("add_reaction_core")).toBe(true);
+      expect(PhaseConfig.isCoreUpgradePhase("combat")).toBe(false);
+      expect(PhaseConfig.isCoreUpgradePhase("encounter")).toBe(false);
+    });
+  });
+
   describe("advanceToNextPhase", () => {
     it("increments step when next phase exists", () => {
       const session = makeMockSession(1, 0);

@@ -115,6 +115,8 @@ export const top: Models.Targeting = { id: "top_ally" };
 export const bottom: Models.Targeting = { id: "bottom_ally" };
 export const weakestAlly: Models.Targeting = { id: "weakest_ally" };
 export const strongestEnemy: Models.Targeting = { id: "strongest_enemy" };
+/** The opposing force's crystal (see Targeting `enemy_core`). */
+export const enemyCore: Models.Targeting = { id: "enemy_core" };
 export const strongestAlly: Models.Targeting = { id: "strongest_ally" };
 export const weakestEnemy: Models.Targeting = { id: "weakest_enemy" };
 export const allAllies: Models.Targeting = { id: "all_allies", ofType: "any" };

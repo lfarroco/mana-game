@@ -30,6 +30,7 @@ import {
   self,
   randomEnemy,
   strongestEnemy,
+  enemyCore,
 } from "../effectBuilders";
 
 export const CORE_CARDS: Models.CardDefinition[] = [
@@ -159,13 +160,23 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     // (damage — every unit needs ≥ 1 basic effect) with the power sap.
     // Stat-normalized in the 2026-08-28 balance pass: power 20 → 30 so the
     // 2-effect kit prices to ~100 AP like the other cores.
+    //
+    // The sap targets the enemy CRYSTAL (`enemyCore`), not the strongest enemy
+    // (player report, 2026-09-16). `strongestEnemy` made the mirror match
+    // asymmetric and unwinnable: enemy teams are generated with high-power
+    // units and a core that only receives a flat share of the round's power
+    // points, so the enemy core is essentially never the enemy's strongest —
+    // the player's sap drained a unit, while the enemy's sap drained the
+    // player's core (which IS the player's strongest whenever they invest in
+    // it). Targeting the crystal is mirror-symmetric and better fits the void
+    // theme's disruption fantasy.
     pic: "void-stone",
     life: 500,
     power: 30,
     cooldown: 5000,
     isCore: true,
     coreTheme: "void",
-    effects: [damage, decreasePower(10, strongestEnemy)],
+    effects: [damage, decreasePower(10, enemyCore)],
     reactions: [],
   },
 ];

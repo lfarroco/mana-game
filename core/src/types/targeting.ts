@@ -15,6 +15,15 @@ export type Targeting =
   | { id: "all_enemies" }
   | { id: "strongest_enemy" }
   | { id: "weakest_enemy" }
+  /**
+   * The opposing force's crystal, regardless of power. Distinct from
+   * `strongest_enemy`: enemy teams are generated with high-power units and a
+   * core that only receives a flat share of the round's power points, so the
+   * enemy core is almost never the enemy's strongest unit. The Void Crystal's
+   * baseline sap targets the enemy CRYSTAL, which is the mirror-symmetric
+   * choice (docs/unit-balance.md §10).
+   */
+  | { id: "enemy_core" }
   | { id: "strongest_ally" }
   | { id: "weakest_ally" }
   | { id: "top_ally" }

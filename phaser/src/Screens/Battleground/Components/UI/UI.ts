@@ -1,10 +1,12 @@
 import * as Constants from "@Constants";
 import * as GameConstants from "@game/Constants";
+import * as PhaseConfig from "@game/PhaseSystem/PhaseConfig";
 import * as animation from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay";
 import * as livesDisplay from "@Screens/Battleground/Components/UI/livesDisplay";
 import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
+import * as coreUpgradesDisplay from "@Screens/Battleground/Components/UI/coreUpgradesDisplay";
 import * as headerBackground from "@Screens/Battleground/Components/UI/headerBackground";
 import * as menuButton from "@Screens/Battleground/Components/menuButton";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
@@ -34,6 +36,7 @@ export function create() {
 		roundDisplay.create,
 		livesDisplay.create,
 		winsDisplay.create,
+		coreUpgradesDisplay.create,
 	]);
 	headerContainer.setPosition(580, 0);
 
@@ -71,6 +74,22 @@ export function syncRoundDisplay(): void {
 	const current = roundDisplay.getCurrentRound();
 	if (current !== target) {
 		BattlegroundEvent.roundChanged.emit({ round: target, delta: target - current });
+	}
+}
+
+/**
+ * Keep the HUD core-upgrade counter in sync with the session. Called from
+ * BattlegroundScene.transitionToCurrentPhase alongside the other HUD syncs, so
+ * the count drops as the run moves past each `upgrade_core` /
+ * `add_reaction_core` window. Only writes when the value actually differs.
+ */
+export function syncCoreUpgradesDisplay(): void {
+	const target = PhaseConfig.remainingCoreUpgradeWindows(
+		env.state.session.round,
+		env.state.session.step
+	);
+	if (coreUpgradesDisplay.getCurrentRemaining() !== target) {
+		coreUpgradesDisplay.updateCoreUpgradesDisplay(target);
 	}
 }
 
