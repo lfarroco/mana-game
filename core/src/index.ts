@@ -115,8 +115,6 @@ export * as Encounters from "./content/encounters";
 export * as OrbPresentations from "./content/orbPresentations";
 export * as CoreUpgradeOrbs from "./content/coreUpgradeOrbs";
 export * as TutorialSlides from "./content/tutorialSlides";
-export * as TutorialSandbox from "./content/tutorialSandbox";
-export * as TutorialStore from "./content/tutorialStore";
 
 // ---------------------------------------------------------------------------
 // Event

@@ -41,11 +41,11 @@ gotchas — read the one for the package you're working in **before** editing:
 After any change, run the checks for the package you touched (each package has
 its own `package.json` — run from inside that directory):
 
-| Package      | Tests                            | Typecheck           | Lint           |
-|--------------|----------------------------------|---------------------|----------------|
-| `core/`      | `npm test` (66 suites/602)       | `npm run typecheck` | —              |
-| `server/`    | `npm test` (188 tests)           | `npm run typecheck` | —              |
-| `phaser/`    | `npm run test:ci` (23 suites/164) | `npm run typecheck` | `npm run lint` |
+| Package   | Tests                             | Typecheck           | Lint           |
+|-----------|-----------------------------------|---------------------|----------------|
+| `core/`   | `npm test` (66 suites/602)        | `npm run typecheck` | —              |
+| `server/` | `npm test` (188 tests)            | `npm run typecheck` | —              |
+| `phaser/` | `npm run test:ci` (23 suites/164) | `npm run typecheck` | `npm run lint` |
 
 Single test file: `npx jest src/path/ToFile.test.ts --runInBand` from the
 package directory. Full command reference: [docs/building-and-running.md](docs/building-and-running.md).
@@ -122,11 +122,11 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 1. **Three-tier Event System** — Events are categorized by lifespan and scope:
 
-   | Tier                          | File                                                       | Wired when                              | Payload rule                              | Example                                     |
-   |-------------------------------|------------------------------------------------------------|-----------------------------------------|-------------------------------------------|---------------------------------------------|
-   | **Screen-scoped**             | Each scene owns theirs (`TitleScene`, `CrystalSelectionScene`, …) | Per scene `buildScreen()`          | May carry Phaser refs                     | `newGameButtonClicked`, `crystalChanged`    |
-   | **Screen-lifecycle-crossing** | `phaser/src/Events.ts` — `BattlegroundEvent`               | Per battleground entry (`buildScreen`/`onScreenShutdown`) | Plain data only             | `phaseFinished`, `combatPlaybackFinished`   |
-   | **Global game events**        | `phaser/src/Events.ts` — `GameEvent`                       | Once at boot (never torn down)          | **Plain data only — no Phaser refs ever** | `screenShown`, `screenHidden`, `runStarted` |
+   | Tier                          | File                                                              | Wired when                                                | Payload rule                              | Example                                     |
+   |-------------------------------|-------------------------------------------------------------------|-----------------------------------------------------------|-------------------------------------------|---------------------------------------------|
+   | **Screen-scoped**             | Each scene owns theirs (`TitleScene`, `CrystalSelectionScene`, …) | Per scene `buildScreen()`                                 | May carry Phaser refs                     | `newGameButtonClicked`, `crystalChanged`    |
+   | **Screen-lifecycle-crossing** | `phaser/src/Events.ts` — `BattlegroundEvent`                      | Per battleground entry (`buildScreen`/`onScreenShutdown`) | Plain data only                           | `phaseFinished`, `combatPlaybackFinished`   |
+   | **Global game events**        | `phaser/src/Events.ts` — `GameEvent`                              | Once at boot (never torn down)                            | **Plain data only — no Phaser refs ever** | `screenShown`, `screenHidden`, `runStarted` |
 
    - Screen-scoped events: created in `buildScreen()` and their listeners are disposed in `onScreenShutdown()` — Phaser destroys the game objects, not the module-level subscriptions.
    - `BattlegroundEvent`: wired per screen entry in `BattlegroundScene.buildScreen()`, disposed in `onScreenShutdown()`. Carries domain data only.
@@ -513,83 +513,3 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > `lucky_pig` was removed from the encounter pool. See
 > [docs/new-encounter-types.md](docs/new-encounter-types.md) E1.
 
-> **Interactive tutorial landed (2026-09-12).** The title-screen "How to play"
-> overlay was a slideshow; it is now interactive — every slide gates its **Next**
-> button on the player actually performing the mechanic (cast an ability in a
-> live sandbox, drag a recruit onto a board tile, tap a card's effect rows and
-> watch them play). Same 14 lessons. Entry points: the permanent `Tutorial`
-> menu button (`TUTORIAL_BUTTON_Y = 400`, above the single-player row) and a
-> one-time first-launch offer (`maybeOfferTutorial`, suppressed after the first
-> visit and held behind unlock modals). Progress persists under
-> `mana-game-tutorial` so a resumed tutorial reopens at the furthest slide.
-> Full design, lesson table, and the two client traps found while building it
-> (Phaser `TimerEvent` runs on game speed, not wall-clock; the dev webpack
-> filesystem cache could serve stale modules) are in
-> [docs/interactive-tutorial.md](docs/interactive-tutorial.md).
-> Code: `core/src/content/tutorialSlides.ts` (slide + gate data),
-> `tutorialSandbox.ts` (pure sandbox rules), `tutorialStore.ts` (progress);
-> `phaser/src/Screens/Title/Components/Tutorial/` (builder + panels +
-> `tutorialScheduler.ts`), `TutorialOverlay.ts`, `tutorialButton.ts`.
-> Runtime probe for the e2e suite: `__debug.tutorial`. Verified end-to-end:
-> 14/14 slides, all gates unlocked, no console errors.
-> Tests: `core/src/content/tutorialSlides.test.ts`, `tutorialSandbox.test.ts`,
-> `tutorialStore.test.ts`, `phaser/.../Tutorial/slideProgress.test.ts`.
-
-> **Player-report round (2026-09-16): the Void Crystal mirror, silence/dispel
-> legibility, and the core-shop counter.**
-> Three fixes from a player bug report thread; the balance/design items in the
-> same thread (poison counterplay, thorns/overheal oppression, Thornback, the
-> `rest_inn` life faucet, a core reaction cap) were **deliberately left out of
-> scope** — see "Open design questions" below.
-> - **Void Crystal mirror was asymmetric and effectively unwinnable.** The
->   baseline sap targeted `strongestEnemy`. Enemy teams are generated with
->   full-card-power units and a core that only receives a flat share of the
->   round's power points (`generateEnemyTeam`), so the enemy core is essentially
->   never the enemy's *strongest* unit: the player's sap drained an enemy unit
->   while the enemy's sap drained the player's core — which IS the player's
->   strongest as soon as they invest in it, exactly the "stack power on the
->   core" meta the same player reported. Reproduced deterministically in a
->   simulation before fixing. New `enemy_core` targeting (+ `enemyCore` builder,
->   `resolveTargets` case, description plumbing, i18n in all 6 locales) and the
->   Void Crystal baseline now saps the enemy crystal. Tests:
->   `core/src/Combat/VoidCrystalMirror.test.ts`,
->   `TriggerSystem.test.ts` ("returns the enemy crystal even when another enemy
->   has more power"), `descriptions.test.ts` (enemy_core rendering).
-> - **Silence and Dispel were undocumented.** The tooltips read "Silence
->   {target} for 1.5s" / "Dispel {target}" with nothing explaining that silence
->   makes a unit *skip its next cast* or that dispel removes
->   shield/haste/slow/charge/silence plus the target force's poison and regen.
->   Both sentences now carry that explanation, as do the `void_nullify` /
->   `void_dispel` orb tooltips (all 6 locales; key parity is test-enforced by
->   `phaser/src/i18n/locales.test.ts`).
-> - **The core-upgrade shop countdown is now visible.** There are exactly 15
->   `upgrade_core` / `add_reaction_core` windows across rounds 1–15 and Infinite
->   mode (round 16+) drops them, which is why the shop felt like it "randomly
->   stops at some point". `PhaseConfig.remainingCoreUpgradeWindows(round, step)`
->   (+ `TOTAL_CORE_UPGRADE_WINDOWS`, `isCoreUpgradePhase`) exposes the countdown;
->   the new `coreUpgradesDisplay` HUD chip renders it next to round/lives/wins
->   with an explanatory tooltip, synced from `transitionToCurrentPhase`. Tests:
->   `core/src/PhaseSystem/PhaseConfig.test.ts`.
->
-> **Open design questions (not implemented, need a maintainer decision):**
-> - **Poison has no counterplay by construction.** Stacks are force-keyed and
->   never decay; each 1s tick deals the *full* accumulated rate, and the only
->   reductions are heal (−5% of the raw heal, `reducePoison`) and dispel. Any
->   board with a couple of poison casters eventually out-scales every defensive
->   line.
-> - **Thorns lock.** `on_crystal_hit` reaction shields apply *before* the hit
->   resolves and equal the core's power (`dealDamage` → `processReactions` →
->   reaction `shield`), so any damage below core power can never connect; and
->   reaction-sourced damage fires no reactions, so there is no answer.
-> - **Thornback** (silver `on_crystal_hit → damage` at full power) reflects
->   ~105 at round 4–5 against a 500-life crystal.
-> - **`rest_inn`** (rounds 2–6, restores 1 life, blocked only at full lives)
->   makes losing nearly impossible.
-> - **Silence does not match its design doc.** `docs/card-design-philosophy.md`
->   §3.2 specifies silence as "prevents target unit from triggering *reactions*
->   for N seconds" — a counter to synergy engines. The shipped implementation
->   makes the unit waste a turn, and a 1.5s silence against a 4–6s cooldown
->   usually expires before it bites (the player's "silence never does anything").
-> - **No core reaction cap.** The remembered "3 reactions cap" is the
->   *card-authoring* slot cap (`effects + reactions ≤ 3`,
->   `BaseCollection.balance.test.ts`); crystals have no cap.

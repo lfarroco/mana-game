@@ -3,7 +3,6 @@ export * as cloudsBg from "./Components/cloudsBg";
 export * as optionsButton from "./Components/optionsButton";
 export * as logo from "./Components/logo";
 export * as howToPlay from "./Components/howToPlay";
-export * as tutorialButton from "./Components/tutorialButton";
 export * as languageButton from "./Components/languageButton";
 export * as linksButton from "./Components/linksButton";
 export * as newSinglePlayerRunButton from "./Components/newSinglePlayerRunButton";

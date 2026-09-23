@@ -14,13 +14,13 @@ module.exports = {
     mode: "development",
     devtool: "eval-source-map",
     entry: "./src/main.ts",
-    // In-memory cache: the dev server rebuilds from source on every start, so an
-    // edit can never be served from a stale on-disk snapshot. (The filesystem
-    // cache previously survived across runs and served outdated modules when
-    // the watcher missed a change — the source on screen was not the source
-    // running in the browser.)
     cache: {
-        type: "memory"
+        type: "filesystem",
+        cacheDirectory: path.resolve(__dirname, "../.webpack-cache/dev"),
+        buildDependencies: {
+            config: [__filename],
+            tsconfig: [path.resolve(__dirname, "../tsconfig.json")]
+        }
     },
     output: {
         path: path.resolve(process.cwd(), 'dist'),
