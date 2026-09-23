@@ -1,6 +1,5 @@
 /**
- * Tutorial slide render layer (purify C1 — the "render-layer rewrite" that
- * unlocks porting tutorialSlides.ts out of `phaser/`).
+ * Tutorial slide render layer.
  *
  * The slide *content* (i18n keys, positions, demo specs) lives in core as pure
  * data (`@game/content/tutorialSlides`). This module renders that data into

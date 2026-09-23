@@ -496,10 +496,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 >   `SessionTransitions.test.ts` ("guarantees at least one uncollected non-stat
 >   orb…", "lets a run collect the entire theme pool…").
 
-> The **Purify deferred** item (C1 `tutorialSlides.ts` render-layer rewrite +
-> B4 log-dispatch switch) landed 2026-08-19 — see the Phase E/F notes in
-> [purify.md](purify.md).
-
 > **Landed (2026-08-19):** every Fun & Wacky content task (Tier A–D — A0–A8
 > units/edits, A9–A12 encounters, A15 shops, B1/C1/C2/D1/D2 engines; A13/A14 were
 > superseded by CUB-B) and every Core Unit Onboarding task (CUB-A1–A3 through

@@ -1,8 +1,6 @@
 import type { CombatLogEntry } from "./CombatLogger";
 
 /**
- * B4 (purify.md): the combat-log → playback-handler dispatch decision, as pure
- * data.
  *
  * Each log type is classified into a handler family. The Phaser playback layer
  * keeps a registry of FX handlers keyed by log type (handlers injected at the
@@ -87,8 +85,8 @@ export const getLogHandlerGroup = (log: CombatLogEntry): LogHandlerGroup =>
 /** Exactly the log types classified as `none` (deriveable from the mapping). */
 export type NoneFxLogType = {
   [T in CombatLogEntry["type"]]: (typeof LOG_HANDLER_GROUPS)[T] extends "none"
-    ? T
-    : never;
+  ? T
+  : never;
 }[CombatLogEntry["type"]];
 
 /** Log types that need no FX playback handler (the `none` group). */

@@ -1,6 +1,5 @@
 /**
- * Tutorial slide content for the Title screen overlay (purify C1 —
- * see purify.md Phase F).
+ * Tutorial slide content for the Title screen overlay.
  *
  * Pure, engine-agnostic presentation data: i18n keys, positions, and demo
  * scene specs. The Phaser client renders it via its own render layer
