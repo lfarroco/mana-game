@@ -155,7 +155,7 @@ describe("Force", () => {
       expect(Force.applyDamageToForce(state, "PLAYER", 50)).toBe(0);
     });
 
-    it("poison damage absorbs shield first, like every other damage type", () => {
+    it("poison damage bypasses shield entirely", () => {
       const playerCore = makeCore("PLAYER", 100, 30);
       const state = makeCombatState([playerCore]);
       const damageDone = Force.applyDamageToForce(
@@ -165,14 +165,14 @@ describe("Force", () => {
         0,
         "poison",
       );
-      // 20 poison eaten by the shield: no life lost, shield spent.
-      expect(damageDone).toBe(0);
-      expect(playerCore.life).toBe(100);
-      expect(playerCore.shield).toBe(10);
+      // Poison is the one type a shield wall cannot answer.
+      expect(damageDone).toBe(20);
+      expect(playerCore.life).toBe(80);
+      expect(playerCore.shield).toBe(30);
     });
 
-    it("poison spills into life only once the shield is gone", () => {
-      const playerCore = makeCore("PLAYER", 100, 10);
+    it("poison goes to life even when the shield could have absorbed it", () => {
+      const playerCore = makeCore("PLAYER", 100, 500);
       const state = makeCombatState([playerCore]);
       const damageDone = Force.applyDamageToForce(
         state,
@@ -181,9 +181,9 @@ describe("Force", () => {
         0,
         "poison",
       );
-      expect(playerCore.shield).toBe(0);
-      expect(playerCore.life).toBe(85);
-      expect(damageDone).toBe(15);
+      expect(damageDone).toBe(25);
+      expect(playerCore.shield).toBe(500);
+      expect(playerCore.life).toBe(75);
     });
 
     it("normal damage absorbs shield first then life", () => {

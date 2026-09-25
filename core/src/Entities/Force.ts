@@ -74,14 +74,15 @@ export const manipulateCoreShield = (
 /**
  * Damage a force's core.
  *
- * Every damage type absorbs the core's shield before life — including poison.
- * Poison used to skip the shield entirely (`damageType === "poison"` short-cut
- * straight to life), which made shields worthless against the one source a
- * defensive build most needs them for: a poison wave that outscales raw HP
- * killed through a full shield bar (player report, 2026-09-15 — "there is no
- * reason I should have died with this Shield + Regen vs. Poison"). The
- * `damageType` parameter is kept for call-site clarity and future damage kinds,
- * but no type pierces any more; `shieldPiercingPercentage` is the only pierce.
+ * **Poison pierces shield** (`damageType === "poison"` goes straight to life).
+ * That is poison's signature: a shield wall cannot answer a poison wave, which
+ * is what keeps shield-stacking builds honest and gives poison a defined role
+ * next to raw damage (design decision confirmed by the maintainer, 2026-09-25;
+ * an earlier pass had every type absorb shield first and was reverted).
+ *
+ * Every other damage type spends the core's shield before life.
+ * `shieldPiercingPercentage` is the generic partial-pierce hook for future
+ * damage kinds (no call site passes a non-zero value today).
  *
  * @returns The absolute life actually removed (0 when the shield absorbed it
  *          all) — callers that surface a number to the player should prefer
@@ -92,7 +93,7 @@ export const applyDamageToForce = (
   targetForce: string,
   damage: number,
   shieldPiercingPercentage: number = 0,
-  _damageType?: "poison" | "normal" | "timeout",
+  damageType?: "poison" | "normal" | "timeout",
   _critical = false,
 ): number => {
   if (damage <= 0) return 0;
@@ -105,6 +106,12 @@ export const applyDamageToForce = (
   }
 
   let remainingDamage = damage;
+
+  if (damageType === "poison") {
+    const lifeChange = manipulateCoreLife(state, targetForce, -damage, false);
+
+    return Math.abs(lifeChange);
+  }
 
   let effectiveShield = core.shield;
   if (shieldPiercingPercentage > 0 && core.shield > 0) {

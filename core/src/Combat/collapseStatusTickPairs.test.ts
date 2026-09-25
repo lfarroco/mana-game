@@ -9,16 +9,12 @@ const poisonTick = (
   amount: number,
   newLife: number,
   lifeDelta: number,
-  newShield = 0,
-  shieldDelta = 0,
 ): CombatLogEntry => ({
   type: "poison_tick",
   force,
   amount,
   newLife,
-  newShield,
   lifeDelta,
-  shieldDelta,
   timeMs,
 });
 
@@ -155,12 +151,10 @@ describe("collapseStatusTickPairs", () => {
     expect(collapseStatusTickPairs([])).toEqual([]);
   });
 
-  it("carries a shield-absorbed poison tick's shield delta onto the merged entry", () => {
-    // Poison absorbs shield first, so a tick can leave life untouched while the
-    // shield bar drops; the merged regen entry must carry that delta or the
-    // client's shield bar goes stale.
+  it("merges a poison tick with a regen tick without carrying shield data", () => {
+    // Poison pierces shield, so both halves of the pair only move life.
     const logs = [
-      poisonTick(1000, "player", 20, 500, 0, 30, -20),
+      poisonTick(1000, "player", 20, 500, -20),
       regenTick(1000, "player", 12, 512, 12),
     ];
 
@@ -169,9 +163,9 @@ describe("collapseStatusTickPairs", () => {
     expect(merged).toMatchObject({
       type: "regen_tick",
       newLife: 512,
-      lifeDelta: 12,
-      newShield: 30,
-      shieldDelta: -20,
+      lifeDelta: -8,
     });
+    expect(merged).not.toHaveProperty("newShield");
+    expect(merged).not.toHaveProperty("shieldDelta");
   });
 });

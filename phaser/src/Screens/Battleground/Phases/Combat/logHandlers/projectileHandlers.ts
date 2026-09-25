@@ -111,13 +111,8 @@ export const handlePoisonTick = (
 	log: CombatLogger.PoisonTickEntry,
 	_playbackState: PlaybackState
 ) => {
-	// Poison absorbs shield first, so a tick can leave life untouched while the
-	// shield bar moves. `updateLifeDisplay` no-ops on a 0 delta, so sync the
-	// shield explicitly.
+	// Poison pierces shield, so a tick only ever moves the life bar.
 	ForceStats.updateLifeDisplay(log.force, log.newLife, log.lifeDelta);
-	if (log.shieldDelta !== 0) {
-		ForceStats.updateShieldDisplay(log.force, log.newShield, log.shieldDelta);
-	}
 };
 
 export const handleRegenTick = (
@@ -125,11 +120,6 @@ export const handleRegenTick = (
 	_playbackState: PlaybackState
 ) => {
 	ForceStats.updateLifeDisplay(log.force, log.newLife, log.lifeDelta ?? log.amount);
-	// A poison tick folded into this entry by collapseStatusTickPairs may have
-	// spent shield.
-	if (log.shieldDelta) {
-		ForceStats.updateShieldDisplay(log.force, log.newShield ?? 0, log.shieldDelta);
-	}
 };
 
 export const handleTimeoutDamageCast = (

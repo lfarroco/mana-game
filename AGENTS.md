@@ -449,19 +449,23 @@ Detailed docs live in `docs/`. Each covers a specific system:
 >   is invisible. It now logs the applied `decrease_power` for the source (same
 >   shape as `absorbPower`). Test:
 >   `Combat/EffectIntegrationTransferEffects.test.ts`.
-> - **"Sandstorm ignores shield" was poison — and poison now hits shield first.**
->   Verified first: `Force.applyDamageToForce` already sent `"timeout"` storm
->   damage through the shield-absorb path; only `"poison"` short-cut straight to
->   life. So the report was exactly what the player's own follow-up concluded.
->   That short-cut was removed — every damage type now spends the core's shield
->   before life (`shieldPiercingPercentage` is the only way through), because
->   poison punching through a full shield bar made shields worthless for the
->   defensive builds they exist for. `poison_tick` now carries `newShield`/
->   `shieldDelta` (the tick had to keep the shield bar in sync; a fully-shielded
->   tick reports `lifeDelta: 0` and pops on the shield chip), and
->   `collapseStatusTickPairs` forwards that delta when it folds a poison tick
->   into a regen tick. Tests: `Entities/Force.test.ts`,
->   `Combat/StatusEffectSystem.test.ts`, `Combat/collapseStatusTickPairs.test.ts`.
+> - **"Sandstorm ignores shield" was poison — and poison pierces shield
+>   (maintainer-confirmed, restored 2026-09-25).** Verified first:
+>   `Force.applyDamageToForce` already sent `"timeout"` storm damage through the
+>   shield-absorb path; only `"poison"` short-cut straight to life. A 2026-09-15
+>   pass removed that short-cut so every damage type spent the core's shield
+>   before life; that part was **reverted** — poison going through a shield wall
+>   *is* poison's signature and the designed answer to shield-stacking builds, so
+>   `damageType === "poison"` goes straight to life again (see
+>   [docs/battle-system.md](docs/battle-system.md) § Damage resolution and
+>   [docs/card-design-philosophy.md](docs/card-design-philosophy.md) §3.2).
+>   Consequently `poison_tick` carries no `newShield`/`shieldDelta`,
+>   `collapseStatusTickPairs` forwards none and the client's poison-tick handler
+>   only moves the life bar; the in-game poison tooltip sentence and tutorial
+>   slide 7 both say poison ignores Shield. `shieldPiercingPercentage` remains
+>   the generic partial-pierce hook (no call site passes a non-zero value today).
+>   Tests: `Entities/Force.test.ts`, `Combat/StatusEffectSystem.test.ts`,
+>   `Combat/collapseStatusTickPairs.test.ts`.
 > - **`-0` in combat logs broke the persisted-session round-trip (flaky server
 >   suite).** `decreasePower` logged `amount: -appliedDelta`, which is `-0` when
 >   the target was already at 0 power. `JSON.stringify(-0)` is `"0"`, so a

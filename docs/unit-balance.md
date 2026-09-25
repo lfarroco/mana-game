@@ -10,9 +10,14 @@
 - Each player has a Crystal unit.
 - Units cannot target other units with damage/heal/etc.
 - All damage, healing, shielding, poison, and regeneration target Crystals only.
+- Shield absorbs damage before life; **poison pierces shield entirely** (its
+  signature — see [battle-system.md](battle-system.md) § Damage resolution).
 - Units may apply haste or slow to other units.
 - Units may have reactions that trigger based on other units' actions.
-    - Reactions trigger 200 ms after the event that caused them.
+    - A reaction fires at the moment of its trigger: an ability reaction fires
+      on the cast itself, while hit-based triggers (`on_crit`, `on_over_heal`,
+      `on_crystal_hit`) resolve with the ability's hit, 200 ms
+      (`PROJECTILE_TRAVEL_MS`) later. Reactions never chain off reactions.
 - Units act continuously during combat.
 
 ## 2. Unit Budget

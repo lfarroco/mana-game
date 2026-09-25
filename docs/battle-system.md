@@ -57,6 +57,21 @@ returns the next session state.
 
 ## Key concepts
 
+### Damage resolution
+
+- Damage, healing, shielding, poison and regen all resolve against a force's
+  **crystal**; units never trade damage with each other (`Force.applyDamageToForce`).
+- **Shield absorbs damage before life — except poison, which pierces shield
+  entirely** (`damageType: "poison"` goes straight to life). That pierce is
+  poison's signature: a shield wall cannot answer a poison wave, which is the
+  designed counterplay to shield-stacking builds
+  (see [card-design-philosophy.md](card-design-philosophy.md) §3.2). It is why
+  `poison_tick` carries no shield delta and the client's poison-tick handler only
+  moves the life bar.
+- `shieldPiercingPercentage` is the generic *partial* pierce hook for future
+  damage kinds; no call site passes a non-zero value today. Storm/`timeout`
+  damage and normal damage are absorbed by shield first.
+
 ### Board positions
 
 - 3x3 grid (positions 0,0 to 2,2); player board at the bottom, enemy board
