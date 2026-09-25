@@ -1,6 +1,7 @@
 /// <reference types="jest" />
 
 import * as Card from "../Entities/Card";
+import { ABILITY_COLORS } from "../data/abilityColors";
 import {
   TUTORIAL_SLIDES,
   type TutorialBbcItem,
@@ -18,8 +19,8 @@ const demoItems = (slide: TutorialSlideItem[]): TutorialDemoItem[] =>
   slide.filter((item): item is TutorialDemoItem => item.kind === "demo");
 
 describe("tutorial slide content", () => {
-  it("defines 14 slides", () => {
-    expect(TUTORIAL_SLIDES.length).toBe(14);
+  it("defines 17 slides", () => {
+    expect(TUTORIAL_SLIDES.length).toBe(17);
   });
 
   it("every slide has at least one item", () => {
@@ -50,18 +51,9 @@ describe("tutorial slide content", () => {
         if (item.kind !== "bbcode") continue;
         const bbc = item as TutorialBbcItem;
         expect(bbc.y).toBeGreaterThan(0);
-        expect([
-          "damage",
-          "shield",
-          "heal",
-          "regen",
-          "poison",
-          "haste",
-          "slow",
-          "charge",
-          "increase_power",
-          "increase_critical",
-        ]).toContain(bbc.color);
+        // The color must be renderable by the BBCode row (ABILITY_COLORS is the
+        // single source of truth the render layer reads).
+        expect(Object.keys(ABILITY_COLORS)).toContain(bbc.color);
         // exactly one of labelKey / label
         expect((bbc.labelKey !== undefined) !== (bbc.label !== undefined)).toBe(
           true,
@@ -114,6 +106,12 @@ describe("tutorial slide content", () => {
         if (demo.statusTick) {
           // regen/poison counters heal-damage the target every tick
           expect(fx === "regen" || fx === "poison").toBe(true);
+        }
+        if (fx === "regen" || fx === "poison") {
+          // Regen and poison apply a tenth of the unit's power per second, so
+          // the cast pop must show the same magnitude as the ticks — showing
+          // full power would overstate the ability tenfold.
+          expect(popText.value).toBe("powerTenth");
         }
       }
     });

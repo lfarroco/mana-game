@@ -95,7 +95,16 @@ export type TutorialAbilityColorKey =
   | "slow"
   | "charge"
   | "increase_power"
-  | "increase_critical";
+  | "increase_critical"
+  | "on_crit"
+  | "on_over_heal"
+  | "on_battle_start"
+  | "on_crystal_hit"
+  | "every_100_damage"
+  | "every_100_shield"
+  | "every_100_heal"
+  | "every_10_poison"
+  | "every_10_regen";
 
 /**
  * A labelled BBCode row: `[color=…]label[/color]: text`. Either `labelKey`
@@ -115,8 +124,14 @@ export type TutorialSlideItem =
 
 export type TutorialSlide = TutorialSlideItem[];
 
-const PLAYER_FORCE = "PLAYER_FORCE";
-const FORCE_PLAYER = "FORCE_PLAYER";
+/**
+ * Demo-only force id. The demo board lays out on the right (enemy) board grid
+ * and uses negative x positions to spread left of it, so this value must stay
+ * distinct from FORCE_ID_PLAYER/FORCE_ID_CPU: `Chara.getScreenPosition` keys
+ * the board offset off those two ids, and any other value uses the right-board
+ * offset without mirroring the sprite.
+ */
+const DEMO_FORCE = "DEMO";
 
 export const TUTORIAL_SLIDES: TutorialSlide[] = [
   // ── Slide 1: goal of the game ──────────────────────────────────────────
@@ -127,10 +142,10 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
     {
       kind: "demo",
       units: [
-        { cardId: "mana_crystal", force: PLAYER_FORCE, position: [-2, 0.5] },
+        { cardId: "mana_crystal", force: DEMO_FORCE, position: [-2, 0.5] },
         {
           cardId: "protective_crystal",
-          force: PLAYER_FORCE,
+          force: DEMO_FORCE,
           position: [0, 0.5],
         },
       ],
@@ -146,12 +161,12 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
     {
       kind: "demo",
       units: [
-        { cardId: "void_spawn", force: PLAYER_FORCE, position: [-1.7, 0.3] },
-        { cardId: "commander", force: PLAYER_FORCE, position: [-0.7, 0.3] },
-        { cardId: "battle_medic", force: PLAYER_FORCE, position: [0.3, 0.3] },
-        { cardId: "symbiote", force: PLAYER_FORCE, position: [-1.7, 1.3] },
-        { cardId: "plague_dr", force: PLAYER_FORCE, position: [-0.7, 1.3] },
-        { cardId: "arbiter", force: PLAYER_FORCE, position: [0.3, 1.3] },
+        { cardId: "void_spawn", force: DEMO_FORCE, position: [-1.7, 0.3] },
+        { cardId: "commander", force: DEMO_FORCE, position: [-0.7, 0.3] },
+        { cardId: "battle_medic", force: DEMO_FORCE, position: [0.3, 0.3] },
+        { cardId: "symbiote", force: DEMO_FORCE, position: [-1.7, 1.3] },
+        { cardId: "plague_dr", force: DEMO_FORCE, position: [-0.7, 1.3] },
+        { cardId: "arbiter", force: DEMO_FORCE, position: [0.3, 1.3] },
       ],
     },
   ],
@@ -165,13 +180,14 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
       labelKey: "tooltip.effects.damage",
       textKey: "tutorial.slide3.row2",
     },
+    { kind: "text", key: "tutorial.slide3.row3", y: 200 },
     {
       kind: "demo",
       units: [
-        { cardId: "avatar_of_anger", force: PLAYER_FORCE, position: [-2, 0.5] },
+        { cardId: "avatar_of_anger", force: DEMO_FORCE, position: [-2, 0.5] },
         {
           cardId: "protective_crystal",
-          force: PLAYER_FORCE,
+          force: DEMO_FORCE,
           position: [0, 0.5],
         },
       ],
@@ -198,8 +214,8 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
     {
       kind: "demo",
       units: [
-        { cardId: "living_armor", force: PLAYER_FORCE, position: [0, 0.5] },
-        { cardId: "mana_crystal", force: PLAYER_FORCE, position: [-1, 0.5] },
+        { cardId: "living_armor", force: DEMO_FORCE, position: [0, 0.5] },
+        { cardId: "mana_crystal", force: DEMO_FORCE, position: [-1, 0.5] },
       ],
       castLoop: {
         casterIndex: 0,
@@ -224,8 +240,8 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
     {
       kind: "demo",
       units: [
-        { cardId: "battle_medic", force: PLAYER_FORCE, position: [0, 0.5] },
-        { cardId: "mana_crystal", force: PLAYER_FORCE, position: [-1, 0.5] },
+        { cardId: "battle_medic", force: DEMO_FORCE, position: [0, 0.5] },
+        { cardId: "mana_crystal", force: DEMO_FORCE, position: [-1, 0.5] },
       ],
       castLoop: {
         casterIndex: 0,
@@ -250,14 +266,14 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
     {
       kind: "demo",
       units: [
-        { cardId: "enchanted_tree", force: PLAYER_FORCE, position: [0, 0.5] },
-        { cardId: "mana_crystal", force: PLAYER_FORCE, position: [-1, 0.5] },
+        { cardId: "enchanted_tree", force: DEMO_FORCE, position: [0, 0.5] },
+        { cardId: "mana_crystal", force: DEMO_FORCE, position: [-1, 0.5] },
       ],
       castLoop: {
         casterIndex: 0,
         targetIndex: 1,
         fx: "regen",
-        popText: { sign: "+", value: "power", kind: "heal" },
+        popText: { sign: "+", value: "powerTenth", kind: "heal" },
         fxDelayMs: 1000,
       },
       statusTick: {
@@ -279,14 +295,14 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
     {
       kind: "demo",
       units: [
-        { cardId: "venomous_viper", force: PLAYER_FORCE, position: [-2, 0.5] },
-        { cardId: "mana_crystal", force: PLAYER_FORCE, position: [0, 0.5] },
+        { cardId: "venomous_viper", force: DEMO_FORCE, position: [-2, 0.5] },
+        { cardId: "mana_crystal", force: DEMO_FORCE, position: [0, 0.5] },
       ],
       castLoop: {
         casterIndex: 0,
         targetIndex: 1,
         fx: "poison",
-        popText: { sign: "-", value: "power", kind: "poison" },
+        popText: { sign: "-", value: "powerTenth", kind: "poison" },
         fxDelayMs: 1000,
       },
       statusTick: {
@@ -345,9 +361,11 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
   // ── Slide 9: reactions ─────────────────────────────────────────────────
   [
     { kind: "title", key: "tutorial.slide9.row1", y: 100 },
-    { kind: "text", key: "tutorial.slide9.row3", y: 200 },
-    { kind: "text", key: "tutorial.slide9.row4", y: 250 },
-    { kind: "text", key: "tutorial.slide9.row5", y: 300 },
+    { kind: "text", key: "tutorial.slide9.row3", y: 160 },
+    { kind: "text", key: "tutorial.slide9.row2", y: 220 },
+    { kind: "text", key: "tutorial.slide9.row4", y: 280 },
+    { kind: "text", key: "tutorial.slide9.row5", y: 340 },
+    { kind: "text", key: "tutorial.slide9.row6", y: 400 },
   ],
   // ── Slide 10: example unit (thunder_conduit) ───────────────────────────
   [
@@ -355,19 +373,21 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
     {
       kind: "demo",
       units: [
-        { cardId: "thunder_conduit", force: FORCE_PLAYER, position: [-2, 0.5] },
+        { cardId: "thunder_conduit", force: DEMO_FORCE, position: [-2, 0.5] },
       ],
       showcase: { unitIndex: 0, panelX: 800, titleY: 300, descriptionY: 360 },
     },
     { kind: "text", key: "tutorial.slide10.row2", y: 600 },
   ],
   // ── Slide 11: example unit (gunslinger) ────────────────────────────────
+  // The demo also shows the ally the reaction watches: the unit to its left.
   [
     { kind: "title", key: "tutorial.slide11.row1", y: 100 },
     {
       kind: "demo",
       units: [
-        { cardId: "gunslinger", force: FORCE_PLAYER, position: [-2, 0.5] },
+        { cardId: "gunslinger", force: DEMO_FORCE, position: [-2, 0.5] },
+        { cardId: "living_armor", force: DEMO_FORCE, position: [-3, 0.5] },
       ],
       showcase: { unitIndex: 0, panelX: 800, titleY: 300, descriptionY: 360 },
     },
@@ -375,12 +395,15 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
     { kind: "text", key: "tutorial.slide11.row3", y: 650 },
   ],
   // ── Slide 12: example unit (radiance_envoy) ────────────────────────────
+  // The extra unit shares the envoy's row, so the positional half of the
+  // reaction is visible on the demo board.
   [
     { kind: "title", key: "tutorial.slide12.row1", y: 100 },
     {
       kind: "demo",
       units: [
-        { cardId: "radiance_envoy", force: FORCE_PLAYER, position: [-2, 0.5] },
+        { cardId: "radiance_envoy", force: DEMO_FORCE, position: [-3, 0.5] },
+        { cardId: "commander", force: DEMO_FORCE, position: [-2, 0.5] },
       ],
       showcase: { unitIndex: 0, panelX: 800, titleY: 300, descriptionY: 360 },
     },
@@ -388,12 +411,14 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
     { kind: "text", key: "tutorial.slide12.row3", y: 650 },
   ],
   // ── Slide 13: example unit (grove_guardian) ────────────────────────────
+  // The demo shows the ally on its right — the one the reaction empowers.
   [
     { kind: "title", key: "tutorial.slide13.row1", y: 100 },
     {
       kind: "demo",
       units: [
-        { cardId: "grove_guardian", force: FORCE_PLAYER, position: [-2, 0.5] },
+        { cardId: "grove_guardian", force: DEMO_FORCE, position: [-3, 0.5] },
+        { cardId: "avatar_of_anger", force: DEMO_FORCE, position: [-2, 0.5] },
       ],
       showcase: { unitIndex: 0, panelX: 800, titleY: 300, descriptionY: 360 },
     },
@@ -401,11 +426,99 @@ export const TUTORIAL_SLIDES: TutorialSlide[] = [
     { kind: "text", key: "tutorial.slide13.row3", y: 650 },
     { kind: "text", key: "tutorial.slide13.row4", y: 700 },
   ],
-  // ── Slide 14: wrap-up ──────────────────────────────────────────────────
+  // ── Slide 14: reaction triggers (global reactions) ─────────────────────
   [
-    { kind: "text", key: "tutorial.slide14.row1", y: 200 },
-    { kind: "text", key: "tutorial.slide14.row2", y: 250 },
-    { kind: "text", key: "tutorial.slide14.row3", y: 300 },
-    { kind: "text", key: "tutorial.slide14.row4", y: 350 },
+    { kind: "title", key: "tutorial.slide14.row1", y: 100 },
+    { kind: "text", key: "tutorial.slide14.row2", y: 150 },
+    {
+      kind: "bbcode",
+      y: 205,
+      color: "on_crit",
+      labelKey: "tooltip.effects.on_crit",
+      textKey: "tutorial.slide14.row3",
+    },
+    {
+      kind: "bbcode",
+      y: 252,
+      color: "every_100_damage",
+      labelKey: "tooltip.effects.every_100_damage",
+      textKey: "tutorial.slide14.row4",
+    },
+    {
+      kind: "bbcode",
+      y: 299,
+      color: "every_100_shield",
+      labelKey: "tooltip.effects.every_100_shield",
+      textKey: "tutorial.slide14.row4",
+    },
+    {
+      kind: "bbcode",
+      y: 346,
+      color: "every_100_heal",
+      labelKey: "tooltip.effects.every_100_heal",
+      textKey: "tutorial.slide14.row4",
+    },
+    {
+      kind: "bbcode",
+      y: 393,
+      color: "every_10_poison",
+      labelKey: "tooltip.effects.every_10_poison",
+      textKey: "tutorial.slide14.row5",
+    },
+    {
+      kind: "bbcode",
+      y: 440,
+      color: "every_10_regen",
+      labelKey: "tooltip.effects.every_10_regen",
+      textKey: "tutorial.slide14.row5",
+    },
+    {
+      kind: "bbcode",
+      y: 487,
+      color: "on_over_heal",
+      labelKey: "tooltip.effects.on_over_heal",
+      textKey: "tutorial.slide14.row6",
+    },
+    {
+      kind: "bbcode",
+      y: 534,
+      color: "on_battle_start",
+      labelKey: "tooltip.effects.on_battle_start",
+      textKey: "tutorial.slide14.row7",
+    },
+    {
+      kind: "bbcode",
+      y: 581,
+      color: "on_crystal_hit",
+      labelKey: "tooltip.effects.on_crystal_hit",
+      textKey: "tutorial.slide14.row8",
+    },
+    { kind: "text", key: "tutorial.slide14.row9", y: 645 },
+  ],
+  // ── Slide 15: ranking units up ─────────────────────────────────────────
+  [
+    { kind: "title", key: "tutorial.slide15.row1", y: 100 },
+    { kind: "text", key: "tutorial.slide15.row2", y: 175 },
+    { kind: "text", key: "tutorial.slide15.row3", y: 225 },
+    { kind: "text", key: "tutorial.slide15.row4", y: 300 },
+    { kind: "text", key: "tutorial.slide15.row5", y: 350 },
+    { kind: "text", key: "tutorial.slide15.row6", y: 400 },
+    { kind: "text", key: "tutorial.slide15.row7", y: 450 },
+    { kind: "text", key: "tutorial.slide15.row8", y: 495 },
+  ],
+  // ── Slide 16: finishing a run ──────────────────────────────────────────
+  [
+    { kind: "title", key: "tutorial.slide16.row1", y: 100 },
+    { kind: "text", key: "tutorial.slide16.row2", y: 180 },
+    { kind: "text", key: "tutorial.slide16.row3", y: 230 },
+    { kind: "text", key: "tutorial.slide16.row4", y: 280 },
+    { kind: "text", key: "tutorial.slide16.row5", y: 330 },
+  ],
+  // ── Slide 17: wrap-up ──────────────────────────────────────────────────
+  [
+    { kind: "text", key: "tutorial.slide17.row1", y: 200 },
+    { kind: "text", key: "tutorial.slide17.row2", y: 250 },
+    { kind: "text", key: "tutorial.slide17.row3", y: 300 },
+    { kind: "text", key: "tutorial.slide17.row4", y: 350 },
   ],
 ];

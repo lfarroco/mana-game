@@ -4,6 +4,7 @@ import es from "./es.json";
 import jp from "./jp.json";
 import pt from "./pt.json";
 import ru from "./ru.json";
+import { TUTORIAL_SLIDES } from "@game/content/tutorialSlides";
 
 const locales: Record<string, Record<string, string>> = {
 	en,
@@ -39,5 +40,31 @@ describe("locale catalogs", () => {
 			}
 		}
 		expect(mismatches).toEqual({});
+	});
+
+	it("every key the tutorial slides ask for is translated in every locale", () => {
+		// The tutorial renders raw i18n keys (`text`/`title` rows and BBCode
+		// labels); a key that no catalog defines leaks into the slide verbatim.
+		const tutorialKeys = TUTORIAL_SLIDES.flatMap((slide) =>
+			slide.flatMap((item) => {
+				switch (item.kind) {
+					case "text":
+					case "title":
+						return [item.key];
+					case "bbcode":
+						return item.labelKey ? [item.labelKey, item.textKey] : [item.textKey];
+					default:
+						return [];
+				}
+			})
+		);
+
+		const missing: Record<string, string[]> = {};
+		for (const [locale, catalog] of Object.entries(locales)) {
+			const absent = tutorialKeys.filter((key) => catalog[key] === undefined);
+			if (absent.length > 0) missing[locale] = absent;
+		}
+
+		expect(missing).toEqual({});
 	});
 });
