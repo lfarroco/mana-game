@@ -32,14 +32,19 @@ export async function openTutorial(): Promise<void> {
 	);
 	overlay.setInteractive();
 
-	let slide = renderTutorialSlide(TUTORIAL_SLIDES[currentSlide]);
+	let slide: Phaser.GameObjects.Container | null = null;
 
 	const updateSlide = () => {
-		container.remove(slide, true);
+		if (slide) {
+			container.remove(slide, true);
+			slide = null;
+		}
 
 		slide = renderTutorialSlide(TUTORIAL_SLIDES[currentSlide]);
 
-		container.add(slide);
+		// Index 1 keeps the slide above the dim overlay but below the buttons,
+		// matching the container's child order ([overlay, slide, buttons...]).
+		container.addAt(slide, 1);
 
 		if (currentSlide === 0) {
 			prevButton.disable();
@@ -87,7 +92,6 @@ export async function openTutorial(): Promise<void> {
 
 	const container = makeContainer([
 		overlay,
-		slide,
 		prevButton.container,
 		nextButton.container,
 		exitButton.container,

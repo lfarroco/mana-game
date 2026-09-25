@@ -13,6 +13,7 @@ import type { Chara as CharaType } from "@Components/Chara/Chara";
 import * as Animations from "@Components/Chara/Animations";
 import * as createDescription from "@Components/Chara/createDescription";
 import * as Card from "@game/Entities/Card";
+import type { Unit } from "@game/Models";
 import { ABILITY_COLORS } from "@game/data/abilityColors";
 import type {
 	TutorialBbcItem,
@@ -101,9 +102,38 @@ const renderDemo = (item: TutorialDemoItem) => {
 	const cont = makeContainer();
 	const demoUnits = item.units.map((u) => Card.makeUnit(u.force, u.cardId, u.position));
 
+	// Chara.summon adds the unit straight to the scene and only resolves once the
+	// summon beam has landed (hundreds of ms later). The demo therefore has to
+	// adopt the chara *after* awaiting, which means a slide torn down mid-summon
+	// would otherwise leave the unit orphaned on screen (and in the global Chara
+	// registry) forever — the reported "cores stay after the tutorial closes".
+	const summoned: CharaType[] = [];
+
+	const destroySummoned = () => {
+		summoned.splice(0).forEach((chara) => Chara.destroy(chara));
+	};
+
+	// Literal event name (= Phaser.GameObjects.Events.DESTROY): this module does
+	// not import the Phaser package, so it must not depend on the global.
+	cont.once("destroy", destroySummoned);
+
+	const summonIntoDemo = async (unit: Unit) => {
+		const chara = await Chara.summon(unit);
+		if (!cont.active) {
+			// The demo died while the beam was in flight — the chara was never
+			// attached to `cont`, so nothing else will ever clean it up.
+			Chara.destroy(chara);
+			return null;
+		}
+		summoned.push(chara);
+		return chara;
+	};
+
 	const runDemo = async () => {
-		const charas = await Promise.all(demoUnits.map((u) => Chara.summon(u)));
-		if (!cont.active) return;
+		const charas = (await Promise.all(demoUnits.map(summonIntoDemo))).filter(
+			(chara): chara is CharaType => chara !== null
+		);
+		if (!cont.active || charas.length !== demoUnits.length) return;
 		cont.add(charas);
 
 		if (item.showcase) {
