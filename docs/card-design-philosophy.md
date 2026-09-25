@@ -175,19 +175,22 @@ encounter. Do not ship a gold that only works in theory.
 
 ### 3.2. Disruption & counterplay (future design space)
 
-The current trigger system has no purge, dispel, silence, or counter-synergy
-mechanics. A shield-stacking composition has no predator except a raw DPS check;
-a poison-synergy board has no counter except out-racing it. This is acceptable
-for PvE, but as multiplayer is added ([game-server.md](game-server.md)) the lack
-of disruption mechanics means the meta will converge to a few dominant synergy
-packages with no checks.
+Built-in counterplay is thin. **Poison pierces shield entirely**, so it is the
+predator of a shield-stacking composition (see
+[battle-system.md](battle-system.md) § Damage resolution), and `dispel` clears a
+target force's poison/regen stacks, so it answers a poison board. Beyond those
+two the system has no `purge` and no taunt-style disruption: a synergy package
+whose counter is neither poison nor dispel can only be out-raced. This is
+acceptable for PvE, but as multiplayer is added
+([game-server.md](game-server.md)) the lack of disruption mechanics means the
+meta will converge to a few dominant synergy packages with no checks.
 
 Candidate disruption effects for future design exploration:
 
 | Effect | Mechanic | Design notes |
 | :--- | :--- | :--- |
-| `purge` | Removes all shield/poison/regen stacks from target crystal | Counters shield-stacking and DoT-heavy boards |
-| `silence` | Prevents target unit from triggering reactions for N seconds | Direct counter to silver/gold synergy engines |
+| `purge` | Removes all shield/poison/regen stacks from target crystal | Counters shield-stacking and DoT-heavy boards (broader than `dispel`) |
+| `silence` | Prevents target unit from triggering reactions for N seconds | Direct counter to silver/gold synergy engines (the shipped `silence` skips casts instead) |
 | `taunt` | Forces enemy effects to target this unit's crystal | Protective tool for fragile compositions |
 | `reflect` | Returns X% of received damage as a one-time hit | Punishes glass-cannon damage boards |
 | `mana_burn` | Reduces target crystal's max life by N for this combat | Anti-tank tool against high-life compositions |

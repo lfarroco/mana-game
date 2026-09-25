@@ -179,6 +179,31 @@ describe("Effect integration — poison", () => {
       expect(tick.force).toBe(Constants.FORCE_ID_CPU);
     }
   });
+
+  it("poison ticks drain the enemy core through its shield", () => {
+    // Poison's signature: a shield wall does not answer a poison wave
+    // (maintainer-confirmed design, restored 2026-09-25). End-to-end through
+    // applyPoison → StatusEffectSystem.tickForce → Force.applyDamageToForce.
+    const unit = makeTestUnit({
+      effects: [{ id: "poison" }],
+      power: 400,
+      cooldown: 500,
+    });
+    unit.id = "poison-pierce-unit";
+    const { combatState, combatRunner } = setupCombat([unit]);
+
+    const cpuCore = combatState.cpuCore;
+    cpuCore.shield = 100_000;
+    const lifeBefore = cpuCore.life;
+    const shieldBefore = cpuCore.shield;
+
+    const logs = runFrames(combatRunner, combatState, 300);
+    const tickLogs = filterLogs(logs, "poison_tick");
+
+    expect(tickLogs.length).toBeGreaterThanOrEqual(1);
+    expect(cpuCore.shield).toBe(shieldBefore);
+    expect(cpuCore.life).toBeLessThan(lifeBefore);
+  });
 });
 
 describe("Effect integration — healing dispels poison from raw healing", () => {
