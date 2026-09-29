@@ -225,3 +225,15 @@ FIREBASE_PROJECT ?= mana-battle-f3b15
 functions-deploy:
 	@echo "=== Deploying to $(FIREBASE_PROJECT) ==="
 	cd $(SERVER_DIR) && npm run deploy:functions -- --project $(FIREBASE_PROJECT)
+
+# Firestore security rules (firestore.rules) — deny ALL direct client access.
+# The game server reaches Firestore with the Admin SDK, which bypasses rules,
+# and no client links a Firebase SDK, so this is safe and permanent.
+# rules-check validates the file without touching production.
+rules-check:
+	@echo "=== Validating firestore.rules ==="
+	firebase deploy --only firestore:rules --project $(FIREBASE_PROJECT) --dry-run
+
+rules-deploy:
+	@echo "=== Deploying Firestore rules to $(FIREBASE_PROJECT) ==="
+	firebase deploy --only firestore:rules --project $(FIREBASE_PROJECT)

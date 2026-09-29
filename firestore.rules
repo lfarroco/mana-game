@@ -1,0 +1,24 @@
+rules_version = '2';
+
+// Mana Battle — Firestore is a server-only database.
+//
+// Every read and write goes through the Cloud Functions `api` backend
+// (`server/src/functions.ts` → the Express app in `server/src/app.ts`), which
+// uses the Firebase **Admin** SDK. The Admin SDK bypasses security rules
+// entirely, so locking client access down to zero cannot affect the game.
+//
+// No client links a Firebase SDK or calls the Firestore REST API: the Phaser
+// client (`RemoteServer.ts`), the Electron shell, and the Android build only
+// speak HTTP to the function URL (`MANA_SERVER_URL`). Auth is our own
+// Steam/itch.io/Google + Bearer token model — not Firebase Auth.
+//
+// Therefore the only correct rule is "deny everything". The original Test Mode
+// rules ("allow read, write: if true") left the database open to the Internet
+// and were scheduled to expire; this file replaces them permanently.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

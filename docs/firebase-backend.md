@@ -37,6 +37,45 @@ player ──https──▶ Cloud Functions `api` (2nd gen, runs dist/functions.
   framework can `require()` it despite the package's ESM type) and a
   predeploy `npm --prefix server run build` (tsup inlines `core/` via the
   `@game/*` alias, same as the VM bundle).
+- Firestore rules deny **all** direct client access (`firestore.rules`, wired
+  via `firebase.json` → `make rules-deploy`) — see §Firestore security rules.
+
+## Firestore security rules — deny all client access
+
+`firestore.rules` (repo root) is the source of truth and denies every direct
+client read and write:
+
+```
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} { allow read, write: if false; }
+  }
+}
+```
+
+This is complete, not a stopgap, because **Firestore is a server-only
+database** in this architecture:
+
+- The only reader/writer is the `api` function, which uses the Firebase
+  **Admin** SDK (`server/src/persistence/firestore.ts`). The Admin SDK bypasses
+  security rules entirely, so deny-all cannot break sessions, players, tokens,
+  ghosts, ratings, stats, or idempotency.
+- No client links a Firebase SDK or calls the Firestore REST API: the Phaser
+  client (`phaser/src/RemoteServer.ts`), Electron shell, and Android build only
+  speak HTTP to `MANA_SERVER_URL`. Auth is our own Steam/itch.io/Google +
+  Bearer token model, not Firebase Auth, so there is no Firebase uid to key
+  rules on.
+- The project began in console **Test Mode**, which left the database open to
+  the Internet and auto-expires the rules ~30 days after creation. Deploying
+  this file replaces that placeholder permanently, so the expiry warning never
+  returns.
+
+```bash
+make rules-check    # firebase deploy --only firestore:rules --dry-run
+make rules-deploy   # publishes firestore.rules to the project
+```
+
+(`make functions-deploy` does **not** touch rules; they deploy separately.)
 
 ## Phase F1 — Functions hosting slice ✅ landed
 
