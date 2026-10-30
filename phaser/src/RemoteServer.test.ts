@@ -83,6 +83,7 @@ function createCombatStateDto(): CombatStateDto {
 	return {
 		units: [playerCore, cpuCore],
 		logs: [],
+		seed: "pre-combat-seed",
 		wonCombat: true,
 		finalPlayerUnits: [playerCore],
 		enemyPlayerName: "TestRival",
@@ -157,6 +158,9 @@ describe("RemoteServer HTTP adapter", () => {
 		expect(result.combatState?.cpuCore?.force).toBe(FORCE_ID_CPU);
 		expect(result.combatState?.wonCombat).toBe(true);
 		expect(result.combatState?.enemyPlayerName).toBe("TestRival");
+		// The pre-combat seed survives decoding — the combat phase needs it to
+		// reconstruct the (log-free) playback timeline.
+		expect(result.combatState?.seed).toBe("pre-combat-seed");
 		// The session carried in the response is decoded too.
 		expect(result.session.combatState?.unitById).toBeInstanceOf(Map);
 	});

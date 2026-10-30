@@ -17,14 +17,18 @@ back visually by the client. Simulation and presentation never mix.
   (damage, heal, shield, poison, regen, haste, slow, charge, power changes,
   ticks, outcome, ...). Everything the client needs to render the fight.
 - `core/src/session/SessionTransitions.ts` — calls `simulateCombat` when a
-  session transitions into combat; the produced logs travel with the
-  session/combat state back to the client.
+  session transitions into combat; the resulting `CombatState` carries the
+  pre-combat `seed`, the initial units, and the authoritative outcome. The log
+  array itself is not stored or sent: the client rebuilds it deterministically
+  with `CombatReplay.reconstructCombatLogs`.
 
 ### Playback (`phaser/src/`)
 
 - `Screens/Battleground/Phases/Combat/CombatPlaybackController.ts` —
   `createCombatPlaybackController(...)` schedules the log entries on the
-  Phaser clock and fires them in order.
+  Phaser clock and fires them in order. The combat phase resolves its logs
+  first: single-player uses the live array, multiplayer reconstructs it from
+  the wire DTO's `seed` + `initialUnits`.
 - `Screens/Battleground/Phases/Combat/logHandlers/` — dispatches each log
   type to visuals (`projectileHandlers.ts`, `statusHandlers.ts`,
   `powerHandlers.ts`, `arcaneMissileHandlers.ts`, `combatStatsHandlers.ts`),
@@ -45,8 +49,9 @@ sequenceDiagram
 
     Session->>Sim: combat starts (seeded state)
     Sim->>Log: record every event as typed CombatLogEntry
-    Sim-->>Session: CombatState { logs, wonCombat, ... }
-    Session-->>Play: client receives logs
+    Sim-->>Session: CombatState { seed, initialUnits, wonCombat, ... }
+    Session-->>Play: wire DTO (logs omitted)
+    Play->>Play: reconstructCombatLogs(seed, initialUnits)
     loop Phaser update
         Play->>FX: fire due animations/sounds in log order
     end
@@ -58,6 +63,7 @@ sequenceDiagram
 1. **Deterministic** — same seed and inputs produce the same combat and logs.
 2. **Verifiable** — a server can re-run `simulateCombat` and compare outcomes
    (see [game-server.md](game-server.md)).
-3. **Replayable** — logs can be stored and replayed without re-simulation.
+3. **Reconstructible** — logs are a pure function of the pre-combat seed and
+   initial units, so neither storage nor the wire needs to carry them.
 4. **Headless** — simulation runs in Node with zero Phaser/DOM imports (see
    [purity-boundary.md](purity-boundary.md)).

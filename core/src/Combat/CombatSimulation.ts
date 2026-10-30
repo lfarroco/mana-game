@@ -25,6 +25,10 @@ export function createCombatState(
     {
       units,
       logs: [],
+      // Capture the pre-combat seed: simulateCombat advances session.seed, so
+      // without this snapshot the fight could never be replayed from the
+      // initial units on a client (or after a restart).
+      seed: session.seed,
       enemyPlayerName: enemyPlayerName ?? "CPU",
       wonCombat: false,
       // finalPlayerUnits aliases the player units inside `units` (the exact

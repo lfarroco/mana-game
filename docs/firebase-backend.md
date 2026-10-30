@@ -114,12 +114,19 @@ How the hard parts landed:
    plus the per-session-id idempotent repos.
 2. **`clientActionId` is now honored.** The route passes it through;
    `handleAction` replays the stored wire response on a repeated key
-   (session JSON + combat DTO — byte-identical to the first attempt) and
-   stores it write-once after a fresh dispatch. The `idempotency` collection
+   (session JSON + combat DTO, with the combat `logs` array omitted from the
+   stored copy — see item 3) and stores it write-once after a fresh dispatch.
+   The `idempotency` collection
    (doc id `playerId_sha256(key)`, since keys may contain `/`) backs it on
    Firestore; a new `idempotency` table backs it on SQLite.
 3. **Combat-state storage** keeps the two-record shape (`sessions/{playerId}`
    + `combatStates/{playerId}`, batch-written; mirrors the SQLite split).
+   Every database write goes through `serializeCombatStateForStorage` (HTTP
+   responses use the same log-free shape via `serializeCombatStateForWire`),
+   which sets `logs: []`: a long fight's logs exceed Firestore's 1 MiB
+   per-document limit (`combatJson` INVALID_ARGUMENT) and are reconstructible
+   from the DTO's pre-combat `seed` + initial units by
+   `CombatReplay.reconstructCombatLogs` on the client.
 4. **Index-free queries**: every query filters a single field with `==`
    (covered by Firestore's automatic indexes) and sorts / windows / groups
    client-side — no composite indexes to deploy. (An early version filtered

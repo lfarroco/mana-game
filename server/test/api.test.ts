@@ -23,6 +23,8 @@ import type {
 import { STEAM_IDENTITY } from "../src/services/steamAuth";
 import { PVE_ENEMY_NAME } from "../src/services/matchmaking";
 import { getMultiplayerRatingDelta } from "../src/services/rating";
+import * as CombatCodec from "@game/Combat/CombatCodec";
+import * as CombatReplay from "@game/Combat/CombatReplay";
 
 const KEY = "test-publisher-key";
 const APP_IDS = [3757600, 4233280];
@@ -327,7 +329,11 @@ describe("GET /api/v1/sessions/current", () => {
     expect(res.status).toBe(200);
     expect(res.body.phase).toBe("combat");
     expect(res.body.combatState).toBeDefined();
+    // Logs are never sent: the pre-combat seed + initial units are enough for
+    // the client to reconstruct the playback timeline.
     expect(res.body.combatState).toHaveProperty("logs");
+    expect(res.body.combatState.logs).toEqual([]);
+    expect(typeof res.body.combatState.seed).toBe("string");
     expect(typeof res.body.combatState.wonCombat).toBe("boolean");
   });
 });
@@ -416,10 +422,18 @@ describe("POST /api/v1/sessions/current/actions", () => {
     // top-level field both carry the JSON-safe serialized DTO.
     expect(res.body.combatState).toBeDefined();
     expect(res.body.combatState).toHaveProperty("logs");
+    expect(res.body.combatState.logs).toEqual([]);
+    expect(typeof res.body.combatState.seed).toBe("string");
     expect(res.body.combatState).toHaveProperty("wonCombat");
     expect(res.body.combatState).toHaveProperty("enemyPlayerName");
     expect(Array.isArray(res.body.combatState.units)).toBe(true);
     expect(res.body.session.combatState).toEqual(res.body.combatState);
+
+    // The wire payload is sufficient for playback reconstruction.
+    const reconstructed = CombatReplay.reconstructCombatLogs(
+      CombatCodec.deserializeCombatState(res.body.combatState),
+    );
+    expect(reconstructed.length).toBeGreaterThan(0);
   });
 
   it("end_combat advances the run and persists the session", async () => {

@@ -43,6 +43,16 @@ export type CombatState = {
   // Hot, mutable units for simulation
   units: Unit[];
   logs: CombatLogger.CombatLogEntry[];
+  /**
+   * The session RNG seed *before* this fight was simulated. The simulation
+   * advances `SessionData.seed`, so this snapshot is the only way to replay
+   * the fight deterministically. Together with `initialUnits` it is enough to
+   * reconstruct `logs` (see CombatReplay.reconstructCombatLogs).
+   *
+   * Optional for older persisted/wire states created before this field
+   * existed; those cannot be replayed.
+   */
+  seed?: string;
   enemyPlayerName: string;
   wonCombat: boolean;
   // Permanent buffs should be applied here

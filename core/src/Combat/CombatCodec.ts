@@ -6,7 +6,9 @@
  * transport between the game server and client.
  *
  * The server serializes after combat; the client deserializes and rebuilds
- * the derived fields for playback.
+ * the derived fields. The game server sends a log-free DTO (logs are
+ * reconstructible from `seed` + `units` via CombatReplay) — this codec keeps
+ * the logs when a local caller needs the full playback payload.
  */
 
 import * as Models from "../Models";
@@ -23,7 +25,17 @@ import { rebuildCombatStateIndexes } from "./CombatStateIndexes";
 export type CombatStateDto = {
   /** Snapshot of all units at combat start — playback begins from these. */
   units: readonly Models.Unit[];
+  /**
+   * Playback timeline. The game server always sends `[]` (the client rebuilds
+   * it from `seed` + `units`); local callers may carry the full array.
+   */
   logs: CombatLogEntry[];
+  /**
+   * The pre-combat RNG seed. The client re-runs the deterministic simulation
+   * with this seed + `units` to rebuild `logs` locally, so the log array does
+   * not need to cross the wire (or be stored).
+   */
+  seed?: string;
   wonCombat: boolean;
   finalPlayerUnits: Models.Unit[];
   enemyPlayerName: string;
@@ -40,6 +52,7 @@ export function serializeCombatState(
   return {
     units: state.initialUnits,
     logs: state.logs,
+    seed: state.seed,
     wonCombat: state.wonCombat,
     finalPlayerUnits: state.finalPlayerUnits,
     enemyPlayerName: state.enemyPlayerName,
@@ -60,6 +73,7 @@ export function deserializeCombatState(
     {
       units,
       logs: dto.logs,
+      seed: dto.seed,
       enemyPlayerName: dto.enemyPlayerName,
       wonCombat: dto.wonCombat,
       finalPlayerUnits: dto.finalPlayerUnits,

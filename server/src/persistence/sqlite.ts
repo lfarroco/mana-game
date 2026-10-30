@@ -10,7 +10,7 @@
  *           UNIQUE(provider, provider_id))
  *   tokens(token_hash PK, player_id, expires_at, created_at)
  *   sessions(player_id PK, session_json)   — SessionData minus combatState
- *   combat_states(session_id PK, combat_json) — CombatCodec-serialized DTO
+ *   combat_states(session_id PK, combat_json) — CombatCodec DTO without logs
  *   ghosts(ghost_id PK, player_id, session_id, round, team_json, rating,
  *          created_at) + index on round
  *   recently_fought(player_id, opponent_player_id, seq AUTOINCREMENT PK,
@@ -30,8 +30,11 @@
  * combat state is serialized through the core CombatCodec into a JSON-safe
  * DTO and stored separately in `combat_states`, keyed by session id. On load
  * it is deserialized (unitById Map + derived indexes rebuilt) and re-attached,
- * keeping the in-memory resume behavior byte-identical (the wire response
- * after a restart serializes to the exact same DTO as before the restart).
+ * keeping the in-memory resume behavior intact. The stored DTO deliberately
+ * omits the combat `logs` array (`serializeCombatStateForStorage`) — the client
+ * reconstructs playback deterministically from the pre-combat `seed` +
+ * `initialUnits`, and a long fight's history would blow past Firestore's 1 MiB
+ * document limit on that backend.
  * A separate table also matches the documented schema.
  *
  * Prepared statements are created once per repo and reused; user data only
@@ -45,6 +48,7 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { v4 as uuid } from "uuid";
 import * as CombatCodec from "@game/Combat/CombatCodec";
+import { serializeCombatStateForStorage } from "./combatStateStorage";
 import type { SessionData } from "@game/types/session";
 import type { ActionResponse } from "@game/types/action";
 import type {
@@ -237,7 +241,7 @@ export function createSqliteSessionRepo(db: Database.Database): SessionRepo {
     if (combatState) {
       upsertCombatStmt.run(
         session.id,
-        JSON.stringify(CombatCodec.serializeCombatState(combatState)),
+        JSON.stringify(serializeCombatStateForStorage(combatState)),
       );
     }
   };

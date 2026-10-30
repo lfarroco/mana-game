@@ -12,6 +12,7 @@
 
 import type { Firestore } from "firebase-admin/firestore";
 import type { Action } from "@game/types/action";
+import * as CombatReplay from "@game/Combat/CombatReplay";
 import {
   createFirestoreRepos,
   type FirestoreRepos,
@@ -197,10 +198,16 @@ describe("firestore session repo", () => {
     expect(fought.session.phase).toBe("combat");
     expect(fought.combatState).toBeDefined();
 
-    // A fresh read re-attaches the live combat state (Map rebuilt).
+    // A fresh read re-attaches the live combat state (Map rebuilt), but the
+    // log history is never written to the database (1 MiB document limit).
     const reloaded = (await repos.sessionRepo.get(playerId))!;
     expect(reloaded.phase).toBe("combat");
     expect(reloaded.combatState?.unitById instanceof Map).toBe(true);
+    expect(fought.combatState?.logs.length).toBeGreaterThan(0);
+    expect(reloaded.combatState?.logs).toEqual([]);
+    expect(CombatReplay.reconstructCombatLogs(reloaded.combatState!)).toEqual(
+      fought.combatState!.logs,
+    );
     expect(reloaded.combatState?.wonCombat).toBe(
       fought.combatState?.wonCombat,
     );

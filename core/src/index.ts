@@ -57,6 +57,7 @@ export * as CombatSimulation from "./Combat/CombatSimulation";
 export * as CombatRunner from "./Combat/CombatRunner";
 export * as CombatLogger from "./Combat/CombatLogger";
 export * as CombatCodec from "./Combat/CombatCodec";
+export * as CombatReplay from "./Combat/CombatReplay";
 export * as CombatStateIndexes from "./Combat/CombatStateIndexes";
 export * as CombatStatsTracker from "./Combat/CombatStatsTracker";
 export * as PoisonDamageSystem from "./Combat/PoisonDamageSystem";

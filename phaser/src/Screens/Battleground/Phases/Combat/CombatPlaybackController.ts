@@ -89,6 +89,17 @@ export const createCombatPlaybackController = (
 		playbackState.animations = animations;
 		playbackState.maxEndTime = maxEndTime;
 		playbackState.outcome = outcome;
+
+		// Missing-outcome fallback (a log-free legacy state, or a simulation
+		// that hit its frame guard before logging the outcome): without an
+		// outcome the completion check below would never fire and the combat
+		// phase would hang. Use the authoritative result; an empty timeline
+		// finishes on the first update, a partial one after its last entry.
+		if (!playbackState.outcome) {
+			playbackState.outcome = env.state.combatState!.wonCombat
+				? "player_won"
+				: "player_lost";
+		}
 	};
 
 	const executeAnimation = (animation: ScheduledAnimation) => {

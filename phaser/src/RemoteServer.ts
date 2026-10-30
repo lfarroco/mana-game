@@ -13,9 +13,10 @@
  * adapter rejects: multiplayer requires a login.
  *
  * Wire format: combat states cross the wire as a JSON-safe `CombatStateDto`
- * (core `CombatCodec`); this adapter decodes them back into a full
- * `CombatState` (rebuilding the `unitById` Map and derived fields) so the
- * battleground can play them back unchanged.
+ * (core `CombatCodec`) with an empty `logs` array. This adapter decodes the
+ * DTO back into a full `CombatState` (rebuilding the `unitById` Map and
+ * derived fields); the combat phase then reconstructs the log timeline from
+ * the pre-combat `seed` + initial units (`CombatReplay`).
  *
  * The factory (`createRemoteServer`) accepts an injectable fetch, base URL,
  * and token provider so tests can mock the HTTP layer exactly like the server
@@ -133,6 +134,7 @@ function isCombatStateDto(value: unknown): value is CombatStateDto {
 	return (
 		Array.isArray(value.units) &&
 		Array.isArray(value.logs) &&
+		(value.seed === undefined || typeof value.seed === "string") &&
 		Array.isArray(value.finalPlayerUnits) &&
 		typeof value.wonCombat === "boolean" &&
 		typeof value.enemyPlayerName === "string"

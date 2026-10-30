@@ -127,7 +127,8 @@ for sequencing purposes (that doc keeps the full design).
   restart-survival test (kill/restart mid-run → `GET /sessions/current`
   resumes): writes to a temp FILE, closes the Database, reopens fresh repos on
   the same file, and asserts the player/token/session/ghost/rating state —
-  including a mid-combat session with a byte-identical resume payload — survives,
+  including a mid-combat session whose playback logs are reconstructible from
+  the persisted pre-combat seed — survives,
   and the run can continue (`end_combat` after restart).
 - Schema deviation (documented in sqlite.ts + game-server.md): the old
   Supabase `combat_states(session_id, json)` table is kept, but it stores the

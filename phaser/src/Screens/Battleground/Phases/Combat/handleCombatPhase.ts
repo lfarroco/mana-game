@@ -8,6 +8,7 @@ import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay"
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 
 import * as Constants from "@game/Constants";
+import * as CombatReplay from "@game/Combat/CombatReplay";
 import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import {
 	assertCombatStateIndexes,
@@ -108,6 +109,41 @@ async function beginCombatPlayback(): Promise<void> {
 	state.stopActivePlayback = await startCombatPlayback();
 }
 
+/**
+ * Resolve the playback timeline for the current combat.
+ *
+ * The server sends a log-free DTO (a long fight's logs exceed Firestore's
+ * 1 MiB document limit, and they are reconstructible anyway): rebuild them
+ * deterministically from the pre-combat seed + initial units, then cache the
+ * result on the state so a replay doesn't re-simulate.
+ *
+ * Single-player still supplies live logs, so use them when present.
+ */
+const resolvePlaybackLogs = (): ReturnType<
+	typeof CombatReplay.reconstructCombatLogs
+> => {
+	const combatState = env.state.combatState!;
+	if (combatState.logs.length === 0) {
+		try {
+			combatState.logs = CombatReplay.reconstructCombatLogs(combatState);
+		} catch (error) {
+			// Never let a reconstruction failure strand the phase: the
+			// playback controller treats an empty timeline as an immediate
+			// finish using combatState.wonCombat.
+			console.error("CombatPlayback", "Combat log reconstruction failed", error);
+		}
+		if (combatState.logs.length === 0) {
+			// A legacy/older-server state without a pre-combat seed. The
+			// authoritative result still renders; only the animation is lost.
+			console.error(
+				"CombatPlayback",
+				"No combat logs and no reconstructible seed — playing an empty battle."
+			);
+		}
+	}
+	return combatState.logs;
+};
+
 const startCombatPlayback = async (): Promise<() => void> => {
 	// Capture the scene up front: the start delay below gives the player a
 	// window to navigate away, and the scene's event emitter survives shutdown,
@@ -124,7 +160,7 @@ const startCombatPlayback = async (): Promise<() => void> => {
 	if (!scene.sys?.settings?.active) return () => {};
 
 	const controller = CombatPlaybackController.createCombatPlaybackController(
-		env.state.combatState!.logs
+		resolvePlaybackLogs()
 	);
 	state.currentController = controller;
 

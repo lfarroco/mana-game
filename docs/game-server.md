@@ -122,7 +122,8 @@ Later (Phase 5): agent endpoints reviving the removed `agentGameServer` surface 
   ```ts
   type CombatStateDto = {
     units: Unit[];            // initialUnits — playback starts from these
-    logs: CombatLogEntry[];
+    logs: CombatLogEntry[];   // always [] on the wire (see below)
+    seed?: string;            // pre-combat RNG seed — client replays the fight
     wonCombat: boolean;
     finalPlayerUnits: Unit[];
     enemyPlayerName: string;
@@ -130,6 +131,7 @@ Later (Phase 5): agent endpoints reviving the removed `agentGameServer` surface 
   ```
 
 - Encode/decode lives in `core/` as a pure codec (`serializeCombatState` / `deserializeCombatState`): the server encodes, the client decodes and rebuilds the Map + derived fields. Both sides need it, it is pure logic, and it formalizes what `RemoteServer.getPhaseOptions` already does inline today.
+- **Logs are never sent or stored.** Combat is deterministic (`seed` + `units`), so `CombatReplay.reconstructCombatLogs` rebuilds the playback timeline on the client. This keeps payloads small and avoids the 1 MiB document limit; see the persistence note below.
 
 ## Session & combat flow (server-side)
 
@@ -164,7 +166,7 @@ Retained from the retired backend — it fits an autobattler: no real-time coord
   - `ghosts(ghost_id PK, player_id, session_id, round, team_json, rating, created_at)` + `recently_fought(player_id, opponent_player_id, seq)` — the per-player capped-FIFO matchmaking log.
   - `ratings(player_id PK, rating, updated_at)` — the old schema kept rating on the players row; the current `RatingRepo` is separate.
   - `run_completions(session_id PK, player_id, tier, wins, completed_at)` + index on `(player_id, completed_at)` — one row per finished multiplayer run, recorded once when the run reaches a terminal phase; powers the lobby's career/season victory counts (see [multiplayer-lobby.md](multiplayer-lobby.md)).
-- **Combat-state deviation**: `SessionData.combatState` embeds the *live* `CombatState` (a `Map`-carrying object) while in the `combat` phase. Plain JSON cannot hold a `Map`, so a naive JSON round-trip of the session row would corrupt resume-mid-combat. The `combat_states` table therefore stores the JSON-safe `CombatStateDto` (via the core `CombatCodec`), keyed by session id; on load it is deserialized (Map + derived indexes rebuilt) and re-attached. The wire response after a restart is byte-identical to the pre-restart one. Session + combat rows are written atomically (single SQLite transaction).
+- **Combat-state deviation**: `SessionData.combatState` embeds the *live* `CombatState` (a `Map`-carrying object) while in the `combat` phase. Plain JSON cannot hold a `Map`, so a naive JSON round-trip of the session row would corrupt resume-mid-combat. The `combat_states` table therefore stores the JSON-safe `CombatStateDto` (via the core `CombatCodec`), keyed by session id; on load it is deserialized (Map + derived indexes rebuilt) and re-attached. **The DTO's `logs` array is always empty — in storage and on the wire** (`serializeCombatStateForStorage` / `serializeCombatStateForWire`): a long fight's history exceeds Firestore's 1 MiB per-document limit, and it is reconstructible. The DTO carries the pre-combat `seed` plus the initial units, so both a fresh response and a resumed session rebuild the exact playback timeline via `CombatReplay.reconstructCombatLogs`; they continue correctly from `wonCombat`/`finalPlayerUnits`. Session + combat rows are written atomically (single SQLite transaction).
 - Postgres only if we ever need multiple instances — the repository pattern keeps it swappable.
 
 ## Auth

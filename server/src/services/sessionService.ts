@@ -42,6 +42,7 @@ import { formatNumericSeed, MAX_SEED_BOUND } from "@game/session/seed";
 import type { SessionData } from "@game/types/session";
 import type { Action, ActionResponse } from "@game/types/action";
 import { ApiError } from "../errors";
+import { serializeCombatStateForStorage } from "../persistence/combatStateStorage";
 import type {
   GhostRepo,
   IdempotencyRecord,
@@ -430,7 +431,7 @@ function toIdempotencyRecord(
     key,
     sessionJson: JSON.stringify(rest),
     combatJson: combatState
-      ? JSON.stringify(CombatCodec.serializeCombatState(combatState))
+      ? JSON.stringify(serializeCombatStateForStorage(combatState))
       : null,
     createdAt: Date.now(),
   };

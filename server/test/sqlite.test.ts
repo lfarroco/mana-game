@@ -35,6 +35,8 @@ import type {
 } from "../src/persistence/repositories";
 import { createSessionService } from "../src/services/sessionService";
 import { STEAM_IDENTITY } from "../src/services/steamAuth";
+import * as CombatCodec from "@game/Combat/CombatCodec";
+import * as CombatReplay from "@game/Combat/CombatReplay";
 import type { Unit } from "@game/types/unit";
 
 const KEY = "test-publisher-key";
@@ -131,13 +133,29 @@ describe("createSqliteSessionRepo", () => {
     // The derived Map index survives the SQLite round-trip.
     expect(resumed.combatState!.unitById).toBeInstanceOf(Map);
     expect(resumed.combatState!.unitById.size).toBeGreaterThan(0);
-    // The wire DTO serialized after the round-trip matches the original.
+    // The wire DTO serialized after the round-trip matches the original,
+    // except for the log history, which is deliberately never persisted.
     expect(resumed.combatState!.enemyPlayerName).toBe(
       result.combatState!.enemyPlayerName,
     );
-    expect(resumed.combatState!.logs).toEqual(result.combatState!.logs);
+    expect(result.combatState!.logs.length).toBeGreaterThan(0);
+    expect(resumed.combatState!.logs).toEqual([]);
     expect(resumed.combatState!.wonCombat).toBe(result.combatState!.wonCombat);
     expect(resumed.id).toBe(result.session.id);
+
+    // The pre-combat seed survived, so the client can rebuild the exact
+    // playback timeline after resuming.
+    expect(CombatReplay.reconstructCombatLogs(resumed.combatState!)).toEqual(
+      result.combatState!.logs,
+    );
+
+    // The stored document itself carries no logs — the 1 MiB fix.
+    const stored = db
+      .prepare("SELECT combat_json FROM combat_states WHERE session_id = ?")
+      .get(result.session.id) as { combat_json: string };
+    expect(
+      (JSON.parse(stored.combat_json) as { logs: unknown[] }).logs,
+    ).toEqual([]);
 
     // end_combat transitions out of combat into the upgrade_core phase; the
     // stale combat row is not read.
@@ -529,8 +547,21 @@ describe("restart survival", () => {
         .set("Authorization", `Bearer ${token}`);
       expect(resumed.status).toBe(200);
       expect(resumed.body.phase).toBe("combat");
-      // Resume payload is byte-identical to the pre-restart combat state.
+      // Neither the live response nor the resume payload carries logs: both
+      // ship the pre-combat seed + initial units instead (1 MiB fix). The
+      // two payloads reconstruct to the same playback timeline.
+      expect(started.body.combatState.logs).toEqual([]);
+      expect(resumed.body.combatState.logs).toEqual([]);
       expect(resumed.body.combatState).toEqual(started.body.combatState);
+
+      const startedLogs = CombatReplay.reconstructCombatLogs(
+        CombatCodec.deserializeCombatState(started.body.combatState),
+      );
+      const resumedLogs = CombatReplay.reconstructCombatLogs(
+        CombatCodec.deserializeCombatState(resumed.body.combatState),
+      );
+      expect(startedLogs.length).toBeGreaterThan(0);
+      expect(resumedLogs).toEqual(startedLogs);
 
       // The run can CONTINUE after the restart: end_combat works and lands on
       // the upgrade_core phase (round 1's final phase).

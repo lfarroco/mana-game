@@ -25,6 +25,8 @@ describe("CombatCodec", () => {
         enemyTeam,
         "TestRival",
       );
+      // Capture the pre-combat seed: simulateCombat advances session.seed.
+      const preCombatSeed = session.seed;
       // Simulate combat to get logs
       const finalState = CombatSimulation.simulateCombat(session, combatState);
 
@@ -35,6 +37,11 @@ describe("CombatCodec", () => {
       expect(restored.logs).toEqual(finalState.logs);
       expect(restored.wonCombat).toBe(finalState.wonCombat);
       expect(restored.enemyPlayerName).toBe("TestRival");
+      // The DTO carries the pre-combat seed (not the advanced session seed),
+      // which is what clients need to reconstruct the logs.
+      expect(dto.seed).toBe(preCombatSeed);
+      expect(restored.seed).toBe(preCombatSeed);
+      expect(session.seed).not.toBe(preCombatSeed);
 
       // Derived fields are rebuilt
       expect(restored.unitById).toBeInstanceOf(Map);
@@ -65,6 +72,7 @@ describe("CombatCodec", () => {
       const parsed = JSON.parse(json);
       expect(typeof parsed.wonCombat).toBe("boolean");
       expect(typeof parsed.enemyPlayerName).toBe("string");
+      expect(typeof parsed.seed).toBe("string");
       expect(Array.isArray(parsed.units)).toBe(true);
       expect(Array.isArray(parsed.logs)).toBe(true);
     });

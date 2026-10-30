@@ -21,11 +21,12 @@ the client.
 ### Multiplayer model
 
 Multiplayer uses a straightforward request-response pattern: the client sends
-an action, the server processes it and returns the new session state (with
-pre-computed combat logs if the action leads to combat). The server is always
-authoritative; the client never runs game logic to predict or validate. This
-keeps the core package's scope narrow — it powers single-player (in-process
-via `LocalServer`) and, once it lands, the game server.
+an action, the server processes it and returns the new session state. Combat
+crosses the wire as a log-free DTO (pre-combat seed + initial units); the
+client rebuilds the playback logs deterministically with `CombatReplay`. The
+server is always authoritative; the client never runs game logic to predict or
+validate. This keeps the core package's scope narrow — it powers single-player
+(in-process via `LocalServer`) and, once it lands, the game server.
 
 ## The three-layer model
 

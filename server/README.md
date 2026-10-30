@@ -124,10 +124,12 @@ Supported action types: `skip`, `select_encounter`, `recruit_unit`,
 `victory`.
 
 `start_combat` runs the combat simulation server-side and returns the result as
-a JSON-safe `CombatStateDto` (`units`, `logs`, `wonCombat`,
+a JSON-safe `CombatStateDto` (`units`, `logs: []`, `seed`, `wonCombat`,
 `finalPlayerUnits`, `enemyPlayerName`) — the raw in-memory `CombatState`
-(contains a `Map`) is never sent. The client decodes it with the core
-`CombatCodec`.
+(contains a `Map`) is never sent. Logs are omitted because the fight is
+deterministic: the client reconstructs them from the pre-combat `seed` +
+`units` with the core `CombatReplay.reconstructCombatLogs`, then decodes the
+DTO with `CombatCodec`.
 
 ## Matchmaking & rating
 

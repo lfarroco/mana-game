@@ -10,6 +10,7 @@
 
 import type { Action } from "@game/types/action";
 import type { SessionData } from "@game/types/session";
+import * as CombatReplay from "@game/Combat/CombatReplay";
 import {
   createMemoryGhostRepo,
   createMemoryIdempotencyRepo,
@@ -310,7 +311,7 @@ describe("action idempotency (clientActionId)", () => {
     expect(live.action_log).toHaveLength(2);
   });
 
-  it("replays combat bytes identically", async () => {
+  it("replays the stored combat response without persisting logs", async () => {
     await service.createSession(playerId, { crystalId: "critical_crystal" });
     // Drive to pre_combat without fighting.
     for (let i = 0; i < 50; i++) {
@@ -334,7 +335,14 @@ describe("action idempotency (clientActionId)", () => {
     );
 
     expect(first.combatState).toBeDefined();
+    // The live response keeps the playback history; the idempotency record
+    // (a database document) deliberately does not.
+    expect(first.combatState?.logs.length).toBeGreaterThan(0);
+    expect(second.combatState?.logs).toEqual([]);
     expect(second.combatState?.wonCombat).toBe(first.combatState?.wonCombat);
+    expect(
+      CombatReplay.reconstructCombatLogs(second.combatState!),
+    ).toEqual(first.combatState!.logs);
     expect(second.combatState?.enemyPlayerName).toBe(
       first.combatState?.enemyPlayerName,
     );

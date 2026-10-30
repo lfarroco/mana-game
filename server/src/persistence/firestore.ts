@@ -10,7 +10,8 @@
  * and units/sessions carry optional fields, so plain strings dodge that):
  *
  *   sessions/{playerId}        { sessionJson, updatedAt } — combat stripped
- *   combatStates/{playerId}    { combatJson } — CombatCodec DTO, combat phase only
+ *   combatStates/{playerId}    { combatJson } — CombatCodec DTO without logs,
+ *                                combat phase only (keeps docs under 1 MiB)
  *   players/{playerId}         { provider, providerId, displayName|null,
  *                                displayNameUpdatedAt|null, createdAt }
  *   playerLookup/{sha256}      { playerId } — UNIQUE(provider, providerId)
@@ -41,6 +42,7 @@ import type {
   Firestore,
 } from "firebase-admin/firestore";
 import * as CombatCodec from "@game/Combat/CombatCodec";
+import { serializeCombatStateForStorage } from "./combatStateStorage";
 import type { SessionData } from "@game/types/session";
 import type { ActionResponse } from "@game/types/action";
 import type {
@@ -197,7 +199,7 @@ export function createFirestoreSessionRepo(db: Firestore): SessionRepo {
       if (session.combatState) {
         batch.set(combatStates.doc(playerId), {
           combatJson: JSON.stringify(
-            CombatCodec.serializeCombatState(session.combatState),
+            serializeCombatStateForStorage(session.combatState),
           ),
         });
       }
@@ -226,7 +228,7 @@ export function createFirestoreSessionRepo(db: Firestore): SessionRepo {
         if (result.session.combatState) {
           tx.set(combatStates.doc(playerId), {
             combatJson: JSON.stringify(
-              CombatCodec.serializeCombatState(result.session.combatState),
+              serializeCombatStateForStorage(result.session.combatState),
             ),
           });
         }

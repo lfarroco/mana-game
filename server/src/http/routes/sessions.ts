@@ -14,14 +14,16 @@
  *
  * The raw in-memory CombatState contains non-JSON-safe Maps, so responses
  * always strip it from the session payload. While in the `combat` phase it
- * is included separately, serialized via the core CombatCodec, so a
- * reconnecting client can resume playback.
+ * is included separately as a log-free DTO: the client rebuilds the playback
+ * logs deterministically from the DTO's pre-combat `seed` + `units`
+ * (`CombatReplay.reconstructCombatLogs`), so a reconnecting client can resume
+ * playback without the server sending or storing thousands of log entries.
  */
 
 import { Router, type Request, type Response } from "express";
-import * as CombatCodec from "@game/Combat/CombatCodec";
 import type { SessionData } from "@game/types/session";
 import type { CombatState } from "@game/types/combat";
+import { serializeCombatStateForWire } from "../../persistence/combatStateStorage";
 import type {
   GhostRepo,
   IdempotencyRepo,
@@ -91,9 +93,7 @@ export function sessionsRouter(deps: SessionRouterDeps): Router {
       session: toWireSession(result.session),
     };
     if (result.combatState) {
-      response.combatState = CombatCodec.serializeCombatState(
-        result.combatState,
-      );
+      response.combatState = serializeCombatStateForWire(result.combatState);
     }
 
     res.json(response);
@@ -115,8 +115,8 @@ function getPlayerId(req: Request): string {
 
 /**
  * Strip the raw (Map-carrying) CombatState from a session before responding.
- * While in the combat phase the combat state is included, serialized, so a
- * reconnecting client can resume playback.
+ * While in the combat phase the combat state is included as a log-free DTO
+ * (seed + units), so a reconnecting client can reconstruct playback.
  */
 function toWireSession(session: SessionData): Record<string, unknown> {
   const { combatState, ...safe } = session as SessionData & {
@@ -126,7 +126,7 @@ function toWireSession(session: SessionData): Record<string, unknown> {
   if (session.phase === "combat" && combatState) {
     return {
       ...safe,
-      combatState: CombatCodec.serializeCombatState(combatState),
+      combatState: serializeCombatStateForWire(combatState),
     };
   }
   return safe;
