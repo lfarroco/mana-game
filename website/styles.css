@@ -372,6 +372,12 @@ a:hover {
   font-size: 0.85rem;
 }
 
+/* The header CTA drops "on Steam" where the wordmark, button and menu
+   button no longer fit on one line. */
+.cta-short {
+  display: none;
+}
+
 .text-link {
   display: inline-flex;
   align-items: center;
@@ -1254,6 +1260,16 @@ a:hover {
 
   .footer-links {
     gap: 8px 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .cta-full {
+    display: none;
+  }
+
+  .cta-short {
+    display: inline;
   }
 }
 

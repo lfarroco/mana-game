@@ -1,6 +1,7 @@
 /**
  * Mana Battle landing page — tiny progressive enhancements.
- * No dependencies, no analytics, no build step.
+ * No dependencies, no build step. Ad conversion tracking lives in
+ * analytics.js.
  */
 (() => {
   const dialog = document.getElementById("lightbox");

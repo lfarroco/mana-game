@@ -1,9 +1,10 @@
 # Mana Battle website
 
 A dependency-free, single-page landing site for Mana Battle, in the spirit of
-[Mindustry's site](https://mindustrygame.github.io/). Plain HTML, CSS, and a
-tiny progressive-enhancement script — no build step, no framework, no runtime
-dependencies.
+[Mindustry's site](https://mindustrygame.github.io/). Plain HTML, CSS, and two
+tiny progressive-enhancement scripts — no build step, no framework, no
+first-party dependencies. The only third-party script is the Google tag used
+for ad conversion tracking (see [Conversion tracking](#conversion-tracking)).
 
 ## Preview locally
 
@@ -64,12 +65,39 @@ fallback in a `<picture>`. Regenerate it after changing `logo.png`:
 cwebp -q 90 -alpha_q 100 website/assets/logo.png -o website/assets/logo.webp
 ```
 
+## Conversion tracking
+
+Google Ads uses **"Wishlist on Steam"** as the conversion. The page tracks it
+as a click on the Steam CTA:
+
+- the Google tag (`AW-18514302845`) loads from `index.html`;
+- any link with `data-cta="wishlist"` fires the conversion;
+- `data-cta="trial"` (the itch.io button) only pushes an event to `dataLayer`,
+  so it never competes with the wishlist signal.
+
+The conversion action needs a label that only your Google Ads account can
+generate. Create it under **Tools → Conversions → New conversion action →
+Website**, choose **Click** rather than page load, then paste the label from
+the generated snippet into `CONVERSION_LABEL` in [`analytics.js`](analytics.js).
+It looks like `AbC-D_efG-h12_34-567`.
+
+Until that constant is filled in, clicks are not reported: the page logs a
+single console warning the first time a wishlist link is clicked. Check the
+setup with the Google Tag Assistant, or open DevTools and look for
+`dataLayer` events named `wishlist_click`.
+
+> **Consent:** there is no cookie banner yet. If the campaign targets the
+> EEA/UK, Google requires Consent Mode v2 with a certified CMP; for Brazil,
+> LGPD makes a consent banner the safe default. Add one before pointing
+> EEA/BR traffic at the page.
+
 ## Editing
 
 - `index.html` — copy, sections, metadata, and links.
 - `styles.css` — palette, layout, and responsive rules.
 - `main.js` — screenshot lightbox, click-to-load trailer, mobile menu, footer
   year.
+- `analytics.js` — Google Ads conversion label and the wishlist click handler.
 
 Store links:
 

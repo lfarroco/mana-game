@@ -6,7 +6,7 @@
     <title>Mana Battle — a trigger-based 3×3 autobattler</title>
     <meta
       name="description"
-      content="Mana Battle is an open-source autobattler played on a 3×3 board. Recruit units, chain their reactions, and break the enemy crystal. Free in your browser."
+      content="Mana Battle is an open-source autobattler played on a 3×3 board. Recruit units, chain their reactions, and break the enemy crystal. Wishlist on Steam or play free in your browser."
     />
     <meta name="theme-color" content="#0b0814" />
     <link rel="canonical" href="https://lfarroco.github.io/mana-game/" />
@@ -19,7 +19,7 @@
     />
     <meta
       property="og:description"
-      content="Recruit units, chain their reactions, and break the enemy crystal. Play in your browser for free, or grab the Steam version."
+      content="Recruit units, chain their reactions, and break the enemy crystal. Wishlist on Steam, or try it for free in your browser."
     />
     <meta property="og:url" content="https://lfarroco.github.io/mana-game/" />
     <meta
@@ -39,7 +39,7 @@
     />
     <meta
       name="twitter:description"
-      content="Recruit units, chain their reactions, and break the enemy crystal. Play in your browser for free, or grab the Steam version."
+      content="Recruit units, chain their reactions, and break the enemy crystal. Wishlist on Steam, or try it for free in your browser."
     />
     <meta
       name="twitter:image"
@@ -49,8 +49,23 @@
     <link rel="icon" type="image/png" href="./assets/favicon.png" />
     <link rel="apple-touch-icon" href="./assets/icon.png" />
     <link rel="preload" as="image" href="./assets/logo.webp" type="image/webp" />
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <!-- Google tag (gtag.js) — Google Ads conversions, see analytics.js -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=AW-18514302845"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "AW-18514302845");
+    </script>
     <link rel="stylesheet" href="./styles.css" />
     <script src="./main.js" defer></script>
+    <script src="./analytics.js" defer></script>
 
     <script type="application/ld+json">
       {
@@ -122,9 +137,13 @@
           </a>
           <a
             class="btn btn-small btn-primary"
-            href="https://lfarroco.itch.io/mana-battle"
-            >Play for free</a
+            href="https://store.steampowered.com/app/3757600/Mana_Battle"
+            data-cta="wishlist"
+            aria-label="Wishlist on Steam"
           >
+            <span class="cta-full">Wishlist on Steam</span>
+            <span class="cta-short">Wishlist</span>
+          </a>
           <button
             class="nav-toggle"
             type="button"
@@ -203,9 +222,10 @@
           <div class="hero-actions">
             <a
               class="btn btn-primary"
-              href="https://lfarroco.itch.io/mana-battle"
+              href="https://store.steampowered.com/app/3757600/Mana_Battle"
+              data-cta="wishlist"
             >
-              Play for free on itch.io
+              Wishlist on Steam
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path
                   fill="none"
@@ -219,9 +239,10 @@
             </a>
             <a
               class="btn btn-secondary"
-              href="https://store.steampowered.com/app/3757600/Mana_Battle"
+              href="https://lfarroco.itch.io/mana-battle"
+              data-cta="trial"
             >
-              Get it on Steam
+              Try it for free on itch.io
             </a>
           </div>
 
@@ -503,53 +524,21 @@
       <section class="section" id="play" aria-labelledby="play-title">
         <header class="section-head">
           <p class="kicker">Play</p>
-          <h2 id="play-title">In your browser, or on Steam.</h2>
+          <h2 id="play-title">Wishlist on Steam, or try it for free.</h2>
           <p>
-            Start a run on itch.io in a couple of clicks, or get the Steam
-            version for achievements, cloud saves and a desktop client.
+            The Steam version adds achievements, cloud saves and a desktop
+            client. The browser build on itch.io is free, so you can play a run
+            before you decide.
           </p>
         </header>
 
         <div class="play-grid">
-          <article class="play-card">
-            <img
-              class="play-cover"
-              src="./assets/screenshot-combat.jpg"
-              alt="A Mana Battle board mid-combo, with beams and status effects across both teams."
-              width="1600"
-              height="884"
-              loading="lazy"
-            />
-            <div class="play-copy">
-              <span class="tag">Free · Web</span>
-              <h3>Play on itch.io</h3>
-              <p>
-                No install and no launcher. Open the page and start a run.
-              </p>
-              <a
-                class="btn btn-primary"
-                href="https://lfarroco.itch.io/mana-battle"
-              >
-                Play for free
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M5 12h14m-6-6 6 6-6 6"
-                  />
-                </svg>
-              </a>
-            </div>
-          </article>
-
           <article class="play-card play-card-steam">
             <a
               class="steam-banner"
               href="https://store.steampowered.com/app/3757600/Mana_Battle"
-              aria-label="Mana Battle on Steam"
+              aria-label="Wishlist Mana Battle on Steam"
+              data-cta="wishlist"
             >
               <img
                 src="./assets/steam-capsule.jpg"
@@ -567,10 +556,46 @@
                 cloud saves.
               </p>
               <a
-                class="btn btn-secondary"
+                class="btn btn-primary"
                 href="https://store.steampowered.com/app/3757600/Mana_Battle"
+                data-cta="wishlist"
               >
-                View on Steam
+                Wishlist on Steam
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M5 12h14m-6-6 6 6-6 6"
+                  />
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <article class="play-card">
+            <img
+              class="play-cover"
+              src="./assets/screenshot-combat.jpg"
+              alt="A Mana Battle board mid-combo, with beams and status effects across both teams."
+              width="1600"
+              height="884"
+              loading="lazy"
+            />
+            <div class="play-copy">
+              <span class="tag">Free · Web</span>
+              <h3>Try it in your browser</h3>
+              <p>
+                No install and no launcher. Open the page and start a run.
+              </p>
+              <a
+                class="btn btn-secondary"
+                href="https://lfarroco.itch.io/mana-battle"
+                data-cta="trial"
+              >
+                Try it for free on itch.io
               </a>
             </div>
           </article>
