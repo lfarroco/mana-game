@@ -82,6 +82,10 @@ Pure, framework-agnostic game logic is being extracted into a top-level `core/` 
   - Purpose: Authoritative Node game server API for multiplayer sessions — replaces the retired Supabase backend (Phase 1 session API implemented 2026-08-11)
   - Key files: `src/app.ts`, `src/http/routes/` (`sessions.ts`, `players.ts`), `src/services/` (`sessionService.ts`, `playerService.ts`), `src/persistence/` (`repositories.ts` + in-memory `memory.ts`), `src/dto.ts`; phased plan: [docs/game-server.md](docs/game-server.md)
 
+- `website/` (static landing page — no build step)
+  - Purpose: GitHub Pages site for the game (hero, screenshots, trailer, store links, open-source section)
+  - Key files: `index.html`, `styles.css`, `main.js`, `assets/`; preview/deploy notes: [website/README.md](website/README.md); deployed by [.github/workflows/pages.yml](.github/workflows/pages.yml)
+
 ### Documentation Index
 
 Detailed docs live in `docs/`. Each covers a specific system:

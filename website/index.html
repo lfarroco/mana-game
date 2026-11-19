@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mana Battle — a trigger-based 3×3 autobattler</title>
+    <meta
+      name="description"
+      content="Build a 3×3 team, forge reactions, and shatter the enemy crystal. Mana Battle is a free-to-play, open-source autobattler for web, desktop, and Android."
+    />
+    <meta name="theme-color" content="#0b0814" />
+    <link rel="canonical" href="https://lfarroco.github.io/mana-game/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mana Battle" />
+    <meta
+      property="og:title"
+      content="Mana Battle — a trigger-based 3×3 autobattler"
+    />
+    <meta
+      property="og:description"
+      content="Draft heroes, forge reactions, and let your build fight for you. Free in your browser, open source, and built for players who like their numbers big."
+    />
+    <meta property="og:url" content="https://lfarroco.github.io/mana-game/" />
+    <meta
+      property="og:image"
+      content="https://lfarroco.github.io/mana-game/assets/og.jpg"
+    />
+    <meta
+      property="og:image:alt"
+      content="The Mana Battle logo over a purple pixel-art background"
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@manabattle_en" />
+    <meta
+      name="twitter:title"
+      content="Mana Battle — a trigger-based 3×3 autobattler"
+    />
+    <meta
+      name="twitter:description"
+      content="Draft heroes, forge reactions, and let your build fight for you. Free in your browser, open source, and built for players who like their numbers big."
+    />
+    <meta
+      name="twitter:image"
+      content="https://lfarroco.github.io/mana-game/assets/og.jpg"
+    />
+
+    <link rel="icon" type="image/png" href="./assets/favicon.png" />
+    <link rel="apple-touch-icon" href="./assets/icon.png" />
+    <link rel="preload" as="image" href="./assets/logo.png" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./main.js" defer></script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Mana Battle",
+        "description": "A trigger-based autobattler played on a 3×3 board. Draft heroes, forge reactions, and protect your crystal while shattering the enemy's.",
+        "genre": ["Autobattler", "Strategy", "Roguelite"],
+        "gamePlatform": ["Web browser", "Windows", "macOS", "Linux", "Android"],
+        "applicationCategory": "Game",
+        "operatingSystem": "Web, Windows, macOS, Linux, Android",
+        "url": "https://lfarroco.github.io/mana-game/",
+        "image": "https://lfarroco.github.io/mana-game/assets/og.jpg",
+        "playMode": ["SinglePlayer", "MultiPlayer"],
+        "sameAs": [
+          "https://github.com/lfarroco/mana-game",
+          "https://lfarroco.itch.io/mana-battle",
+          "https://store.steampowered.com/app/3757600/Mana_Battle",
+          "https://www.youtube.com/@manabattle",
+          "https://x.com/manabattle_en"
+        ],
+        "trailer": {
+          "@type": "VideoObject",
+          "name": "Mana Battle Trailer",
+          "embedUrl": "https://www.youtube-nocookie.com/embed/hZuXwScJUK0",
+          "thumbnailUrl": "https://i.ytimg.com/vi/hZuXwScJUK0/maxresdefault.jpg"
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="brand" href="#top" aria-label="Mana Battle home">
+          <img
+            class="brand-icon"
+            src="./assets/icon.png"
+            alt=""
+            width="36"
+            height="36"
+          />
+          <span>Mana Battle</span>
+        </a>
+
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#screenshots">Screenshots</a>
+          <a href="#trailer">Trailer</a>
+          <a href="#play">Play</a>
+        </nav>
+
+        <div class="nav-actions">
+          <a
+            class="icon-link"
+            href="https://github.com/lfarroco/mana-game"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Mana Battle on GitHub"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.4.7-4.1-1.4-4.1-1.4-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.8.1-.8 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.6-1.3-5.6-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.3 11.3 0 0 1 6 0C17.4 3.8 18.4 4.1 18.4 4.1c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.9 5.6-5.6 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"
+              />
+            </svg>
+          </a>
+          <a
+            class="btn btn-small btn-primary"
+            href="https://lfarroco.itch.io/mana-battle"
+            >Play free</a
+          >
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <span class="pulse-dot" aria-hidden="true"></span> Free to play ·
+            Open source · PvP &amp; PvE
+          </p>
+
+          <h1 id="hero-title">
+            <img
+              class="hero-logo"
+              src="./assets/logo.png"
+              alt="Mana Battle"
+              width="1200"
+              height="608"
+            />
+          </h1>
+
+          <p class="hero-tagline">
+            Build a 3×3 team. Forge the reactions. Shatter the enemy crystal.
+          </p>
+          <p class="hero-sub">
+            Mana Battle is a trigger-based autobattler where every hero is a cog
+            in your machine. Draft units, stack effects, and let your build
+            fight for you.
+          </p>
+
+          <div class="hero-actions">
+            <a
+              class="btn btn-primary"
+              href="https://lfarroco.itch.io/mana-battle"
+            >
+              Play free on itch.io
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M5 12h14m-6-6 6 6-6 6"
+                />
+              </svg>
+            </a>
+            <a
+              class="btn btn-secondary"
+              href="https://store.steampowered.com/app/3757600/Mana_Battle"
+            >
+              Get it on Steam
+            </a>
+          </div>
+
+          <ul class="platform-list" aria-label="Available platforms">
+            <li>Web</li>
+            <li>Windows</li>
+            <li>macOS</li>
+            <li>Linux</li>
+            <li>Android</li>
+          </ul>
+        </div>
+
+        <figure class="hero-media">
+          <div class="frame">
+            <img
+              src="./assets/screenshot-beams.jpg"
+              alt="Two Mana Battle teams trading beams, buffs, and status effects across a 3×3 board."
+              width="1600"
+              height="884"
+              fetchpriority="high"
+            />
+          </div>
+          <figcaption>
+            A late-run board mid-combo. Every number is doing something.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="features" aria-labelledby="features-title">
+        <header class="section-head">
+          <p class="kicker">The game</p>
+          <h2 id="features-title">A tiny board. Absurd depth.</h2>
+          <p>
+            Three rows, three columns, and a crystal to protect. The rules are
+            simple. The buildcraft is not.
+          </p>
+        </header>
+
+        <div class="feature-grid">
+          <article class="feature">
+            <div class="feature-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="8.5" />
+                <path d="M12 7.5V12l3 2" />
+              </svg>
+            </div>
+            <h3>Every unit is a clock</h3>
+            <p>
+              Cooldowns tick in real time, not turns. Haste, slow, charge, and
+              refresh turn timing into your sharpest stat.
+            </p>
+          </article>
+
+          <article class="feature">
+            <div class="feature-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M13 2 4.5 13h6L11 22l8.5-11h-6L13 2Z" />
+              </svg>
+            </div>
+            <h3>Reactions on reactions</h3>
+            <p>
+              Every effect can trigger a reaction. Stack poison, shields,
+              bursts, and on-hit payoffs until the whole board snowballs.
+            </p>
+          </article>
+
+          <article class="feature">
+            <div class="feature-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m12 2 7 5v10l-7 5-7-5V7l7-5Z" />
+                <path d="m12 2 7 5-7 5-7-5 7-5Zm0 10v10" />
+              </svg>
+            </div>
+            <h3>A run with teeth</h3>
+            <p>
+              Pick encounters, recruit heroes, forge orbs, and promote units.
+              Every choice compounds — and every lost life hurts.
+            </p>
+          </article>
+
+          <article class="feature">
+            <div class="feature-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="8.5" />
+                <path
+                  d="M3.5 12h17M12 3.5c2.4 2.3 3.6 5.2 3.6 8.5S14.4 18.2 12 20.5c-2.4-2.3-3.6-5.2-3.6-8.5S9.6 5.8 12 3.5Z"
+                />
+              </svg>
+            </div>
+            <h3>Take it online</h3>
+            <p>
+              Fight other players, rematch their ghosts, climb the rating
+              ladder, or push a build through PvE and Endless mode.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section"
+        id="screenshots"
+        aria-labelledby="screenshots-title"
+      >
+        <header class="section-head">
+          <p class="kicker">Screenshots</p>
+          <h2 id="screenshots-title">See it in motion.</h2>
+          <p>
+            Every fight is a light show. Click any screenshot to enlarge it.
+          </p>
+        </header>
+
+        <div class="gallery">
+          <button
+            class="shot shot-wide"
+            type="button"
+            data-full="./assets/screenshot-combat.jpg"
+            data-caption="Late-run combos light up the board"
+          >
+            <img
+              src="./assets/screenshot-combat.jpg"
+              alt="A Mana Battle board lit up by late-run beam and status effects."
+              width="1600"
+              height="884"
+              loading="lazy"
+            />
+            <span class="shot-label">Late-run combos light up the board</span>
+          </button>
+
+          <button
+            class="shot"
+            type="button"
+            data-full="./assets/screenshot-beams.jpg"
+            data-caption="Positioning turns beams into board-wide pressure"
+          >
+            <img
+              src="./assets/screenshot-beams.jpg"
+              alt="Player and enemy teams connected by beam attacks during a Mana Battle fight."
+              width="1600"
+              height="884"
+              loading="lazy"
+            />
+            <span class="shot-label"
+              >Positioning turns beams into board-wide pressure</span
+            >
+          </button>
+
+          <button
+            class="shot"
+            type="button"
+            data-full="./assets/screenshot-upgrades.jpg"
+            data-caption="Choose an upgrade after every win"
+          >
+            <img
+              src="./assets/screenshot-upgrades.jpg"
+              alt="The upgrade screen offering crystal upgrades such as add random reaction and increase max life."
+              width="1600"
+              height="884"
+              loading="lazy"
+            />
+            <span class="shot-label">Choose an upgrade after every win</span>
+          </button>
+
+          <button
+            class="shot"
+            type="button"
+            data-full="./assets/screenshot-units.jpg"
+            data-caption="Read the cooldown. Read the reaction."
+          >
+            <img
+              src="./assets/screenshot-units.jpg"
+              alt="Unit tooltips listing cooldowns, damage, haste, and slow effects in Mana Battle."
+              width="1600"
+              height="884"
+              loading="lazy"
+            />
+            <span class="shot-label"
+              >Read the cooldown. Read the reaction.</span
+            >
+          </button>
+
+          <button
+            class="shot"
+            type="button"
+            data-full="./assets/screenshot-board.jpg"
+            data-caption="Build a board that beats the enemy's"
+          >
+            <img
+              src="./assets/screenshot-board.jpg"
+              alt="A full Mana Battle 3×3 board with both teams ready for the next fight."
+              width="1600"
+              height="884"
+              loading="lazy"
+            />
+            <span class="shot-label">Build a board that beats the enemy's</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="section" id="trailer" aria-labelledby="trailer-title">
+        <div class="trailer-card">
+          <div class="trailer-copy">
+            <p class="kicker">Trailer</p>
+            <h2 id="trailer-title">See a run come together.</h2>
+            <p>
+              A quick look at the board, the builds, and the kind of numbers a
+              good run produces.
+            </p>
+            <a
+              class="text-link"
+              href="https://www.youtube.com/watch?v=hZuXwScJUK0"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Watch on YouTube
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M7 17 17 7M8 7h9v9"
+                />
+              </svg>
+            </a>
+          </div>
+
+          <div class="video-frame video-facade" data-video-id="hZuXwScJUK0">
+            <img
+              src="./assets/screenshot-combat.jpg"
+              alt="Mana Battle gameplay with beams, status effects, and a full board."
+              width="1600"
+              height="884"
+              loading="lazy"
+            />
+            <button
+              class="video-play"
+              type="button"
+              aria-label="Play the Mana Battle trailer"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M8 5.2v13.6L19.5 12 8 5.2Z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="play" aria-labelledby="play-title">
+        <header class="section-head">
+          <p class="kicker">Play</p>
+          <h2 id="play-title">Free in your browser. Better with friends.</h2>
+          <p>
+            Start a run on itch.io in seconds, or grab the Steam version for
+            achievements, cloud saves, and desktop builds.
+          </p>
+        </header>
+
+        <div class="play-grid">
+          <article class="play-card">
+            <img
+              class="play-cover"
+              src="./assets/screenshot-combat.jpg"
+              alt="A Mana Battle board mid-combo, with beams and status effects across both teams."
+              width="1600"
+              height="884"
+              loading="lazy"
+            />
+            <div class="play-copy">
+              <span class="tag">Free · Web</span>
+              <h3>Play on itch.io</h3>
+              <p>
+                No download, no install — jump straight into a run in your
+                browser.
+              </p>
+              <a
+                class="btn btn-primary"
+                href="https://lfarroco.itch.io/mana-battle"
+              >
+                Play free
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M5 12h14m-6-6 6 6-6 6"
+                  />
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <article class="play-card play-card-steam">
+            <a
+              class="steam-banner"
+              href="https://store.steampowered.com/app/3757600/Mana_Battle"
+              aria-label="Mana Battle on Steam"
+            >
+              <img
+                src="./assets/steam-capsule.jpg"
+                alt="Mana Battle Steam capsule art with the game logo on a purple pixel background."
+                width="1200"
+                height="688"
+                loading="lazy"
+              />
+            </a>
+            <div class="play-copy">
+              <span class="tag">Steam</span>
+              <h3>Desktop + achievements</h3>
+              <p>
+                Windows, macOS, and Linux. Includes Steam achievements and cloud
+                saves.
+              </p>
+              <a
+                class="btn btn-secondary"
+                href="https://store.steampowered.com/app/3757600/Mana_Battle"
+              >
+                View on Steam
+              </a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="open-source" aria-labelledby="oss-title">
+        <div class="oss-card">
+          <div class="oss-copy">
+            <p class="kicker">Open source</p>
+            <h2 id="oss-title">Built in the open.</h2>
+            <p>
+              Mana Battle is MIT-licensed. The client, the pure game logic, and
+              the multiplayer server all live in one repository — read it, fork
+              it, or send a pull request.
+            </p>
+            <ul class="tech-chips" aria-label="Technology stack">
+              <li>Phaser 3</li>
+              <li>TypeScript</li>
+              <li>Node.js</li>
+              <li>Firebase</li>
+              <li>Electron</li>
+              <li>Capacitor</li>
+            </ul>
+          </div>
+
+          <div class="oss-actions">
+            <a
+              class="btn btn-primary"
+              href="https://github.com/lfarroco/mana-game"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.4.7-4.1-1.4-4.1-1.4-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.8.1-.8 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.6-1.3-5.6-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.3 11.3 0 0 1 6 0C17.4 3.8 18.4 4.1 18.4 4.1c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.9 5.6-5.6 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"
+                />
+              </svg>
+              Browse the source
+            </a>
+            <a
+              class="btn btn-secondary"
+              href="https://github.com/lfarroco/mana-game/blob/main/AGENTS.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Contributor guide
+            </a>
+            <a
+              class="text-link"
+              href="https://x.com/manabattle_en"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Follow updates on X
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M7 17 17 7M8 7h9v9"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-top">
+        <a class="brand" href="#top" aria-label="Back to top">
+          <img
+            class="brand-icon"
+            src="./assets/icon.png"
+            alt=""
+            width="32"
+            height="32"
+          />
+          <span>Mana Battle</span>
+        </a>
+
+        <nav class="footer-links" aria-label="Elsewhere">
+          <a
+            href="https://github.com/lfarroco/mana-game"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub</a
+          >
+          <a
+            href="https://lfarroco.itch.io/mana-battle"
+            target="_blank"
+            rel="noopener noreferrer"
+            >itch.io</a
+          >
+          <a
+            href="https://store.steampowered.com/app/3757600/Mana_Battle"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Steam</a
+          >
+          <a
+            href="https://www.youtube.com/@manabattle"
+            target="_blank"
+            rel="noopener noreferrer"
+            >YouTube</a
+          >
+          <a
+            href="https://x.com/manabattle_en"
+            target="_blank"
+            rel="noopener noreferrer"
+            >X</a
+          >
+        </nav>
+      </div>
+
+      <p class="footer-note">
+        © <span id="year">2026</span> Mana Battle Team · MIT licensed · Built
+        with Phaser 3
+      </p>
+    </footer>
+
+    <dialog class="lightbox" id="lightbox" aria-label="Screenshot viewer">
+      <button
+        class="lightbox-close"
+        type="button"
+        aria-label="Close screenshot viewer"
+      >
+        &times;
+      </button>
+      <figure>
+        <img id="lightbox-img" alt="" />
+        <figcaption id="lightbox-caption"></figcaption>
+      </figure>
+    </dialog>
+  </body>
+</html>

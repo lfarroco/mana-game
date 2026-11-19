@@ -6,6 +6,8 @@ The [Steam](https://store.steampowered.com/app/3757600/Mana_Battle) version offe
 
 A trigger-based autobattler in a 3x3 board. This repository is open source (MIT) — see [Contributing](#contributing) to run it locally or hack on it.
 
+The project landing page lives in [`website/`](website/) and is published with GitHub Pages at <https://lfarroco.github.io/mana-game/>. It is a dependency-free static site (no build step) — see [website/README.md](website/README.md) for local preview and deployment details.
+
 ## Quick Start
 
 ```bash
