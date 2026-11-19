@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mana Battle — a trigger-based 3×3 autobattler</title>
+    <title>Mana Battle — a no pay-to-win PvE and PvP autobattler</title>
     <meta
       name="description"
-      content="Mana Battle is an open-source autobattler played on a 3×3 board. Recruit units, chain their reactions, and break the enemy crystal. Wishlist on Steam or play free in your browser."
+      content="Mana Battle is a no pay-to-win autobattler for PvE and async PvP. Fight the CPU in Infinite mode, climb the ladder, and prove your skill on a 3×3 board."
     />
     <meta name="theme-color" content="#0b0814" />
     <link rel="canonical" href="https://lfarroco.github.io/mana-game/" />
@@ -15,11 +15,11 @@
     <meta property="og:site_name" content="Mana Battle" />
     <meta
       property="og:title"
-      content="Mana Battle — a trigger-based 3×3 autobattler"
+      content="Mana Battle — a no pay-to-win PvE and PvP autobattler"
     />
     <meta
       property="og:description"
-      content="Recruit units, chain their reactions, and break the enemy crystal. Wishlist on Steam, or try it for free in your browser."
+      content="No pay-to-win. Fight the CPU in Infinite mode, climb the async PvP ladder, or try it for free in your browser."
     />
     <meta property="og:url" content="https://lfarroco.github.io/mana-game/" />
     <meta
@@ -35,11 +35,11 @@
     <meta name="twitter:site" content="@manabattle_en" />
     <meta
       name="twitter:title"
-      content="Mana Battle — a trigger-based 3×3 autobattler"
+      content="Mana Battle — a no pay-to-win PvE and PvP autobattler"
     />
     <meta
       name="twitter:description"
-      content="Recruit units, chain their reactions, and break the enemy crystal. Wishlist on Steam, or try it for free in your browser."
+      content="No pay-to-win. Fight the CPU in Infinite mode, climb the async PvP ladder, or try it for free in your browser."
     />
     <meta
       name="twitter:image"
@@ -72,7 +72,7 @@
         "@context": "https://schema.org",
         "@type": "VideoGame",
         "name": "Mana Battle",
-        "description": "A trigger-based autobattler played on a 3×3 board. Recruit units, chain their reactions, and break the enemy crystal while keeping yours alive.",
+        "description": "A no pay-to-win autobattler played on a 3×3 board, with PvE runs against the CPU and an async PvP ladder against other players' builds.",
         "genre": ["Autobattler", "Strategy", "Roguelite"],
         "gamePlatform": ["Web browser", "Windows", "macOS", "Linux", "Android"],
         "applicationCategory": "Game",
@@ -188,8 +188,8 @@
       <section class="hero" id="top" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="eyebrow">
-            <span class="pulse-dot" aria-hidden="true"></span> Free in the
-            browser · Open source · PvP and PvE
+            <span class="pulse-dot" aria-hidden="true"></span> No pay-to-win ·
+            Free in the browser · Open source
           </p>
 
           <h1 id="hero-title">
@@ -209,14 +209,14 @@
           </h1>
 
           <p class="hero-tagline">
-            Recruit a team, chain their reactions, and break the enemy crystal.
+            Prove your skill.<br />No pay-to-win.
           </p>
           <p class="hero-sub">
-            Mana Battle is an autobattler played on a 3×3 board. Units can't hurt
-            each other, so all the damage lands on the enemy crystal and the
-            fight becomes a race between two piles of cooldowns. Most fights
-            come down to which reactions fire and where each unit is standing
-            when they do.
+            Mana Battle is a PvE and PvP autobattler played on a 3×3 board. Clear
+            a run against the CPU and keep going in Infinite mode, or fight
+            teams other players have already built and climb the async ladder.
+            Every unit unlocks by playing, so the only edge is your build and
+            your timing.
           </p>
 
           <div class="hero-actions">
@@ -274,15 +274,83 @@
       <section class="section" id="features" aria-labelledby="features-title">
         <header class="section-head">
           <p class="kicker">The game</p>
-          <h2 id="features-title">A small board that doesn't stay small.</h2>
+          <h2 id="features-title">Skill decides every fight.</h2>
           <p>
-            A 3×3 board for each side, with your crystal in the middle of it.
-            That's the whole battlefield, and every choice you make in a run
-            shows up on it.
+            A 3×3 board for each side, with your crystal in the middle of it. No
+            purchase changes what happens on that board, so all that separates
+            two players is the build they bring and the calls they make.
           </p>
         </header>
 
         <div class="feature-grid">
+          <article class="feature">
+            <div class="feature-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M12 3 5.5 5.8v5.4c0 4.3 2.8 8.1 6.5 9.3 3.7-1.2 6.5-5 6.5-9.3V5.8L12 3Z"
+                />
+                <path d="m9 11.8 2.1 2.2 4-4.2" />
+              </svg>
+            </div>
+            <h3>No pay-to-win</h3>
+            <p>
+              No microtransactions, no boosters, no paid shortcuts. Every unit
+              unlocks by playing, and the same team gives every player the same
+              numbers.
+            </p>
+          </article>
+
+          <article class="feature">
+            <div class="feature-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M18.2 8.3c1.6 0 3 1.6 3 3.7s-1.4 3.7-3 3.7c-2.5 0-4.2-3.7-6.2-3.7S8.3 15.7 5.8 15.7c-1.6 0-3-1.6-3-3.7s1.4-3.7 3-3.7c2.5 0 4.2 3.7 6.2 3.7s3.7-3.7 6.2-3.7Z"
+                />
+              </svg>
+            </div>
+            <h3>Infinite mode keeps going</h3>
+            <p>
+              Clear a run and the CPU keeps coming. Infinite mode stacks better
+              enemy boards until one finally stops you; how deep you get is the
+              score.
+            </p>
+          </article>
+
+          <article class="feature">
+            <div class="feature-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m3 17 6-6 4 4 8-8" />
+                <path d="M17 7h4v4" />
+              </svg>
+            </div>
+            <h3>Climb the async ladder</h3>
+            <p>
+              Your team is saved as a ghost and fought by other players while
+              you're offline. Fight theirs back, win, and your rating climbs.
+            </p>
+          </article>
+
           <article class="feature">
             <div class="feature-icon" aria-hidden="true">
               <svg
@@ -345,29 +413,6 @@
               Encounter picks, recruits, orbs and promotions all carry over
               between fights. Enough of the good ones and a run reaches a Gold
               Victory; skip the wrong ones and you'll feel it in round 12.
-            </p>
-          </article>
-
-          <article class="feature">
-            <div class="feature-icon" aria-hidden="true">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <circle cx="12" cy="12" r="8.5" />
-                <path
-                  d="M3.5 12h17M12 3.5c2.4 2.3 3.6 5.2 3.6 8.5S14.4 18.2 12 20.5c-2.4-2.3-3.6-5.2-3.6-8.5S9.6 5.8 12 3.5Z"
-                />
-              </svg>
-            </div>
-            <h3>Take it online</h3>
-            <p>
-              Fight teams other players have already built, climb the rating
-              ladder, or stay in PvE and see how deep Infinite mode goes.
             </p>
           </article>
         </div>
