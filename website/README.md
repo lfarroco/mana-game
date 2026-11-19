@@ -40,10 +40,12 @@ source files:
 | Site asset                              | Source                                       |
 | --------------------------------------- | -------------------------------------------- |
 | `assets/logo.png`                       | `art/steam/logo_solo.png` (transparent logo) |
+| `assets/logo.webp`                      | `assets/logo.png` re-encoded (see below)     |
 | `assets/icon.png`, `assets/favicon.png` | `art/steam/community_icon.png`               |
 | `assets/background.jpg`                 | `art/android/bg.png`                         |
 | `assets/og.jpg`                         | `art/steam/header_capsule.png`               |
 | `assets/steam-capsule.jpg`              | `art/steam/main_capsule.png`                 |
+| `assets/trailer-thumb.jpg`              | YouTube thumbnail for `hZuXwScJUK0`          |
 | `assets/screenshot-*.jpg`               | `art/marketing/screenshots/*`                |
 
 Screenshots were resized to 1600px and re-encoded as JPEG (~82 quality) with
@@ -55,11 +57,19 @@ sips -Z 1600 -s format jpeg -s formatOptions 82 \
   --out website/assets/<name>.jpg
 ```
 
+The hero logo is served as WebP (66 KB instead of 279 KB) with the PNG as the
+fallback in a `<picture>`. Regenerate it after changing `logo.png`:
+
+```bash
+cwebp -q 90 -alpha_q 100 website/assets/logo.png -o website/assets/logo.webp
+```
+
 ## Editing
 
 - `index.html` — copy, sections, metadata, and links.
 - `styles.css` — palette, layout, and responsive rules.
-- `main.js` — screenshot lightbox, click-to-load trailer, footer year.
+- `main.js` — screenshot lightbox, click-to-load trailer, mobile menu, footer
+  year.
 
 Store links:
 

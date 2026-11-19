@@ -55,6 +55,43 @@
     });
   }
 
+  const navToggle = document.querySelector(".nav-toggle");
+  const nav = document.getElementById("primary-nav");
+
+  if (navToggle && nav) {
+    const setMenuOpen = (open) => {
+      navToggle.setAttribute("aria-expanded", String(open));
+      navToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      nav.classList.toggle("is-open", open);
+    };
+
+    navToggle.addEventListener("click", () => {
+      setMenuOpen(navToggle.getAttribute("aria-expanded") !== "true");
+    });
+
+    // A link scrolls to a section, so the panel has done its job.
+    nav.addEventListener("click", (event) => {
+      if (event.target.closest("a")) setMenuOpen(false);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!nav.contains(event.target) && !navToggle.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    });
+
+    // Rotating a phone or resizing past the breakpoint restores the inline nav.
+    window
+      .matchMedia("(min-width: 761px)")
+      .addEventListener("change", (event) => {
+        if (event.matches) setMenuOpen(false);
+      });
+  }
+
   const year = document.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());
 })();

@@ -252,6 +252,46 @@ a:hover {
   background: rgba(255, 255, 255, 0.07);
 }
 
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.nav-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.nav-toggle:hover {
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-toggle .nav-toggle-close {
+  display: none;
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-open {
+  display: none;
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-close {
+  display: block;
+}
+
 /* ------------------------------------------------------------
    Buttons
    ------------------------------------------------------------ */
@@ -270,6 +310,7 @@ a:hover {
   font-weight: 800;
   line-height: 1;
   text-align: center;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     transform 160ms ease,
@@ -1092,14 +1133,54 @@ a:hover {
   .site-header-inner {
     width: min(100% - 28px, var(--max));
     min-height: 62px;
+    gap: 12px;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  /* The GitHub icon lives in the footer; dropping it keeps the header to
+     three touch targets on phones. */
+  .icon-link {
+    display: none;
   }
 
   .nav-links {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
     display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    margin: 0;
+    padding: 8px 14px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    /* Solid, not a backdrop blur: a filtered backdrop nested inside the
+       filtered, sticky header renders translucently in Blink. */
+    background: #0b0814;
+    box-shadow: 0 22px 44px rgba(0, 0, 0, 0.55);
+  }
+
+  .nav-links.is-open {
+    display: flex;
+  }
+
+  .nav-links a {
+    padding: 12px 14px;
+    border-radius: 9px;
+    font-size: 0.98rem;
+  }
+
+  .nav-links a:hover {
+    background: rgba(255, 255, 255, 0.06);
   }
 
   .nav-actions {
     margin-left: auto;
+    gap: 10px;
   }
 
   .hero,
@@ -1173,6 +1254,14 @@ a:hover {
 
   .footer-links {
     gap: 8px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  /* Below this the wordmark, CTA and menu button don't fit side by side.
+     The icon keeps the home link; the hero logo carries the name. */
+  .brand span {
+    display: none;
   }
 }
 
